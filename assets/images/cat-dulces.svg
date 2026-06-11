@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- PLACEHOLDER ilustrativo — Reemplazar por una foto real de la categoría
+     (ej. cat-dulces.jpg) manteniendo el nombre o actualizando el src en index.html. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="520" viewBox="0 0 800 520">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F9E9E4"/>
+      <stop offset="1" stop-color="#F1D5CA"/>
+    </linearGradient>
+    <pattern id="dots" width="26" height="26" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.8" fill="#B5563B" opacity="0.09"/>
+    </pattern>
+    <g id="pouch">
+      <rect x="-66" y="-105" width="132" height="210" rx="16" fill="currentColor"/>
+      <path d="M30 -105 H50 A16 16 0 0 1 66 -89 V89 A16 16 0 0 1 50 105 H30 Z" fill="#26201D" opacity="0.10"/>
+      <path d="M-66 -80 V-89 A16 16 0 0 1 -50 -105 H50 A16 16 0 0 1 66 -89 V-80 Z" fill="#FFFFFF" opacity="0.25"/>
+      <line x1="-58" y1="-80" x2="58" y2="-80" stroke="#FFFFFF" stroke-width="1.6" stroke-dasharray="2 6" opacity="0.55" stroke-linecap="round"/>
+      <path d="M-34 -105 H-12 C-26 -40 -26 40 -12 105 H-34 C-48 40 -48 -40 -34 -105 Z" fill="#FFFFFF" opacity="0.10"/>
+      <rect x="-42" y="-36" width="84" height="84" rx="14" fill="#FFFFFF" opacity="0.95"/>
+      <path d="M0 -18 C8 -8 15 1 15 10 A15 15 0 1 1 -15 10 C-15 1 -8 -8 0 -18 Z" fill="currentColor" transform="translate(0 4)"/>
+      <rect x="-46" y="84" width="92" height="7" rx="3.5" fill="#26201D" opacity="0.10"/>
+    </g>
+  </defs>
+
+  <rect width="800" height="520" fill="url(#bg)"/>
+  <rect width="800" height="520" fill="url(#dots)"/>
+  <circle cx="400" cy="248" r="180" fill="#FFFFFF" opacity="0.55"/>
+
+  <!-- Sombras -->
+  <ellipse cx="298" cy="356" rx="68" ry="12" fill="#26201D" opacity="0.09"/>
+  <ellipse cx="448" cy="392" rx="110" ry="15" fill="#26201D" opacity="0.10"/>
+
+  <!-- Sachet de miel detrás -->
+  <use href="#pouch" transform="translate(298 240) rotate(-12) scale(0.74)" color="#E0A437"/>
+
+  <!-- Pote individual de mermelada -->
+  <g transform="translate(448 272)">
+    <path d="M-80 -28 H80 L66 86 Q64 100 50 100 H-50 Q-64 100 -66 86 Z" fill="#FFFFFF"/>
+    <path d="M-80 -28 H80 L66 86 Q64 100 50 100 H-50 Q-64 100 -66 86 Z" fill="none" stroke="#26201D" opacity="0.08" stroke-width="2"/>
+    <rect x="-64" y="8" width="128" height="50" rx="10" fill="#B5563B"/>
+    <circle cx="-22" cy="33" r="9" fill="#FFFFFF" opacity="0.85"/>
+    <circle cx="2" cy="26" r="7" fill="#FFFFFF" opacity="0.7"/>
+    <circle cx="22" cy="36" r="8" fill="#FFFFFF" opacity="0.8"/>
+    <!-- Tapa de foil con pestaña -->
+    <rect x="-92" y="-50" width="184" height="26" rx="12" fill="#D8836C"/>
+    <rect x="-92" y="-50" width="184" height="12" rx="6" fill="#FFFFFF" opacity="0.25"/>
+    <ellipse cx="96" cy="-37" rx="13" ry="9" fill="#D8836C"/>
+  </g>
+
+  <!-- Frutos decorativos -->
+  <circle cx="236" cy="362" r="9" fill="#B5563B" opacity="0.5"/>
+  <circle cx="256" cy="376" r="6" fill="#B5563B" opacity="0.35"/>
+  <circle cx="572" cy="196" r="8" fill="#B5563B" opacity="0.4"/>
+</svg>

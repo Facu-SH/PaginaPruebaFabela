@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- PLACEHOLDER ilustrativo — Reemplazar por una foto real de la categoría
+     (ej. cat-salsas.jpg) manteniendo el nombre o actualizando el src en index.html. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="520" viewBox="0 0 800 520">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FBEAE6"/>
+      <stop offset="1" stop-color="#F5D8CF"/>
+    </linearGradient>
+    <pattern id="dots" width="26" height="26" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.8" fill="#C13A2A" opacity="0.08"/>
+    </pattern>
+    <!-- Sachet genérico: el color del cuerpo se define con el atributo color del <use> -->
+    <g id="pouch">
+      <rect x="-66" y="-105" width="132" height="210" rx="16" fill="currentColor"/>
+      <path d="M30 -105 H50 A16 16 0 0 1 66 -89 V89 A16 16 0 0 1 50 105 H30 Z" fill="#26201D" opacity="0.10"/>
+      <path d="M-66 -80 V-89 A16 16 0 0 1 -50 -105 H50 A16 16 0 0 1 66 -89 V-80 Z" fill="#FFFFFF" opacity="0.25"/>
+      <line x1="-58" y1="-80" x2="58" y2="-80" stroke="#FFFFFF" stroke-width="1.6" stroke-dasharray="2 6" opacity="0.55" stroke-linecap="round"/>
+      <path d="M-34 -105 H-12 C-26 -40 -26 40 -12 105 H-34 C-48 40 -48 -40 -34 -105 Z" fill="#FFFFFF" opacity="0.10"/>
+      <rect x="-42" y="-36" width="84" height="84" rx="14" fill="#FFFFFF" opacity="0.95"/>
+      <path d="M0 -18 C8 -8 15 1 15 10 A15 15 0 1 1 -15 10 C-15 1 -8 -8 0 -18 Z" fill="currentColor" transform="translate(0 4)"/>
+      <rect x="-46" y="84" width="92" height="7" rx="3.5" fill="#26201D" opacity="0.10"/>
+    </g>
+  </defs>
+
+  <rect width="800" height="520" fill="url(#bg)"/>
+  <rect width="800" height="520" fill="url(#dots)"/>
+  <circle cx="400" cy="248" r="180" fill="#FFFFFF" opacity="0.55"/>
+
+  <!-- Sombras -->
+  <ellipse cx="330" cy="382" rx="92" ry="14" fill="#26201D" opacity="0.10"/>
+  <ellipse cx="465" cy="392" rx="92" ry="14" fill="#26201D" opacity="0.10"/>
+
+  <!-- Sachets de salsa -->
+  <use href="#pouch" transform="translate(326 252) rotate(-12) scale(0.92)" color="#D9604E"/>
+  <use href="#pouch" transform="translate(458 260) rotate(9)" color="#C13A2A"/>
+
+  <!-- Gotas decorativas -->
+  <path d="M0 -12 C5 -6 9 0 9 5 A9 9 0 1 1 -9 5 C-9 0 -5 -6 0 -12 Z" transform="translate(232 332)" fill="#C13A2A" opacity="0.45"/>
+  <path d="M0 -12 C5 -6 9 0 9 5 A9 9 0 1 1 -9 5 C-9 0 -5 -6 0 -12 Z" transform="translate(575 200) scale(0.8)" fill="#C13A2A" opacity="0.35"/>
+  <path d="M0 -12 C5 -6 9 0 9 5 A9 9 0 1 1 -9 5 C-9 0 -5 -6 0 -12 Z" transform="translate(250 158) scale(0.65)" fill="#D9604E" opacity="0.4"/>
+</svg>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  PLACEHOLDER DE LOGO — Reemplazar este archivo por el logo real de DPI
+  manteniendo el mismo nombre (logo-dpi.svg) o actualizando los <img src>
+  en index.html. Formatos recomendados: SVG o PNG con fondo transparente.
+
+  El isotipo provisional es la silueta de un sachet (borde troquelado arriba),
+  en alusión directa al negocio de porciones individuales.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="248" height="64" viewBox="0 0 248 64" role="img" aria-label="DPI — Productos Individuales SRL">
+  <!-- Isotipo: sachet con troquel -->
+  <path d="M4 16 L10 7 L16 14 L22 7 L28 14 L34 7 L40 14 L46 7 L52 16 V44 Q52 58 38 58 H18 Q4 58 4 44 Z" fill="#C13A2A"/>
+  <line x1="10" y1="21" x2="46" y2="21" stroke="#FFFFFF" stroke-width="1.4" stroke-dasharray="2 4" opacity="0.55" stroke-linecap="round"/>
+  <text x="28" y="48" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="800" fill="#FFFFFF" letter-spacing="0.5">DPI</text>
+  <!-- Wordmark -->
+  <text x="64" y="30" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" fill="#26201D" letter-spacing="0.2">Productos</text>
+  <text x="64" y="49" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" fill="#C13A2A" letter-spacing="0.2">Individuales <tspan dx="3" font-size="11" font-weight="600" fill="#9C8F89">SRL</tspan></text>
+</svg>

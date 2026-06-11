@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- PLACEHOLDER ilustrativo — Reemplazar por una foto real de la categoría
+     (ej. cat-galletitas.jpg) manteniendo el nombre o actualizando el src en index.html. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="520" viewBox="0 0 800 520">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F7EFE4"/>
+      <stop offset="1" stop-color="#ECDDC2"/>
+    </linearGradient>
+    <pattern id="dots" width="26" height="26" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.8" fill="#A8763E" opacity="0.10"/>
+    </pattern>
+    <g id="cookie">
+      <circle r="54" fill="#D8A45E"/>
+      <circle r="54" fill="none" stroke="#26201D" opacity="0.08" stroke-width="2"/>
+      <circle r="44" fill="#FFFFFF" opacity="0.10"/>
+      <circle cx="-18" cy="-14" r="7" fill="#5C3A1E"/>
+      <circle cx="14" cy="-22" r="6" fill="#5C3A1E"/>
+      <circle cx="24" cy="12" r="7" fill="#5C3A1E"/>
+      <circle cx="-8" cy="20" r="6" fill="#5C3A1E"/>
+      <circle cx="-28" cy="14" r="5" fill="#5C3A1E"/>
+      <circle cx="4" cy="-2" r="5" fill="#5C3A1E"/>
+    </g>
+  </defs>
+
+  <rect width="800" height="520" fill="url(#bg)"/>
+  <rect width="800" height="520" fill="url(#dots)"/>
+  <circle cx="400" cy="248" r="180" fill="#FFFFFF" opacity="0.55"/>
+
+  <!-- Sombras -->
+  <ellipse cx="430" cy="346" rx="150" ry="15" fill="#26201D" opacity="0.10"/>
+  <ellipse cx="282" cy="398" rx="64" ry="11" fill="#26201D" opacity="0.10"/>
+
+  <!-- Pack flow-pack sellado -->
+  <g transform="translate(430 232)">
+    <!-- Crimps laterales -->
+    <path d="M-118 -48 L-146 -34 L-120 -24 Z M-118 -10 L-148 2 L-120 12 Z M-118 26 L-146 38 L-120 48 Z" fill="#F1E4D0"/>
+    <path d="M118 -48 L146 -34 L120 -24 Z M118 -10 L148 2 L120 12 Z M118 26 L146 38 L120 48 Z" fill="#F1E4D0"/>
+    <!-- Cuerpo -->
+    <rect x="-120" y="-62" width="240" height="124" rx="16" fill="#FFFFFF"/>
+    <rect x="-120" y="-62" width="240" height="124" rx="16" fill="none" stroke="#26201D" opacity="0.08" stroke-width="2"/>
+    <path d="M-120 -34 H120" stroke="#26201D" opacity="0.06" stroke-width="2" stroke-dasharray="3 7"/>
+    <!-- Ventana con galletita -->
+    <circle cx="0" cy="2" r="44" fill="#F3E3CC"/>
+    <g transform="translate(0 2) scale(0.66)">
+      <use href="#cookie"/>
+    </g>
+    <rect x="-96" y="38" width="64" height="9" rx="4.5" fill="#A8763E" opacity="0.35"/>
+    <rect x="40" y="38" width="50" height="9" rx="4.5" fill="#A8763E" opacity="0.2"/>
+  </g>
+
+  <!-- Galletitas sueltas -->
+  <g transform="translate(282 348)">
+    <use href="#cookie"/>
+  </g>
+  <g transform="translate(564 332) scale(0.7)">
+    <use href="#cookie"/>
+  </g>
+</svg>
