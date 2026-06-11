@@ -1,6 +1,34 @@
 /* DPI — Productos Individuales SRL
    JS sin dependencias: menú mobile, estado del header, resaltado de sección
-   activa, animaciones de aparición, formulario por mailto y año del footer. */
+   activa, animaciones de aparición, CTA de lista de precios, WhatsApp,
+   aviso del formulario (Formspree) y año del footer.
+
+   ============================================================
+   CONFIGURACIÓN EDITABLE — editar solo este bloque
+   ============================================================ */
+
+/* LISTA DE PRECIOS
+   Pegar acá la URL pública del PDF mensual o de la carpeta de Google Drive
+   (ej.: "https://drive.google.com/drive/folders/XXXX").
+   - Con URL cargada: los botones pasan a decir "Ver lista de precios
+     actualizada" y abren el link en una pestaña nueva.
+   - Sin URL (valor ""): los botones dicen "Solicitar lista de precios"
+     y llevan al formulario de contacto. */
+var PRICE_LIST_URL = "";
+
+/* WHATSAPP
+   Reemplazar por el número real en formato internacional, sin "+",
+   espacios ni guiones (ej.: "5491155555555").
+   Mientras el número contenga "X", los botones de WhatsApp quedan ocultos. */
+var WHATSAPP_NUMBER = "54911XXXXXXXX";
+
+/* Mensaje prearmado que se abre en WhatsApp (editable). */
+var WHATSAPP_MESSAGE =
+  "Hola, quiero consultar por productos en porciones individuales para mi empresa.";
+
+/* ============================================================
+   FIN DE LA CONFIGURACIÓN — no hace falta editar debajo
+   ============================================================ */
 
 (function () {
   "use strict";
@@ -123,73 +151,65 @@
     }
   }
 
-  /* ---------- FORMULARIO ----------
-     Sin backend: arma un mailto: con los datos cargados y abre la aplicación
-     de correo del visitante. La casilla destino se lee del atributo
-     data-email del <form> (PENDIENTE: confirmar la dirección real).
-     Si se conecta Formspree u otro servicio (ver comentario en index.html),
-     eliminar este bloque para que el formulario haga POST normalmente. */
+  /* ---------- CTA DE LISTA DE PRECIOS ----------
+     Los botones con [data-price-list] cambian según PRICE_LIST_URL
+     (ver CONFIGURACIÓN EDITABLE al inicio del archivo). */
+  var priceLinks = document.querySelectorAll("[data-price-list]");
+
+  priceLinks.forEach(function (link) {
+    var label = link.querySelector("[data-price-list-label]");
+
+    if (PRICE_LIST_URL) {
+      link.href = PRICE_LIST_URL;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      if (label) label.textContent = "Ver lista de precios actualizada";
+    } else {
+      // Sin URL: el botón lleva al formulario y deja preseleccionado
+      // "Lista de precios" en el campo de productos de interés.
+      link.addEventListener("click", function () {
+        var interes = document.getElementById("field-interes");
+        if (interes) interes.value = "Lista de precios";
+      });
+    }
+  });
+
+  /* ---------- WHATSAPP ----------
+     Los botones con [data-whatsapp] permanecen ocultos hasta que
+     WHATSAPP_NUMBER tenga un número válido (solo dígitos). */
+  var whatsappReady = /^[0-9]{10,15}$/.test(WHATSAPP_NUMBER);
+
+  if (whatsappReady) {
+    var whatsappHref =
+      "https://wa.me/" +
+      WHATSAPP_NUMBER +
+      "?text=" +
+      encodeURIComponent(WHATSAPP_MESSAGE);
+
+    document.querySelectorAll("[data-whatsapp]").forEach(function (link) {
+      link.href = whatsappHref;
+      link.hidden = false;
+    });
+  }
+
+  /* ---------- FORMULARIO (Formspree) ----------
+     El formulario hace POST directo a Formspree con validación HTML nativa;
+     no necesita JavaScript. Este bloque solo evita envíos mientras el
+     action siga con el placeholder REEMPLAZAR_ENDPOINT y, en ese caso,
+     muestra los datos de contacto alternativos. Una vez configurado el
+     endpoint real, deja de intervenir automáticamente. */
   var form = document.getElementById("contact-form");
   var status = document.getElementById("form-status");
 
   if (form && status) {
-    var setInvalid = function (field, invalid) {
-      field.setAttribute("aria-invalid", invalid ? "true" : "false");
-    };
-
     form.addEventListener("submit", function (event) {
+      if (form.action.indexOf("REEMPLAZAR_ENDPOINT") === -1) return;
+
       event.preventDefault();
-
-      var nameField = form.elements.nombre;
-      var emailField = form.elements.email;
-      var phoneField = form.elements.telefono;
-      var messageField = form.elements.mensaje;
-
-      var name = nameField.value.trim();
-      var email = emailField.value.trim();
-      var phone = phoneField.value.trim();
-      var message = messageField.value.trim();
-
-      // Validación con mensajes propios (el form usa novalidate)
-      var firstInvalid = null;
-
-      setInvalid(nameField, !name);
-      if (!name) firstInvalid = firstInvalid || nameField;
-
-      var emailOk = email !== "" && emailField.checkValidity();
-      setInvalid(emailField, !emailOk);
-      if (!emailOk) firstInvalid = firstInvalid || emailField;
-
-      setInvalid(messageField, !message);
-      if (!message) firstInvalid = firstInvalid || messageField;
-
-      if (firstInvalid) {
-        status.textContent =
-          email && !emailOk
-            ? "Revise el email ingresado: no parece válido."
-            : "Por favor, complete los campos obligatorios.";
-        status.className = "form-status is-error";
-        firstInvalid.focus();
-        return;
-      }
-
-      var recipient = form.dataset.email;
-      var subject = "Consulta desde la web — " + name;
-      var body =
-        "Nombre / Empresa: " + name + "\n" +
-        "Email: " + email + "\n" +
-        (phone ? "Teléfono: " + phone + "\n" : "") +
-        "\nMensaje:\n" + message;
-
-      window.location.href =
-        "mailto:" + recipient +
-        "?subject=" + encodeURIComponent(subject) +
-        "&body=" + encodeURIComponent(body);
-
       status.textContent =
-        "Se abrirá su aplicación de correo con el mensaje listo. " +
-        "Si no se abre, escríbanos a " + recipient + ".";
-      status.className = "form-status is-success";
+        "El formulario todavía no está habilitado. " +
+        "Mientras tanto, llamanos al (011) 4730-4423 o escribinos a ventas@dpi-arg.com.ar.";
+      status.className = "form-status is-error";
     });
   }
 

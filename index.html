@@ -3,22 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DPI — Productos Individuales SRL | Alimentos en porciones individuales para empresas</title>
-  <meta name="description" content="Distribuidora argentina de alimentos en porciones individuales: salsas, condimentos, dulces y galletitas para catering, hotelería, clínicas, restaurantes y delivery. Florida, Buenos Aires.">
+
+  <!--
+    ============================================================
+    PLACEHOLDERS PENDIENTES EN ESTE ARCHIVO
+    Buscar "REEMPLAZAR" y "A CONFIRMAR" para encontrarlos todos.
+    - REEMPLAZAR-DOMINIO.com.ar  -> dominio definitivo del sitio
+    - REEMPLAZAR_ENDPOINT        -> endpoint del formulario Formspree
+    - assets/og-image.jpg        -> imagen para compartir (crear, 1200x630)
+    - Marcas, fotos de productos y foto del hero: ver comentarios
+      en cada seccion y assets/README.md
+    ============================================================
+  -->
+
+  <title>Distribuidora de alimentos en porciones individuales para empresas | DPI</title>
+  <meta name="description" content="Distribuidora de alimentos en porciones individuales: aderezos en sachet, condimentos, dulces y galletitas para catering, hotelería, clínicas, restaurantes y delivery. Florida, Buenos Aires.">
   <meta name="theme-color" content="#C13A2A">
+
+  <!-- REEMPLAZAR: cambiar https://REEMPLAZAR-DOMINIO.com.ar por el dominio definitivo (en todo el archivo) -->
+  <link rel="canonical" href="https://REEMPLAZAR-DOMINIO.com.ar/">
 
   <!-- Open Graph (redes y mensajería) -->
   <meta property="og:type" content="website">
   <meta property="og:locale" content="es_AR">
   <meta property="og:site_name" content="DPI — Productos Individuales SRL">
   <meta property="og:title" content="DPI — Alimentos en porciones individuales para empresas">
-  <meta property="og:description" content="Salsas, condimentos, dulces y galletitas en envases individuales sellados para catering, hotelería, clínicas, restaurantes y delivery.">
-  <!--
-    TODO al confirmar el dominio definitivo, habilitar con URLs absolutas:
-    <link rel="canonical" href="https://www.SU-DOMINIO.com.ar/">
-    <meta property="og:url" content="https://www.SU-DOMINIO.com.ar/">
-    <meta property="og:image" content="https://www.SU-DOMINIO.com.ar/assets/og-image.jpg">
-  -->
+  <meta property="og:description" content="Distribución B2B de salsas y aderezos en sachet, condimentos, dulces y galletitas en envases individuales sellados para catering, hotelería, clínicas y delivery.">
+  <meta property="og:url" content="https://REEMPLAZAR-DOMINIO.com.ar/">
+  <!-- REEMPLAZAR: crear assets/og-image.jpg (1200x630 px, foto real de productos o composición con logo) -->
+  <meta property="og:image" content="https://REEMPLAZAR-DOMINIO.com.ar/assets/og-image.jpg">
+  <meta property="og:image:alt" content="Productos alimenticios en porciones individuales distribuidos por DPI">
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="DPI — Alimentos en porciones individuales para empresas">
+  <meta name="twitter:description" content="Distribución B2B de aderezos, condimentos, dulces y galletitas en porciones individuales. Buenos Aires, Argentina.">
+  <meta name="twitter:image" content="https://REEMPLAZAR-DOMINIO.com.ar/assets/og-image.jpg">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,23 +46,119 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 
-  <!-- Datos estructurados para buscadores (datos ya publicados en esta página) -->
+  <!--
+    Datos estructurados: Organization + LocalBusiness.
+    A CONFIRMAR antes de publicar:
+    - "url", "logo" e "image": reemplazar REEMPLAZAR-DOMINIO.com.ar por el dominio definitivo.
+    - "email": confirmar la casilla real con el dueño.
+    - "areaServed": editable; ajustar cuando se confirme la cobertura real.
+    - "sameAs": completar con URLs de redes/perfiles reales si existen (no inventar).
+  -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "Organization",
+    "@type": ["Organization", "LocalBusiness"],
+    "@id": "https://REEMPLAZAR-DOMINIO.com.ar/#organizacion",
     "name": "Productos Individuales SRL",
     "alternateName": "DPI",
-    "description": "Comercialización y distribución de alimentos envasados en porciones individuales para empresas y servicios gastronómicos.",
-    "email": "ventas@dpi-arg.com.ar",
+    "url": "https://REEMPLAZAR-DOMINIO.com.ar/",
+    "logo": "https://REEMPLAZAR-DOMINIO.com.ar/assets/logo-dpi.svg",
+    "image": "https://REEMPLAZAR-DOMINIO.com.ar/assets/og-image.jpg",
+    "description": "Distribuidora B2B de alimentos envasados en porciones individuales: salsas y aderezos en sachet, condimentos, dulces, galletitas, azúcar y edulcorante para empresas, instituciones y servicios gastronómicos.",
     "telephone": "+54-11-4730-4423",
+    "email": "ventas@dpi-arg.com.ar",
     "address": {
       "@type": "PostalAddress",
       "streetAddress": "Bernardo de Irigoyen 877",
       "addressLocality": "Florida",
       "addressRegion": "Buenos Aires",
       "addressCountry": "AR"
-    }
+    },
+    "areaServed": [
+      { "@type": "AdministrativeArea", "name": "Ciudad Autónoma de Buenos Aires" },
+      { "@type": "AdministrativeArea", "name": "Gran Buenos Aires" }
+    ],
+    "contactPoint": [
+      {
+        "@type": "ContactPoint",
+        "contactType": "sales",
+        "telephone": "+54-11-4730-4423",
+        "email": "ventas@dpi-arg.com.ar",
+        "areaServed": "AR",
+        "availableLanguage": ["es"]
+      }
+    ],
+    "sameAs": []
+  }
+  </script>
+
+  <!--
+    Datos estructurados FAQPage.
+    IMPORTANTE: las preguntas y respuestas deben coincidir con las visibles
+    en la seccion #faq. Si se edita una FAQ en el HTML, actualizar tambien aqui.
+  -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "¿Venden por menor o trabajan con empresas?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Nuestra operación está orientada a la venta B2B: abastecemos a empresas, instituciones y servicios gastronómicos con compra por volumen. Si tenés un comercio o servicio, contanos tu necesidad y te asesoramos."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Qué productos vienen en porciones individuales?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Salsas y aderezos (mayonesa, ketchup, mostaza, salsa golf), condimentos (sal, pimienta, aceite, vinagre), dulces (mermeladas, dulce de leche, miel), galletitas y grisines, y varios como azúcar, edulcorante e infusiones. El surtido es amplio: consultá presentaciones vigentes."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Trabajan con hoteles, clínicas y servicios de catering?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Sí. Hotelería, clínicas y catering son rubros que abastecemos habitualmente, junto con restaurantes, confiterías, fast food, delivery y comedores de empresas."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Puedo pedir una lista de precios actualizada?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Sí. Trabajamos con una lista de precios que se actualiza periódicamente. Solicitala desde el formulario de contacto o por teléfono y te enviamos la versión vigente."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Los precios y el stock cambian?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Sí. La disponibilidad y los precios pueden variar según stock y actualización mensual. Antes de cada pedido te confirmamos presentaciones y valores vigentes."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Hacen entregas en CABA y GBA?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Contanos dónde está tu operación y te confirmamos cobertura y modalidad de entrega para tu zona."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Puedo consultar por productos específicos o marcas?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Sí. Manejamos muchos más ítems de los que mostramos en la web. Escribinos con el producto, la marca o la presentación que buscás y te confirmamos disponibilidad."
+        }
+      }
+    ]
   }
   </script>
 </head>
@@ -54,7 +170,7 @@
   <header class="site-header" id="inicio">
     <div class="container header-inner">
       <a href="#inicio" class="brand" aria-label="DPI — Productos Individuales SRL, ir al inicio">
-        <!-- Reemplazar assets/logo-dpi.svg por el logo definitivo manteniendo el nombre de archivo -->
+        <!-- REEMPLAZAR: assets/logo-dpi.svg por el logo definitivo, manteniendo el nombre de archivo -->
         <img src="assets/logo-dpi.svg" alt="Logo de DPI Productos Individuales SRL" width="186" height="48">
       </a>
 
@@ -65,10 +181,11 @@
           <span class="nav-toggle-bar"></span>
         </button>
         <ul class="nav-menu" id="nav-menu">
-          <li><a href="#nosotros">Nosotros</a></li>
+          <li><a href="#marcas">Marcas</a></li>
           <li><a href="#productos">Productos</a></li>
           <li><a href="#sectores">Sectores</a></li>
-          <li><a href="#beneficios">Beneficios</a></li>
+          <li><a href="#nosotros">Nosotros</a></li>
+          <li><a href="#faq">FAQ</a></li>
           <li><a href="#contacto" class="nav-cta">Solicitar cotización</a></li>
         </ul>
       </nav>
@@ -81,28 +198,49 @@
     <section class="hero" aria-labelledby="hero-title">
       <div class="container hero-inner">
         <div class="hero-content">
-          <p class="hero-kicker">Distribuidora de alimentos en porciones individuales · Buenos Aires</p>
-          <h1 id="hero-title">La porción exacta, sellada y lista para servir</h1>
+          <p class="hero-kicker">Distribuidora B2B · Porciones individuales · Buenos Aires</p>
+          <h1 id="hero-title">Alimentos en porciones individuales para tu empresa</h1>
           <p class="hero-lead">
-            Abastecemos a catering, hotelería, clínicas, restaurantes y delivery con
-            <strong>salsas, condimentos, dulces y galletitas en envases individuales</strong>:
-            higiene garantizada, costos previsibles y una presentación impecable en cada servicio.
+            Somos <strong>DPI — Productos Individuales SRL</strong>. Distribuimos
+            <strong>salsas y aderezos en sachet, condimentos, dulces y galletitas</strong>
+            en envases individuales sellados de origen, con compra por volumen y atención directa
+            para catering, hotelería, clínicas, restaurantes y delivery.
           </p>
           <div class="hero-actions">
-            <a href="#productos" class="btn btn-primary">
-              Ver el catálogo
+            <a href="#contacto" class="btn btn-primary">
+              Solicitar cotización
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
             </a>
-            <a href="#contacto" class="btn btn-secondary">Solicitar cotización</a>
+            <!--
+              CTA LISTA DE PRECIOS (configurable en script.js):
+              - Sin URL cargada: muestra "Solicitar lista de precios" y lleva al formulario.
+              - Con PRICE_LIST_URL cargada: cambia a "Ver lista de precios actualizada"
+                y abre el link en pestaña nueva. Ver "CONFIGURACIÓN EDITABLE" en script.js.
+            -->
+            <a href="#contacto" class="btn btn-secondary" data-price-list>
+              <span data-price-list-label>Solicitar lista de precios</span>
+            </a>
           </div>
           <ul class="hero-points" aria-label="Puntos destacados">
-            <li><strong>Porciones selladas</strong><span>higiene de origen</span></li>
-            <li><strong>Cantidad exacta</strong><span>sin desperdicio</span></li>
-            <li><strong>Distribución B2B</strong><span>a empresas e instituciones</span></li>
+            <li><strong>Envases sellados</strong><span>cerrados de origen</span></li>
+            <li><strong>Porción exacta</strong><span>mejor control, menos desperdicio</span></li>
+            <li><strong>Distribución B2B</strong><span>empresas e instituciones</span></li>
           </ul>
         </div>
 
-        <!-- Composición visual: sachets ilustrados + chips flotantes (decorativo) -->
+        <!--
+          VISUAL DEL HERO.
+          REEMPLAZAR cuando exista la foto real de los productos más vendidos
+          (ej.: mayonesa individual, ketchup y mostaza; o sal, azúcar y edulcorante):
+          1. Guardar la foto como assets/images/hero-productos-destacados.jpg
+             (ideal ~1200x1000 px o proporción similar).
+          2. Descomentar el <img> de abajo y borrar el bloque <svg> completo.
+          Mientras la foto no exista, se mantiene la ilustración actual.
+
+          <img class="hero-photo" src="assets/images/hero-productos-destacados.jpg"
+               alt="Porciones individuales de aderezos y condimentos distribuidas por DPI"
+               width="1120" height="940" fetchpriority="high">
+        -->
         <div class="hero-visual" aria-hidden="true">
           <svg class="hero-illustration" viewBox="0 0 560 470" focusable="false">
             <defs>
@@ -151,40 +289,80 @@
       </div>
     </section>
 
-    <!-- ============ QUIÉNES SOMOS ============ -->
-    <section class="about section" id="nosotros" aria-labelledby="about-title">
-      <div class="container about-inner">
-        <div class="about-text reveal">
-          <p class="section-kicker">Quiénes somos</p>
-          <h2 id="about-title">Especialistas en un solo formato: la porción individual</h2>
-          <p>
-            <strong>Productos Individuales SRL</strong> es una empresa argentina dedicada exclusivamente
-            a la comercialización de productos alimenticios envasados en porciones individuales.
-          </p>
-          <p>
-            Trabajamos con empresas y servicios gastronómicos que necesitan insumos prácticos,
-            higiénicos y de cantidad controlada. A cada cliente lo acompañamos con
-            <strong>atención directa</strong> y una operación de distribución confiable.
-          </p>
-          <p class="about-location">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
-            Bernardo de Irigoyen 877, Florida — Buenos Aires
+    <!-- ============ MARCAS ============ -->
+    <section class="brands section" id="marcas" aria-labelledby="brands-title">
+      <div class="container">
+        <div class="section-head section-head-center reveal">
+          <p class="section-kicker">Marcas</p>
+          <h2 id="brands-title">Marcas y líneas con las que trabajamos</h2>
+          <p class="section-lead">
+            Distribuimos marcas reconocidas y líneas propias en porciones individuales.
+            Esta es una referencia general: consultá marcas y presentaciones vigentes por rubro.
           </p>
         </div>
-        <ul class="about-points" aria-label="Características del servicio">
-          <li class="reveal">
-            <h3>Especialización total</h3>
-            <p>Las porciones individuales no son una línea más de nuestro catálogo: son nuestro único negocio.</p>
+
+        <!--
+          ============================================================
+          LOGOS DE MARCAS — INSTRUCCIONES
+          Hoy cada marca se muestra como texto (placeholder). Cuando se
+          consigan los logos reales (autorizados, NO descargados de internet):
+          1. Guardarlos en assets/images/brands/ con nombres claros:
+             - assets/images/brands/marca-natura.png  (o .svg / .webp)
+             - assets/images/brands/marca-dpi-edulcorante.png
+             - assets/images/brands/marca-NOMBRE.png  (una por marca)
+             Tamaño sugerido: ~300 px de ancho, fondo transparente.
+          2. Dentro del <li> correspondiente, borrar el <span class="brand-name">
+             (y el <span class="brand-tag"> si lo hay) y descomentar/ajustar el <img>.
+          ============================================================
+        -->
+        <ul class="brand-strip" aria-label="Marcas y líneas disponibles">
+          <li class="brand-tile reveal">
+            <!-- REEMPLAZAR por logo real:
+            <img src="assets/images/brands/marca-natura.png" alt="Natura" loading="lazy" height="44">
+            -->
+            <span class="brand-name">Natura</span>
+            <span class="brand-tag">Aderezos en porción individual</span>
           </li>
-          <li class="reveal">
-            <h3>Distribución B2B</h3>
-            <p>Abastecemos de forma directa a empresas, instituciones y servicios gastronómicos.</p>
+
+          <!--
+            A CONFIRMAR: el nombre exacto de esta marca (¿Abedul o Vegul?).
+            NO publicar el nombre hasta confirmarlo con el dueño.
+            Al confirmar: reemplazar "Marca a confirmar" por el nombre real
+            y, cuando exista, el logo (assets/images/brands/marca-NOMBRE.png).
+          -->
+          <li class="brand-tile brand-tile-placeholder reveal">
+            <span class="brand-name">Marca a confirmar</span>
+            <span class="brand-tag">Nombre pendiente de confirmación</span>
           </li>
-          <li class="reveal">
-            <h3>Atención personalizada</h3>
-            <p>Cada cliente recibe asesoramiento según el volumen y el ritmo de su operación.</p>
+
+          <li class="brand-tile brand-tile-own reveal">
+            <!-- REEMPLAZAR por el logo propio cuando exista la imagen autorizada:
+            <img src="assets/images/brands/marca-dpi-edulcorante.png" alt="Edulcorante DPI, línea propia" loading="lazy" height="44">
+            -->
+            <span class="brand-pill">Línea propia</span>
+            <span class="brand-name">Edulcorante DPI</span>
+            <span class="brand-tag">Sobres con presentación propia</span>
           </li>
+
+          <li class="brand-tile brand-tile-more reveal">
+            <a href="#contacto" class="link-arrow">
+              Más marcas y líneas: consultanos
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+          </li>
+
+          <!--
+            PLANTILLA para agregar otra marca (duplicar y completar):
+            <li class="brand-tile reveal">
+              <img src="assets/images/brands/marca-NOMBRE.png" alt="NOMBRE" loading="lazy" height="44">
+              <span class="brand-tag">Descripción breve (opcional)</span>
+            </li>
+          -->
         </ul>
+
+        <p class="brands-note reveal">
+          El surtido completo es amplio y varía según stock: consultá disponibilidad y presentaciones vigentes.
+        </p>
       </div>
     </section>
 
@@ -196,15 +374,21 @@
           <h2 id="products-title">Cinco líneas, un mismo formato</h2>
           <p class="section-lead">
             Todas nuestras líneas se presentan en envase individual sellado, listas para servir.
-            Consulte presentaciones, formatos y volúmenes disponibles para su empresa.
+            Consultá presentaciones, formatos y volúmenes disponibles para tu empresa.
           </p>
         </div>
 
         <!--
-          Para agregar una categoría: duplicar un <article class="product-card">,
-          actualizar imagen, título, descripción y etiquetas.
-          Para usar fotos reales: reemplazar el src del <img> (ej. assets/images/cat-salsas.jpg);
-          el recorte se adapta solo (object-fit: cover).
+          IMÁGENES DE CATEGORÍAS — hoy usan ilustraciones SVG.
+          REEMPLAZAR por fotos reales cuando existan, manteniendo estos nombres:
+          - assets/images/cat-salsas.jpg       (o .webp)
+          - assets/images/cat-condimentos.jpg
+          - assets/images/cat-dulces.jpg
+          - assets/images/cat-galletitas.jpg
+          - assets/images/cat-varios.jpg
+          Solo hay que cambiar el src del <img> (y el alt por una descripción
+          de la foto). El recorte se adapta solo (object-fit: cover).
+          Tamaño sugerido: 800x520 px aprox.
         -->
         <div class="product-grid">
           <article class="product-card reveal">
@@ -212,10 +396,10 @@
               <img src="assets/images/cat-salsas.svg" alt="Ilustración de sobres individuales de salsas" loading="lazy" decoding="async" width="800" height="520">
             </figure>
             <div class="product-card-body">
-              <h3>Salsas</h3>
-              <p>Sobres y porciones de salsas listas para acompañar cualquier plato.</p>
+              <h3>Salsas y aderezos</h3>
+              <p>Sobres y porciones de aderezos listos para acompañar cualquier plato.</p>
               <ul class="product-tags" aria-label="Ejemplos de productos">
-                <li>Ketchup</li><li>Mayonesa</li><li>Mostaza</li><li>Salsa golf</li>
+                <li>Mayonesa</li><li>Ketchup</li><li>Mostaza</li><li>Salsa golf</li>
               </ul>
             </div>
           </article>
@@ -226,7 +410,7 @@
             </figure>
             <div class="product-card-body">
               <h3>Condimentos</h3>
-              <p>Dosis exactas para mesa, bandeja o delivery, sin recargas ni desperdicio.</p>
+              <p>Dosis exactas para mesa, bandeja o delivery, sin recargas.</p>
               <ul class="product-tags" aria-label="Ejemplos de productos">
                 <li>Sal</li><li>Pimienta</li><li>Aceite</li><li>Vinagre</li>
               </ul>
@@ -251,7 +435,7 @@
               <img src="assets/images/cat-galletitas.svg" alt="Ilustración de pack individual de galletitas" loading="lazy" decoding="async" width="800" height="520">
             </figure>
             <div class="product-card-body">
-              <h3>Galletitas</h3>
+              <h3>Galletitas y grisines</h3>
               <p>Packs cerrados, dulces y salados, para sumar a cada servicio.</p>
               <ul class="product-tags" aria-label="Ejemplos de productos">
                 <li>De agua</li><li>Dulces</li><li>Grisines</li>
@@ -265,7 +449,7 @@
             </figure>
             <div class="product-card-body">
               <h3>Varios</h3>
-              <p>Insumos complementarios en formato individual para completar su operación.</p>
+              <p>Insumos complementarios en formato individual para completar tu operación.</p>
               <ul class="product-tags" aria-label="Ejemplos de productos">
                 <li>Azúcar</li><li>Edulcorante</li><li>Infusiones</li>
               </ul>
@@ -274,8 +458,8 @@
 
           <article class="product-card product-card-cta reveal">
             <div class="product-card-body">
-              <h3>¿No encuentra lo que busca?</h3>
-              <p>Consulte por productos específicos, presentaciones y volúmenes para su operación.</p>
+              <h3>¿No encontrás lo que buscás?</h3>
+              <p>Manejamos muchos más ítems de los que mostramos acá. Consultá por productos, marcas y presentaciones.</p>
               <a href="#contacto" class="btn btn-light">
                 Consultar ahora
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
@@ -286,15 +470,154 @@
       </div>
     </section>
 
+    <!-- ============ PRODUCTOS DESTACADOS ============ -->
+    <section class="featured section" id="destacados" aria-labelledby="featured-title">
+      <div class="container">
+        <div class="section-head section-head-center reveal">
+          <p class="section-kicker">Productos destacados</p>
+          <h2 id="featured-title">Los individuales que más se piden</h2>
+          <p class="section-lead">
+            Una selección de los formatos más solicitados por nuestros clientes.
+            No es el catálogo completo: consultá por cualquier otro producto.
+          </p>
+        </div>
+
+        <!--
+          ============================================================
+          FOTOS DE PRODUCTOS DESTACADOS — INSTRUCCIONES
+          Cada card muestra un placeholder hasta tener la foto real.
+          Para activar una foto:
+          1. Guardarla en assets/images/ con el nombre indicado en el
+             comentario de cada card (ej. prod-mayonesa-individual.jpg).
+             Tamaño sugerido: 800x600 px (proporción 4:3).
+          2. Borrar el <span class="media-placeholder">...</span>
+             y descomentar el <img> de esa card.
+          ============================================================
+        -->
+        <div class="featured-grid">
+          <article class="featured-card reveal">
+            <figure class="featured-media">
+              <!-- REEMPLAZAR por foto real:
+              <img src="assets/images/prod-mayonesa-individual.jpg" alt="Sachets de mayonesa en porción individual" loading="lazy" decoding="async" width="800" height="600">
+              -->
+              <span class="media-placeholder" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-2.5h5L16 7"/><circle cx="12" cy="13" r="3.5"/></svg>
+                Foto próximamente
+              </span>
+            </figure>
+            <div class="featured-body">
+              <h3>Mayonesa individual</h3>
+              <p>Sachets sellados para mesa, mostrador y delivery. Consultá marcas y gramajes disponibles.</p>
+            </div>
+          </article>
+
+          <article class="featured-card reveal">
+            <figure class="featured-media">
+              <!-- REEMPLAZAR por foto real:
+              <img src="assets/images/prod-ketchup-individual.jpg" alt="Sobres de ketchup en porción individual" loading="lazy" decoding="async" width="800" height="600">
+              -->
+              <span class="media-placeholder" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-2.5h5L16 7"/><circle cx="12" cy="13" r="3.5"/></svg>
+                Foto próximamente
+              </span>
+            </figure>
+            <div class="featured-body">
+              <h3>Ketchup individual</h3>
+              <p>El infaltable de combos y fast food, en sobres que llegan intactos al cliente final.</p>
+            </div>
+          </article>
+
+          <article class="featured-card reveal">
+            <figure class="featured-media">
+              <!-- REEMPLAZAR por foto real:
+              <img src="assets/images/prod-mostaza-individual.jpg" alt="Sobres de mostaza en porción individual" loading="lazy" decoding="async" width="800" height="600">
+              -->
+              <span class="media-placeholder" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-2.5h5L16 7"/><circle cx="12" cy="13" r="3.5"/></svg>
+                Foto próximamente
+              </span>
+            </figure>
+            <div class="featured-body">
+              <h3>Mostaza individual</h3>
+              <p>La porción justa para sándwiches, minutas y bandejas de catering.</p>
+            </div>
+          </article>
+
+          <article class="featured-card reveal">
+            <figure class="featured-media">
+              <!-- REEMPLAZAR por foto real:
+              <img src="assets/images/prod-azucar-individual.jpg" alt="Sobres de azúcar en porción individual" loading="lazy" decoding="async" width="800" height="600">
+              -->
+              <span class="media-placeholder" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-2.5h5L16 7"/><circle cx="12" cy="13" r="3.5"/></svg>
+                Foto próximamente
+              </span>
+            </figure>
+            <div class="featured-body">
+              <h3>Azúcar individual</h3>
+              <p>Sobres para desayunos, oficinas y servicio de café, fáciles de contar y reponer.</p>
+            </div>
+          </article>
+
+          <article class="featured-card reveal">
+            <figure class="featured-media">
+              <!-- REEMPLAZAR por foto real del producto propio (cuando exista; no usar imágenes genéricas):
+              <img src="assets/images/prod-edulcorante-dpi.jpg" alt="Sobres de edulcorante con presentación propia de DPI" loading="lazy" decoding="async" width="800" height="600">
+              -->
+              <span class="media-placeholder" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-2.5h5L16 7"/><circle cx="12" cy="13" r="3.5"/></svg>
+                Foto próximamente
+              </span>
+            </figure>
+            <span class="featured-badge">Línea propia DPI</span>
+            <div class="featured-body">
+              <h3>Edulcorante individual</h3>
+              <p>Sobres de edulcorante con presentación propia de DPI. Consultá disponibilidad y formatos.</p>
+            </div>
+          </article>
+
+          <article class="featured-card reveal">
+            <figure class="featured-media">
+              <!-- REEMPLAZAR por foto real:
+              <img src="assets/images/prod-mermeladas-individuales.jpg" alt="Porciones individuales de mermeladas y dulces" loading="lazy" decoding="async" width="800" height="600">
+              -->
+              <span class="media-placeholder" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-2.5h5L16 7"/><circle cx="12" cy="13" r="3.5"/></svg>
+                Foto próximamente
+              </span>
+            </figure>
+            <div class="featured-body">
+              <h3>Mermeladas y dulces individuales</h3>
+              <p>Untables sellados para desayunos de hotelería, confiterías y clínicas.</p>
+            </div>
+          </article>
+        </div>
+
+        <!-- Banner de lista de precios (CTA configurable en script.js) -->
+        <div class="price-banner reveal">
+          <div>
+            <h3>Lista de precios actualizada</h3>
+            <p class="price-banner-note">
+              La disponibilidad y los precios pueden variar según stock y actualización mensual.
+            </p>
+          </div>
+          <a href="#contacto" class="btn btn-primary" data-price-list>
+            <span data-price-list-label>Solicitar lista de precios</span>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+
     <!-- ============ SECTORES ============ -->
-    <section class="sectors section" id="sectores" aria-labelledby="sectors-title">
+    <section class="sectors section section-alt" id="sectores" aria-labelledby="sectors-title">
       <div class="container">
         <div class="section-head section-head-center reveal">
           <p class="section-kicker">A quiénes abastecemos</p>
           <h2 id="sectors-title">Soluciones para cada tipo de servicio</h2>
           <p class="section-lead">
-            Nuestros productos se usan a diario en operaciones donde la higiene
-            y la porción exacta hacen la diferencia.
+            Nuestros productos se usan a diario en operaciones donde la porción
+            sellada y la cantidad exacta hacen la diferencia.
           </p>
         </div>
 
@@ -318,7 +641,7 @@
               <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M12 9v6M9 12h6"/></svg>
             </span>
             <h3>Clínicas</h3>
-            <p>Control de higiene y cantidad para bandejas de internación.</p>
+            <p>Porciones selladas y cantidad controlada para bandejas de internación.</p>
           </li>
           <li class="sector-item reveal">
             <span class="sector-icon" aria-hidden="true">
@@ -359,14 +682,53 @@
       </div>
     </section>
 
-    <!-- ============ BENEFICIOS ============ -->
+    <!-- ============ QUIÉNES SOMOS ============ -->
+    <section class="about section" id="nosotros" aria-labelledby="about-title">
+      <div class="container about-inner">
+        <div class="about-text reveal">
+          <p class="section-kicker">Quiénes somos</p>
+          <h2 id="about-title">Especialistas en un solo formato: la porción individual</h2>
+          <p>
+            <strong>Productos Individuales SRL</strong> (nombre comercial <strong>DPI</strong>) es una
+            empresa argentina dedicada exclusivamente a la comercialización y distribución de
+            alimentos envasados en porciones individuales.
+          </p>
+          <p>
+            Trabajamos con empresas y servicios gastronómicos que necesitan insumos prácticos,
+            sellados de origen y de cantidad controlada. A cada cliente lo acompañamos con
+            <strong>atención directa</strong>, compra por volumen y una lista de precios
+            que se actualiza periódicamente.
+          </p>
+          <p class="about-location">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            Bernardo de Irigoyen 877, Florida — Buenos Aires
+          </p>
+        </div>
+        <ul class="about-points" aria-label="Características del servicio">
+          <li class="reveal">
+            <h3>Especialización total</h3>
+            <p>Las porciones individuales no son una línea más de nuestro catálogo: son nuestro único negocio.</p>
+          </li>
+          <li class="reveal">
+            <h3>Distribución B2B</h3>
+            <p>Abastecemos de forma directa a empresas, instituciones y servicios gastronómicos.</p>
+          </li>
+          <li class="reveal">
+            <h3>Marcas y presentaciones</h3>
+            <p>Marcas representadas y líneas propias. Consultá disponibilidad y presentaciones vigentes.</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ BENEFICIOS / SEÑALES DE CONFIANZA ============ -->
     <section class="benefits section section-dark" id="beneficios" aria-labelledby="benefits-title">
       <div class="container benefits-inner">
         <div class="benefits-intro reveal">
-          <p class="section-kicker">Por qué elegirnos</p>
-          <h2 id="benefits-title">Lo que la porción individual aporta a su servicio</h2>
+          <p class="section-kicker">Por qué nos eligen</p>
+          <h2 id="benefits-title">Por qué nos eligen empresas gastronómicas e instituciones</h2>
           <p>
-            El formato del insumo define la higiene, los costos y la imagen de su operación.
+            El formato del insumo define los costos, la operación y la imagen de tu servicio.
             Por eso trabajamos con un solo formato: el individual.
           </p>
           <a href="#contacto" class="btn btn-light">Solicitar asesoramiento</a>
@@ -374,12 +736,12 @@
 
         <ol class="benefit-list">
           <li class="benefit-item reveal">
-            <h3>Higiene garantizada</h3>
-            <p>El envase sellado de origen protege el alimento hasta el momento exacto del consumo.</p>
+            <h3>Envases sellados de origen</h3>
+            <p>Cada porción llega cerrada de fábrica y se abre recién en el momento del consumo.</p>
           </li>
           <li class="benefit-item reveal">
-            <h3>Cantidad exacta</h3>
-            <p>Porciones dosificadas: costos previsibles y desperdicio prácticamente nulo.</p>
+            <h3>Control de porciones</h3>
+            <p>Cantidad exacta por servicio: mejor control de costos y menor desperdicio.</p>
           </li>
           <li class="benefit-item reveal">
             <h3>Practicidad operativa</h3>
@@ -387,25 +749,19 @@
           </li>
           <li class="benefit-item reveal">
             <h3>Presentación profesional</h3>
-            <p>Cada porción cerrada transmite cuidado e higiene al consumidor final.</p>
+            <p>Cada porción cerrada transmite prolijidad y cuidado al consumidor final.</p>
           </li>
           <li class="benefit-item reveal">
-            <h3>Stock más simple</h3>
-            <p>Unidades contables que facilitan el inventario, la reposición y el control.</p>
+            <h3>Inventario más simple</h3>
+            <p>Unidades contables que facilitan el control y la reposición. Consultá disponibilidad y presentaciones vigentes.</p>
           </li>
           <li class="benefit-item reveal">
             <h3>Atención directa</h3>
-            <p>Asesoramiento personalizado para definir productos, formatos y volúmenes.</p>
+            <p>Asesoramiento personalizado para definir productos, formatos y volúmenes según tu operación.</p>
           </li>
         </ol>
       </div>
     </section>
-
-    <!--
-      SECCIÓN "MARCAS REPRESENTADAS" — pendiente.
-      Agregar aquí cuando se confirmen marcas y se cuente con sus logos:
-      <section class="brands section" id="marcas" aria-labelledby="brands-title"> ... </section>
-    -->
 
     <!-- ============ CÓMO TRABAJAMOS ============ -->
     <section class="process section" id="proceso" aria-labelledby="process-title">
@@ -417,16 +773,16 @@
 
         <ol class="process-steps">
           <li class="process-step reveal">
-            <h3>Cuéntenos su necesidad</h3>
-            <p>Productos, cantidades y frecuencia: una consulta breve alcanza para empezar.</p>
+            <h3>Contanos tu necesidad</h3>
+            <p>Productos, cantidades y frecuencia: con una consulta breve alcanza para empezar.</p>
           </li>
           <li class="process-step reveal">
-            <h3>Reciba una propuesta a medida</h3>
-            <p>Le recomendamos las presentaciones y los volúmenes adecuados a su operación.</p>
+            <h3>Recibí una propuesta a medida</h3>
+            <p>Te recomendamos presentaciones y volúmenes con la lista de precios vigente.</p>
           </li>
           <li class="process-step reveal">
             <h3>Coordinamos la entrega</h3>
-            <p>Abastecemos su servicio con una operación de distribución confiable.</p>
+            <p>Definimos la logística y la reposición según tu zona y la disponibilidad de cada producto.</p>
           </li>
         </ol>
 
@@ -439,14 +795,110 @@
       </div>
     </section>
 
+    <!-- ============ PREGUNTAS FRECUENTES ============ -->
+    <!--
+      Si se edita una pregunta o respuesta, actualizar también el bloque
+      JSON-LD FAQPage en el <head> para que coincidan.
+    -->
+    <section class="faq section section-alt" id="faq" aria-labelledby="faq-title">
+      <div class="container">
+        <div class="section-head section-head-center reveal">
+          <p class="section-kicker">Preguntas frecuentes</p>
+          <h2 id="faq-title">Lo que las empresas nos consultan</h2>
+        </div>
+
+        <div class="faq-list">
+          <details class="faq-item reveal">
+            <summary>
+              ¿Venden por menor o trabajan con empresas?
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+            </summary>
+            <p class="faq-answer">
+              Nuestra operación está orientada a la venta B2B: abastecemos a empresas, instituciones
+              y servicios gastronómicos con compra por volumen. Si tenés un comercio o servicio,
+              contanos tu necesidad y te asesoramos.
+            </p>
+          </details>
+
+          <details class="faq-item reveal">
+            <summary>
+              ¿Qué productos vienen en porciones individuales?
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+            </summary>
+            <p class="faq-answer">
+              Salsas y aderezos (mayonesa, ketchup, mostaza, salsa golf), condimentos (sal, pimienta,
+              aceite, vinagre), dulces (mermeladas, dulce de leche, miel), galletitas y grisines,
+              y varios como azúcar, edulcorante e infusiones. El surtido es amplio: consultá
+              presentaciones vigentes.
+            </p>
+          </details>
+
+          <details class="faq-item reveal">
+            <summary>
+              ¿Trabajan con hoteles, clínicas y servicios de catering?
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+            </summary>
+            <p class="faq-answer">
+              Sí. Hotelería, clínicas y catering son rubros que abastecemos habitualmente, junto con
+              restaurantes, confiterías, fast food, delivery y comedores de empresas.
+            </p>
+          </details>
+
+          <details class="faq-item reveal">
+            <summary>
+              ¿Puedo pedir una lista de precios actualizada?
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+            </summary>
+            <p class="faq-answer">
+              Sí. Trabajamos con una lista de precios que se actualiza periódicamente. Solicitala
+              desde el formulario de contacto o por teléfono y te enviamos la versión vigente.
+            </p>
+          </details>
+
+          <details class="faq-item reveal">
+            <summary>
+              ¿Los precios y el stock cambian?
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+            </summary>
+            <p class="faq-answer">
+              Sí. La disponibilidad y los precios pueden variar según stock y actualización mensual.
+              Antes de cada pedido te confirmamos presentaciones y valores vigentes.
+            </p>
+          </details>
+
+          <details class="faq-item reveal">
+            <summary>
+              ¿Hacen entregas en CABA y GBA?
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+            </summary>
+            <p class="faq-answer">
+              Contanos dónde está tu operación y te confirmamos cobertura y modalidad de entrega
+              para tu zona.
+            </p>
+          </details>
+
+          <details class="faq-item reveal">
+            <summary>
+              ¿Puedo consultar por productos específicos o marcas?
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+            </summary>
+            <p class="faq-answer">
+              Sí. Manejamos muchos más ítems de los que mostramos en la web. Escribinos con el
+              producto, la marca o la presentación que buscás y te confirmamos disponibilidad.
+            </p>
+          </details>
+        </div>
+      </div>
+    </section>
+
     <!-- ============ CONTACTO ============ -->
-    <section class="contact section section-alt" id="contacto" aria-labelledby="contact-title">
+    <section class="contact section" id="contacto" aria-labelledby="contact-title">
       <div class="container contact-inner">
         <div class="contact-info reveal">
           <p class="section-kicker">Contacto</p>
-          <h2 id="contact-title">Hablemos de su próximo pedido</h2>
+          <h2 id="contact-title">Hablemos de tu próximo pedido</h2>
           <p class="section-lead">
-            Cuéntenos qué necesita su operación y lo asesoramos sobre productos,
+            Contanos qué necesita tu operación y te asesoramos sobre productos,
             presentaciones y volúmenes.
           </p>
 
@@ -477,7 +929,7 @@
               </span>
               <div>
                 <strong>Email</strong>
-                <!-- PLACEHOLDER: confirmar la casilla real antes de publicar -->
+                <!-- A CONFIRMAR: validar la casilla real con el dueño antes de publicar -->
                 <a href="mailto:ventas@dpi-arg.com.ar">ventas@dpi-arg.com.ar</a>
               </div>
             </li>
@@ -487,42 +939,78 @@
               </span>
               <div>
                 <strong>Horario de atención</strong>
-                <!-- PLACEHOLDER: confirmar horario real de atención -->
+                <!-- A CONFIRMAR: horario real de atención (editar este texto) -->
                 <span>Lunes a viernes, horario comercial</span>
+              </div>
+            </li>
+            <li>
+              <span class="contact-data-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.5 2.6 4 5.6 4 9s-1.5 6.4-4 9c-2.5-2.6-4-5.6-4-9s1.5-6.4 4-9z"/></svg>
+              </span>
+              <div>
+                <strong>Zona de cobertura</strong>
+                <!-- EDITAR cuando se confirme la cobertura real -->
+                <span>CABA y GBA — consultá cobertura para tu zona</span>
               </div>
             </li>
           </ul>
 
           <!--
-            WHATSAPP — pendiente de confirmación.
-            Si la empresa atiende por WhatsApp, descomentar y completar el número
-            (formato internacional, sin + ni espacios; ej. 5491155555555):
-            <a class="btn btn-whatsapp" href="https://wa.me/54911XXXXXXXX" target="_blank" rel="noopener">
-              Escribir por WhatsApp
-            </a>
+            BOTÓN DE WHATSAPP (configurable en script.js):
+            permanece oculto hasta cargar el número real en WHATSAPP_NUMBER
+            (sección "CONFIGURACIÓN EDITABLE" de script.js). El href de abajo
+            es solo un placeholder; el definitivo lo arma el script.
           -->
+          <a class="btn btn-whatsapp" data-whatsapp hidden href="https://wa.me/54911XXXXXXXX" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M12.04 2a9.9 9.9 0 0 0-8.55 14.9L2 22l5.25-1.37A9.96 9.96 0 1 0 12.04 2zm0 18.1a8.1 8.1 0 0 1-4.13-1.13l-.3-.18-3.07.8.82-3-.2-.31a8.12 8.12 0 1 1 6.88 3.82zm4.45-6.08c-.24-.12-1.44-.71-1.66-.79-.22-.08-.39-.12-.55.12-.16.24-.63.79-.77.95-.14.16-.28.18-.53.06-.24-.12-1.03-.38-1.96-1.21-.72-.64-1.21-1.43-1.35-1.67-.14-.24-.02-.37.1-.5.11-.11.25-.28.37-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.55-1.32-.75-1.81-.2-.48-.4-.41-.55-.42h-.47c-.16 0-.42.06-.64.3-.22.24-.85.83-.85 2.02 0 1.19.87 2.34.99 2.5.12.16 1.7 2.6 4.13 3.65.58.25 1.03.4 1.38.51.58.18 1.1.16 1.52.1.46-.07 1.44-.59 1.64-1.16.2-.57.2-1.05.14-1.16-.06-.1-.22-.16-.46-.28z"/></svg>
+            Escribir por WhatsApp
+          </a>
+
+          <!-- Datos comerciales de la empresa -->
+          <div class="contact-legal">
+            <p><strong>Razón social:</strong> Productos Individuales SRL · <strong>Nombre comercial:</strong> DPI</p>
+            <p>Bernardo de Irigoyen 877, Florida, Buenos Aires, Argentina · Tel. (011) 4730-4423</p>
+          </div>
         </div>
 
         <!--
-          FORMULARIO SIN BACKEND:
-          Envía por mailto: (abre la aplicación de correo del visitante con el
-          mensaje ya redactado). La casilla destino se lee del atributo data-email.
-          IMPORTANTE: confirmar la casilla real antes de publicar.
-
-          Para conectar Formspree u otro servicio:
-            1. Crear un formulario en https://formspree.io y obtener el endpoint.
-            2. Reemplazar por: <form action="https://formspree.io/f/XXXXXXXX" method="POST">
-            3. Eliminar el manejo de "submit" en script.js (sección FORMULARIO).
+          ============================================================
+          FORMULARIO — FORMSPREE (sin backend propio)
+          Para activarlo:
+          1. Crear una cuenta gratuita en https://formspree.io
+          2. Crear un formulario nuevo y copiar el endpoint
+             (tiene la forma https://formspree.io/f/abcdwxyz).
+          3. Reemplazar REEMPLAZAR_ENDPOINT en el action de abajo.
+          Mientras el endpoint sea el placeholder, script.js bloquea el
+          envío y muestra un aviso con los datos de contacto alternativos.
+          El campo _gotcha es un honeypot anti-spam de Formspree:
+          queda oculto y no debe completarse ni eliminarse.
+          ============================================================
         -->
-        <form class="contact-form reveal" id="contact-form" data-email="ventas@dpi-arg.com.ar" novalidate>
-          <h3>Envíenos su consulta</h3>
+        <form class="contact-form reveal" id="contact-form" action="https://formspree.io/f/REEMPLAZAR_ENDPOINT" method="POST">
+          <h3>Envianos tu consulta</h3>
           <p class="form-hint">
-            Complete el formulario y se abrirá su correo con el mensaje listo para enviar.
+            Respondemos consultas de empresas, instituciones y servicios gastronómicos.
           </p>
 
-          <div class="form-field">
-            <label for="field-name">Nombre y empresa <span class="req" aria-hidden="true">*</span></label>
-            <input type="text" id="field-name" name="nombre" autocomplete="name" required placeholder="Ej.: Juan Pérez — Hotel Mirador">
+          <!-- Asunto con el que llega el email (editable) -->
+          <input type="hidden" name="_subject" value="Nueva consulta desde la web — DPI">
+
+          <!-- Honeypot anti-spam (no eliminar, no completar) -->
+          <div class="hp-field" aria-hidden="true">
+            <label for="field-gotcha">No completar este campo</label>
+            <input type="text" id="field-gotcha" name="_gotcha" tabindex="-1" autocomplete="off">
+          </div>
+
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="field-name">Nombre y apellido <span class="req" aria-hidden="true">*</span></label>
+              <input type="text" id="field-name" name="nombre" autocomplete="name" required placeholder="Ej.: Juan Pérez">
+            </div>
+            <div class="form-field">
+              <label for="field-company">Empresa / rubro <span class="req" aria-hidden="true">*</span></label>
+              <input type="text" id="field-company" name="empresa" autocomplete="organization" required placeholder="Ej.: Hotel Mirador — Hotelería">
+            </div>
           </div>
 
           <div class="form-grid">
@@ -536,9 +1024,29 @@
             </div>
           </div>
 
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="field-interes">Productos de interés</label>
+              <select id="field-interes" name="productos_interes">
+                <option value="">Elegí una opción</option>
+                <option value="Salsas y aderezos">Salsas y aderezos</option>
+                <option value="Condimentos">Condimentos</option>
+                <option value="Dulces">Dulces</option>
+                <option value="Galletitas / grisines">Galletitas / grisines</option>
+                <option value="Azúcar / edulcorante / infusiones">Azúcar / edulcorante / infusiones</option>
+                <option value="Lista de precios">Lista de precios</option>
+                <option value="Otro">Otro</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label for="field-volumen">Volumen estimado / frecuencia <span class="optional">(opcional)</span></label>
+              <input type="text" id="field-volumen" name="volumen" placeholder="Ej.: 5 cajas por mes">
+            </div>
+          </div>
+
           <div class="form-field">
             <label for="field-message">Mensaje <span class="req" aria-hidden="true">*</span></label>
-            <textarea id="field-message" name="mensaje" rows="5" required placeholder="Cuéntenos qué productos o volúmenes necesita…"></textarea>
+            <textarea id="field-message" name="mensaje" rows="5" required placeholder="Contanos qué productos, presentaciones o volúmenes necesitás…"></textarea>
           </div>
 
           <button type="submit" class="btn btn-primary btn-block">
@@ -547,8 +1055,8 @@
           </button>
           <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
           <p class="form-note">
-            El sitio no almacena datos: el envío se completa desde su aplicación de correo.
-            Si lo prefiere, llámenos al <a href="tel:+541147304423">(011) 4730-4423</a>.
+            Usamos tus datos solo para responder la consulta. Si lo preferís,
+            llamanos al <a href="tel:+541147304423">(011) 4730-4423</a>.
           </p>
         </form>
       </div>
@@ -560,16 +1068,18 @@
     <div class="container footer-inner">
       <div class="footer-brand">
         <img src="assets/logo-dpi.svg" alt="Logo de DPI Productos Individuales SRL" width="171" height="44" loading="lazy">
-        <p>Alimentos en porciones individuales para empresas, instituciones y gastronomía.</p>
+        <p>Distribución B2B de alimentos en porciones individuales para empresas, instituciones y gastronomía.</p>
       </div>
 
       <nav class="footer-nav" aria-label="Enlaces rápidos">
         <h3>Secciones</h3>
         <ul>
-          <li><a href="#nosotros">Nosotros</a></li>
+          <li><a href="#marcas">Marcas</a></li>
           <li><a href="#productos">Productos</a></li>
+          <li><a href="#destacados">Destacados</a></li>
           <li><a href="#sectores">Sectores</a></li>
-          <li><a href="#beneficios">Beneficios</a></li>
+          <li><a href="#nosotros">Nosotros</a></li>
+          <li><a href="#faq">Preguntas frecuentes</a></li>
           <li><a href="#contacto">Contacto</a></li>
         </ul>
       </nav>
@@ -580,6 +1090,7 @@
           Bernardo de Irigoyen 877,<br>
           Florida, Buenos Aires, Argentina<br>
           <a href="tel:+541147304423">(011) 4730-4423</a><br>
+          <!-- A CONFIRMAR: casilla real -->
           <a href="mailto:ventas@dpi-arg.com.ar">ventas@dpi-arg.com.ar</a>
         </address>
       </div>
@@ -587,10 +1098,18 @@
 
     <div class="footer-bottom">
       <div class="container">
-        <p>© <span id="year">2026</span> Productos Individuales SRL — Florida, Buenos Aires, Argentina.</p>
+        <p>© <span id="year">2026</span> Productos Individuales SRL (DPI) — Florida, Buenos Aires, Argentina.</p>
       </div>
     </div>
   </footer>
+
+  <!--
+    BOTÓN FLOTANTE DE WHATSAPP (configurable en script.js):
+    oculto hasta cargar el número real en WHATSAPP_NUMBER.
+  -->
+  <a class="whatsapp-float" data-whatsapp hidden href="https://wa.me/54911XXXXXXXX" target="_blank" rel="noopener noreferrer" aria-label="Escribir por WhatsApp">
+    <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" aria-hidden="true"><path d="M12.04 2a9.9 9.9 0 0 0-8.55 14.9L2 22l5.25-1.37A9.96 9.96 0 1 0 12.04 2zm0 18.1a8.1 8.1 0 0 1-4.13-1.13l-.3-.18-3.07.8.82-3-.2-.31a8.12 8.12 0 1 1 6.88 3.82zm4.45-6.08c-.24-.12-1.44-.71-1.66-.79-.22-.08-.39-.12-.55.12-.16.24-.63.79-.77.95-.14.16-.28.18-.53.06-.24-.12-1.03-.38-1.96-1.21-.72-.64-1.21-1.43-1.35-1.67-.14-.24-.02-.37.1-.5.11-.11.25-.28.37-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.55-1.32-.75-1.81-.2-.48-.4-.41-.55-.42h-.47c-.16 0-.42.06-.64.3-.22.24-.85.83-.85 2.02 0 1.19.87 2.34.99 2.5.12.16 1.7 2.6 4.13 3.65.58.25 1.03.4 1.38.51.58.18 1.1.16 1.52.1.46-.07 1.44-.59 1.64-1.16.2-.57.2-1.05.14-1.16-.06-.1-.22-.16-.46-.28z"/></svg>
+  </a>
 
   <script src="script.js" defer></script>
 </body>

@@ -1,0 +1,32 @@
+# robots.txt — DPI / Productos Individuales SRL
+#
+# Política: permitir el rastreo a buscadores y a los crawlers de BÚSQUEDA
+# de asistentes de IA (descubrimiento), que es lo que da visibilidad.
+# El entrenamiento de modelos es una decisión separada (ver GPTBot abajo).
+
+# Regla general: todo permitido
+User-agent: *
+Allow: /
+
+# --- Buscadores principales (permiso explícito) ---
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# --- Búsqueda con IA ---
+# OAI-SearchBot indexa el sitio para las búsquedas de ChatGPT.
+# NO bloquearlo: sirve para que la empresa aparezca en respuestas de IA.
+User-agent: OAI-SearchBot
+Allow: /
+
+# --- Entrenamiento de IA (decisión del dueño) ---
+# GPTBot se usa para ENTRENAR modelos de OpenAI (no afecta la búsqueda).
+# Si el dueño prefiere que el contenido no se use para entrenamiento,
+# descomentar las dos líneas siguientes:
+# User-agent: GPTBot
+# Disallow: /
+
+# REEMPLAZAR-DOMINIO.com.ar por el dominio definitivo cuando se confirme
+Sitemap: https://REEMPLAZAR-DOMINIO.com.ar/sitemap.xml

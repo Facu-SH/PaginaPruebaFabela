@@ -9,15 +9,19 @@
    3. Utilidades (contenedor, secciones, títulos, botones, reveal)
    4. Header y navegación
    5. Hero
-   6. Quiénes somos
-   7. Categorías de productos
-   8. Sectores
-   9. Beneficios (sección oscura)
-   10. Cómo trabajamos
-   11. Contacto y formulario
-   12. Footer
-   13. Responsive
-   14. Accesibilidad / reduced motion
+   6. Marcas
+   7. Quiénes somos
+   8. Categorías de productos
+   9. Productos destacados y banner de lista de precios
+   10. Sectores
+   11. Beneficios (sección oscura)
+   12. Cómo trabajamos
+   13. Preguntas frecuentes (FAQ)
+   14. Contacto y formulario
+   15. Footer
+   16. WhatsApp flotante
+   17. Responsive
+   18. Accesibilidad / reduced motion
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
@@ -581,8 +585,111 @@ h2 {
   50% { transform: translateY(-7px); }
 }
 
+/* Foto real del hero: se activa al descomentar el <img class="hero-photo">
+   en index.html (assets/images/hero-productos-destacados.jpg) */
+.hero-photo {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 56 / 47;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
 /* --------------------------------------------------------------------------
-   6. Quiénes somos
+   6. Marcas
+   Tiles de marcas: hoy muestran texto como placeholder; al cargar los logos
+   reales (assets/images/brands/), el <img> ocupa el mismo lugar.
+   -------------------------------------------------------------------------- */
+.brand-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.1rem;
+}
+
+.brand-tile {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.35rem;
+  text-align: center;
+  min-height: 104px;
+  padding: 1.1rem 1rem;
+  background: #fff;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.brand-tile:hover {
+  border-color: #DCC9BD;
+  box-shadow: var(--shadow-sm);
+}
+
+.brand-tile img {
+  max-height: 46px;
+  width: auto;
+}
+
+.brand-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.03em;
+  color: var(--c-ink);
+}
+
+.brand-tag {
+  font-size: 0.78rem;
+  color: var(--c-ink-soft);
+}
+
+/* Tile de marca aún no confirmada (borde punteado) */
+.brand-tile-placeholder {
+  border-style: dashed;
+  background: transparent;
+}
+
+.brand-tile-placeholder .brand-name {
+  color: var(--c-ink-soft);
+  opacity: 0.8;
+}
+
+/* Tile de la línea propia DPI */
+.brand-tile-own {
+  border-color: rgba(193, 58, 42, 0.45);
+}
+
+.brand-pill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--c-primary);
+  background: var(--c-primary-soft);
+  padding: 0.16rem 0.6rem;
+  border-radius: var(--radius-pill);
+}
+
+/* Tile-CTA "más marcas" */
+.brand-tile-more {
+  background: var(--c-bg-alt);
+}
+
+.brand-tile-more .link-arrow {
+  font-size: 0.95rem;
+  text-align: left;
+}
+
+.brands-note {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  color: var(--c-ink-soft);
+}
+
+/* --------------------------------------------------------------------------
+   7. Quiénes somos
    -------------------------------------------------------------------------- */
 .about-inner {
   display: grid;
@@ -659,7 +766,7 @@ h2 {
 }
 
 /* --------------------------------------------------------------------------
-   7. Categorías de productos
+   8. Categorías de productos
    -------------------------------------------------------------------------- */
 .product-grid {
   display: grid;
@@ -763,7 +870,132 @@ h2 {
 }
 
 /* --------------------------------------------------------------------------
-   8. Sectores
+   9. Productos destacados y banner de lista de precios
+   -------------------------------------------------------------------------- */
+.featured-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.6rem;
+}
+
+.featured-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition), box-shadow var(--transition),
+              border-color var(--transition);
+}
+
+.featured-card:hover {
+  transform: translateY(-5px);
+  border-color: #DCC9BD;
+  box-shadow: var(--shadow);
+}
+
+/* Marco de la foto: muestra un placeholder hasta cargar la imagen real.
+   Cuando se descomenta el <img>, ocupa todo el marco (object-fit: cover). */
+.featured-media {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 4 / 3;
+  background: linear-gradient(150deg, var(--c-bg-alt) 0%, #FFFFFF 100%);
+  border-bottom: 1px solid var(--c-border);
+  overflow: hidden;
+}
+
+.featured-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.media-placeholder {
+  display: grid;
+  justify-items: center;
+  gap: 0.45rem;
+  padding: 1.1rem 1.5rem;
+  border: 1.5px dashed var(--c-border);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.65);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--c-ink-soft);
+}
+
+.media-placeholder svg {
+  color: var(--c-primary);
+  opacity: 0.55;
+}
+
+/* Distintivo del producto propio */
+.featured-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 1;
+  background: var(--c-primary);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.7rem;
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-sm);
+}
+
+.featured-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 1.25rem 1.4rem 1.5rem;
+}
+
+.featured-body h3 {
+  font-size: 1.08rem;
+}
+
+.featured-body p {
+  color: var(--c-ink-soft);
+  font-size: 0.93rem;
+}
+
+/* Banner de lista de precios */
+.price-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.2rem 2rem;
+  margin-top: 2.4rem;
+  padding: 1.6rem 2rem;
+  background:
+    radial-gradient(420px 200px at 100% 0%, rgba(224, 164, 55, 0.16), transparent 70%),
+    #fff;
+  border: 1px solid var(--c-border);
+  border-left: 4px solid var(--c-accent);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.price-banner h3 {
+  font-size: 1.15rem;
+}
+
+.price-banner-note {
+  margin-top: 0.3rem;
+  font-size: 0.88rem;
+  color: var(--c-ink-soft);
+  max-width: 52ch;
+}
+
+/* --------------------------------------------------------------------------
+   10. Sectores
    -------------------------------------------------------------------------- */
 .sector-grid {
   display: grid;
@@ -814,7 +1046,7 @@ h2 {
 }
 
 /* --------------------------------------------------------------------------
-   9. Beneficios (sección oscura)
+   11. Beneficios (sección oscura)
    -------------------------------------------------------------------------- */
 .section-dark {
   background:
@@ -888,7 +1120,7 @@ h2 {
 }
 
 /* --------------------------------------------------------------------------
-   10. Cómo trabajamos
+   12. Cómo trabajamos
    -------------------------------------------------------------------------- */
 .process-steps {
   display: grid;
@@ -950,7 +1182,63 @@ h2 {
 }
 
 /* --------------------------------------------------------------------------
-   11. Contacto y formulario
+   13. Preguntas frecuentes (FAQ)
+   Acordeones nativos con <details>/<summary>: accesibles y sin JS.
+   -------------------------------------------------------------------------- */
+.faq-list {
+  max-width: 840px;
+  margin-inline: auto;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.faq-item {
+  background: #fff;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.faq-item[open] {
+  border-color: #DCC9BD;
+  box-shadow: var(--shadow-sm);
+}
+
+.faq-item summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.05rem 1.25rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  list-style: none;
+}
+
+.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-item summary svg {
+  flex-shrink: 0;
+  color: var(--c-primary);
+  transition: transform var(--transition);
+}
+
+.faq-item[open] summary svg {
+  transform: rotate(45deg);
+}
+
+.faq-answer {
+  padding: 0 1.25rem 1.2rem;
+  color: var(--c-ink-soft);
+  font-size: 0.96rem;
+  max-width: 72ch;
+}
+
+/* --------------------------------------------------------------------------
+   14. Contacto y formulario
    -------------------------------------------------------------------------- */
 .contact-inner {
   display: grid;
@@ -1000,7 +1288,7 @@ h2 {
   color: var(--c-primary);
 }
 
-/* Botón de WhatsApp (se activa al descomentar el enlace en index.html) */
+/* Botón de WhatsApp (oculto hasta configurar WHATSAPP_NUMBER en script.js) */
 .btn-whatsapp {
   margin-top: 1.8rem;
   background: #25D366;
@@ -1011,6 +1299,28 @@ h2 {
 .btn-whatsapp:focus-visible {
   background: #1EAE54;
   color: #fff;
+}
+
+.btn-whatsapp[hidden] {
+  display: none;
+}
+
+/* Datos comerciales (razón social y nombre comercial) */
+.contact-legal {
+  margin-top: 1.8rem;
+  padding-top: 1.2rem;
+  border-top: 1px dashed var(--c-border);
+  font-size: 0.88rem;
+  color: var(--c-ink-soft);
+}
+
+.contact-legal p {
+  margin-bottom: 0.25rem;
+}
+
+.contact-legal strong {
+  color: var(--c-ink);
+  font-weight: 600;
 }
 
 /* Formulario */
@@ -1061,6 +1371,7 @@ h2 {
 }
 
 .form-field input,
+.form-field select,
 .form-field textarea {
   width: 100%;
   font: inherit;
@@ -1072,16 +1383,26 @@ h2 {
   transition: border-color var(--transition), background var(--transition);
 }
 
+.form-field select {
+  cursor: pointer;
+}
+
 .form-field input::placeholder,
 .form-field textarea::placeholder {
   color: #A99E98;
 }
 
 .form-field input:focus,
+.form-field select:focus,
 .form-field textarea:focus {
   outline: none;
   border-color: var(--c-primary);
   background: #fff;
+}
+
+/* Honeypot anti-spam: oculto para personas, visible para bots */
+.hp-field {
+  display: none;
 }
 
 .form-field input[aria-invalid="true"],
@@ -1117,7 +1438,7 @@ h2 {
 }
 
 /* --------------------------------------------------------------------------
-   12. Footer
+   15. Footer
    -------------------------------------------------------------------------- */
 .site-footer {
   background: var(--c-dark);
@@ -1182,7 +1503,39 @@ h2 {
 }
 
 /* --------------------------------------------------------------------------
-   13. Responsive
+   16. WhatsApp flotante
+   Oculto hasta configurar WHATSAPP_NUMBER en script.js.
+   -------------------------------------------------------------------------- */
+.whatsapp-float {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: #25D366;
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+  transition: transform var(--transition), background var(--transition);
+}
+
+.whatsapp-float:hover,
+.whatsapp-float:focus-visible {
+  background: #1EAE54;
+  color: #fff;
+  transform: translateY(-3px);
+  text-decoration: none;
+}
+
+.whatsapp-float[hidden] {
+  display: none;
+}
+
+/* --------------------------------------------------------------------------
+   17. Responsive
    -------------------------------------------------------------------------- */
 @media (max-width: 1020px) {
   .hero-inner {
@@ -1212,6 +1565,14 @@ h2 {
     grid-template-columns: repeat(2, 1fr);
   }
 
+  .featured-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .brand-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   .sector-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -1221,9 +1582,9 @@ h2 {
   }
 }
 
-/* El menú colapsa antes que el resto del layout: con 5 ítems y un CTA largo
-   no entra cómodo entre 700 y 880px. */
-@media (max-width: 880px) {
+/* El menú colapsa antes que el resto del layout: con 6 ítems y un CTA largo
+   no entra cómodo entre 700 y 980px. */
+@media (max-width: 980px) {
   .nav-toggle {
     display: flex;
   }
@@ -1297,8 +1658,43 @@ h2 {
   }
 
   .product-grid,
+  .featured-grid,
   .sector-grid {
     grid-template-columns: 1fr;
+  }
+
+  .brand-strip {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.8rem;
+  }
+
+  .brand-tile {
+    min-height: 88px;
+    padding: 0.9rem 0.8rem;
+  }
+
+  .price-banner {
+    padding: 1.4rem 1.4rem;
+  }
+
+  .price-banner .btn {
+    width: 100%;
+  }
+
+  .faq-item summary {
+    font-size: 0.97rem;
+    padding: 0.95rem 1.05rem;
+  }
+
+  .faq-answer {
+    padding: 0 1.05rem 1.1rem;
+  }
+
+  .whatsapp-float {
+    right: 14px;
+    bottom: 14px;
+    width: 50px;
+    height: 50px;
   }
 
   .benefit-list {
@@ -1351,7 +1747,7 @@ h2 {
 }
 
 /* --------------------------------------------------------------------------
-   14. Accesibilidad / reduced motion
+   18. Accesibilidad / reduced motion
    -------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   html {
