@@ -104,6 +104,17 @@ export const comidasClinica = [
   { comida: 'Cena', productos: ['mayonesa', 'ketchup', 'mostaza', 'salsa-golf'] },
 ] as const;
 
+/** Pedido típico de un comercio (kiosco, bar): qué lleva y para qué. */
+export const pedidoTipicoComercio = [
+  { producto: 'edulcorante', uso: 'el café' },
+  { producto: 'mayonesa', uso: 'el pancho' },
+  { producto: 'azucar', uso: 'a veces' },
+  { producto: 'mermeladas', uso: 'a veces' },
+] as const;
+
+/** Públicos, para textos de pie y datos estructurados. */
+export const publicos = ['clínicas', 'geriátricos', 'instituciones', 'bares', 'kioscos', 'almacenes', 'confiterías'] as const;
+
 export const productosPorCategoria = (slug: Categoria['slug']) => productos.filter((p) => p.categoria === slug);
 export const productoPorSlug = (slug: string) => productos.find((p) => p.slug === slug);
 export const masVendidos = () => productos.filter((p) => p.masVendido);

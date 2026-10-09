@@ -4,7 +4,7 @@
 import { horario } from '../data/horario';
 import type { Dia } from '../data/types';
 
-const DIAS_JS: Dia[] = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+export const DIAS_JS: Dia[] = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
 const NOMBRE_DIA: Record<Dia, string> = {
   lunes: 'lunes',
   martes: 'martes',
@@ -54,7 +54,7 @@ const esDiaDeAtencion = (dia: Dia, fecha: string) =>
   horario.dias.includes(dia) && !horario.feriados.includes(fecha);
 
 /** Suma días a una fecha AAAA-MM-DD (sin depender de la zona horaria local). */
-const sumarDias = (fecha: string, n: number) => {
+export const sumarDias = (fecha: string, n: number) => {
   const d = new Date(`${fecha}T12:00:00Z`);
   d.setUTCDate(d.getUTCDate() + n);
   return d.toISOString().slice(0, 10);
@@ -70,6 +70,9 @@ export interface EstadoAtencion {
   proximaApertura?: string;
   /** Minutos que faltan para cerrar (si está abierto). */
   minutosParaCerrar?: number;
+  /** Hora de apertura y cierre, para mostrar ("5:00", "16:00"). */
+  horaApertura: string;
+  horaCierre: string;
 }
 
 export function estadoAtencion(fecha = new Date()): EstadoAtencion {
@@ -77,6 +80,7 @@ export function estadoAtencion(fecha = new Date()): EstadoAtencion {
   const abre = aMinutos(horario.abre);
   const cierra = aMinutos(horario.cierra);
   const horaApertura = horaCorta(horario.abre, true);
+  const horaCierre = horaCorta(horario.cierra, true);
 
   if (esDiaDeAtencion(dia, hoy) && minutos >= abre && minutos < cierra) {
     return {
@@ -84,6 +88,8 @@ export function estadoAtencion(fecha = new Date()): EstadoAtencion {
       titulo: 'Estamos atendiendo',
       detalle: 'contestamos en minutos',
       minutosParaCerrar: cierra - minutos,
+      horaApertura,
+      horaCierre,
     };
   }
 
@@ -106,15 +112,17 @@ export function estadoAtencion(fecha = new Date()): EstadoAtencion {
     titulo: `Arrancamos ${proxima} a las ${horaApertura}`,
     detalle: 'dejanos tu mensaje y te contestamos a primera hora',
     proximaApertura: proxima,
+    horaApertura,
+    horaCierre,
   };
 }
 
-/** "Lunes a viernes, de 5 a 16 h" (texto de respaldo sin JS). */
+/** "Lunes a viernes, de 5 a 16 h" (texto de respaldo sin JS). Usa espacio duro antes de "h". */
 export function textoHorario() {
   const dias = horario.dias;
   const rango =
     dias.length === 5 && dias[0] === 'lunes' && dias[4] === 'viernes'
       ? 'Lunes a viernes'
       : dias.map(nombreDia).join(', ');
-  return `${rango}, de ${horaCorta(horario.abre)} a ${horaCorta(horario.cierra)} h`;
+  return `${rango}, de ${horaCorta(horario.abre)} a ${horaCorta(horario.cierra)}\u00a0h`;
 }
