@@ -1,0 +1,29 @@
+---
+// Layout mínimo: <head> común. Cada página o dirección suma sus estilos.
+import '../styles/reset.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** true para páginas internas que no deben aparecer en buscadores. */
+  noindex?: boolean;
+  themeColor?: string;
+}
+const { title, description, noindex = false, themeColor } = Astro.props;
+---
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    {themeColor && <meta name="theme-color" content={themeColor} />}
+    <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}favicon.svg`} />
+    <slot name="head" />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
