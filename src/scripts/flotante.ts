@@ -1,11 +1,13 @@
-// Botón flotante de WhatsApp (celular): aparece solo cuando NINGÚN botón principal
-// ([data-wa-principal]) está a la vista, así no tapa la portada ni duplica el botón grande.
+// Botón flotante de WhatsApp (celular): aparece solo cuando NINGÚN botón de WhatsApp a mano está
+// a la vista: los principales de la página ([data-wa-principal]) y el del encabezado
+// ([data-wa-encabezado]). Así no tapa la primera pantalla (arriba ya está el del encabezado)
+// ni duplica el botón grande.
 // Sin JS (o sin IntersectionObserver) queda siempre visible: es un link común.
 const flotante = document.querySelector<HTMLElement>('[data-flotante]');
-const principales = Array.from(document.querySelectorAll('[data-wa-principal]'));
+const aMano = Array.from(document.querySelectorAll('[data-wa-principal], [data-wa-encabezado]'));
 
 if (flotante) {
-  if (!('IntersectionObserver' in window) || principales.length === 0) {
+  if (!('IntersectionObserver' in window) || aMano.length === 0) {
     flotante.dataset.visible = 'si';
   } else {
     const visibles = new Set<Element>();
@@ -19,6 +21,6 @@ if (flotante) {
       },
       { threshold: 0.4 },
     );
-    principales.forEach((el) => io.observe(el));
+    aMano.forEach((el) => io.observe(el));
   }
 }

@@ -93,10 +93,10 @@ export function textosCategoria(slug: CategoriaSlug): TextosCategoria {
       };
     case 'endulzantes':
       return {
-        title: `Azúcar y edulcorante en sobre para bares y oficinas · ${DPI}`,
-        h1: 'Azúcar y edulcorante en sobre para bares y oficinas',
-        oracion: `${DPI} vende ${lista} en sobres individuales para el café de bares, confiterías, oficinas y clínicas de ${zonas}.`,
-        description: descripcion(`Sobres individuales de ${lista} para el café de bares, oficinas y clínicas.`, reparto),
+        title: `Azúcar y edulcorante en sobre para bares y confiterías · ${DPI}`,
+        h1: 'Azúcar y edulcorante en sobre para bares y confiterías',
+        oracion: `${DPI} vende ${lista} en sobres individuales para el café de bares, confiterías, kioscos y clínicas de ${zonas}.`,
+        description: descripcion(`Sobres individuales de ${lista} para el café de bares, confiterías y clínicas.`, reparto),
       };
     case 'mermeladas': {
       const m = prods.find((p) => p.variantes);
@@ -133,36 +133,41 @@ export function textosCategoria(slug: CategoriaSlug): TextosCategoria {
   }
 }
 
-/** Para qué y quién usa cada producto. `momento` es la frase grande del producto principal de la página. */
+/**
+ * Para qué y quién usa cada producto. `momento` es la frase grande del producto principal de la página.
+ * `resumen` es el renglón corto que se usa cuando el producto va agrupado con otros (FichaGrupo);
+ * si falta, se arma con los usos. Son usos obvios del rubro: los que el dueño no confirmó están
+ * en docs/pendientes.md ("Redacción a validar").
+ */
 export interface Uso {
   quien: string;
   para: string;
 }
-export const usos: Record<string, { momento?: string; usos: Uso[] }> = {
+export const usos: Record<string, { momento?: string; resumen?: string; usos: Uso[] }> = {
   mayonesa: {
     momento: 'Del pancho a la bandeja del almuerzo.',
     usos: [
       { quien: 'Kioscos y puestos de comida', para: 'el sobre que se regala con el pancho' },
-      { quien: 'Bares y rotiserías', para: 'la hamburguesa, el lomito y el pedido para llevar' },
+      { quien: 'Bares y rotiserías', para: 'la hamburguesa y el pedido para llevar' },
       { quien: 'Clínicas', para: 'la bandeja del almuerzo y de la cena' },
     ],
   },
   ketchup: {
+    resumen: 'Las papas fritas y la hamburguesa en el bar; el almuerzo en la clínica.',
     usos: [
       { quien: 'Bares', para: 'las papas fritas y la hamburguesa' },
       { quien: 'Clínicas', para: 'el almuerzo, al lado de la mayonesa' },
     ],
   },
   mostaza: {
-    usos: [
-      { quien: 'Kioscos y puestos de comida', para: 'el pancho y el choripán' },
-      { quien: 'Bares', para: 'el sándwich de bondiola o de jamón crudo' },
-    ],
+    resumen: 'El pancho y el choripán, en kioscos y puestos de comida.',
+    usos: [{ quien: 'Kioscos y puestos de comida', para: 'el pancho y el choripán' }],
   },
   'salsa-golf': {
+    resumen: 'El sándwich y la ensalada en el bar; el almuerzo y la cena en la clínica.',
     usos: [
-      { quien: 'Bares', para: 'el lomito y la ensalada' },
-      { quien: 'Clínicas', para: 'la cena, con el pollo frío o la ensalada' },
+      { quien: 'Bares', para: 'el sándwich y la ensalada' },
+      { quien: 'Clínicas', para: 'el almuerzo y la cena' },
     ],
   },
   edulcorante: {
@@ -170,15 +175,13 @@ export const usos: Record<string, { momento?: string; usos: Uso[] }> = {
     usos: [
       { quien: 'Bares y confiterías', para: 'el café y el cortado, al lado del azúcar' },
       { quien: 'Kioscos', para: 'el café para llevar' },
-      { quien: 'Oficinas', para: 'la cafetera de la oficina' },
-      { quien: 'Clínicas', para: 'el desayuno y la merienda de las dietas sin azúcar' },
+      { quien: 'Clínicas', para: 'el desayuno y la merienda, para quien no toma azúcar' },
     ],
   },
   azucar: {
     usos: [
       { quien: 'Bares y confiterías', para: 'el café con leche y el cortado' },
-      { quien: 'Oficinas', para: 'el café y el té de todos los días' },
-      { quien: 'Clínicas', para: 'el té del desayuno y de la merienda' },
+      { quien: 'Clínicas', para: 'el desayuno y la merienda' },
     ],
   },
   mermeladas: {
@@ -190,7 +193,7 @@ export const usos: Record<string, { momento?: string; usos: Uso[] }> = {
   },
   'mermelada-surtida': {
     usos: [
-      { quien: 'Clínicas y geriátricos', para: 'que la bandeja no repita el mismo sabor toda la semana' },
+      { quien: 'Clínicas y geriátricos', para: 'que las bandejas no lleven todas el mismo sabor' },
       { quien: 'Confiterías', para: 'la canastita del desayuno, para que cada uno elija' },
     ],
   },
@@ -198,7 +201,7 @@ export const usos: Record<string, { momento?: string; usos: Uso[] }> = {
     momento: 'Para untar la tostada de la mañana.',
     usos: [
       { quien: 'Bares y confiterías', para: 'las tostadas del desayuno' },
-      { quien: 'Clínicas', para: 'el desayuno y la merienda, con tostadas o galletitas' },
+      { quien: 'Clínicas', para: 'el desayuno, con tostadas' },
     ],
   },
   manteca: {
@@ -210,20 +213,28 @@ export const usos: Record<string, { momento?: string; usos: Uso[] }> = {
   galletitas: {
     momento: 'La merienda, con el té o el café con leche.',
     usos: [
-      { quien: 'Clínicas', para: 'la merienda; las sin sal, para las dietas con poco sodio' },
+      { quien: 'Clínicas', para: 'la merienda; las sin sal, para quien no puede comer sal' },
       { quien: 'Bares', para: 'la galletita que acompaña el café' },
     ],
   },
   vainillas: {
+    resumen: 'La merienda en clínicas y geriátricos; el café con leche de la tarde en el bar.',
     usos: [
-      { quien: 'Clínicas y geriátricos', para: 'la merienda con té o con leche' },
+      { quien: 'Clínicas y geriátricos', para: 'la merienda' },
       { quien: 'Bares', para: 'el café con leche de la tarde' },
     ],
   },
   tostadas: {
-    usos: [
-      { quien: 'Clínicas', para: 'el desayuno, con manteca y mermelada' },
-      { quien: 'Geriátricos', para: 'la merienda, con queso crema' },
-    ],
+    resumen: 'El desayuno de las clínicas, con manteca y mermelada.',
+    usos: [{ quien: 'Clínicas', para: 'el desayuno, con manteca y mermelada' }],
   },
 };
+
+/** Un renglón de uso para un producto agrupado: el `resumen`, o los usos en una frase. */
+export function resumenUso(slug: string) {
+  const u = usos[slug];
+  if (!u) return '';
+  if (u.resumen) return u.resumen;
+  const frase = u.usos.map((x) => `${x.para} (${x.quien.toLowerCase()})`).join('; ');
+  return `${frase.charAt(0).toUpperCase()}${frase.slice(1)}.`;
+}

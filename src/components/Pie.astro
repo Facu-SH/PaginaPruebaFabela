@@ -2,10 +2,10 @@
 // Pie: el dorso del sobre. Marco de esquinas redondeadas y letra chica condensada, como el dorso
 // de los sobres que DPI ya imprime, con el teléfono grande. Nombre, dirección y teléfono (NAP)
 // salen tal cual de src/data/empresa.ts: tienen que ser idénticos en todo el sitio y en Google Maps.
-import { categorias, empresa, horario, publicos } from '../data';
+import { categorias, empresa } from '../data';
 import { textoHorario } from '../lib/horario';
 import { secciones } from '../lib/navegacion';
-import { direccionLinea, enumerar, telefonoCorto } from '../lib/textos';
+import { direccionLinea, telefonoCorto } from '../lib/textos';
 import { url } from '../lib/url';
 import { mailtoLink, telLink, waLink } from '../lib/whatsapp';
 import TableroAtencion from './TableroAtencion.astro';
@@ -20,8 +20,9 @@ const atiende = empresa.whatsapp.atiende;
       <div class="pie__cabeza">
         <Wordmark class="pie__wordmark" />
         <p class="pie__leyenda">
-          Distribuidora de alimentos envasados en porciones individuales, desde {empresa.desde}. Atención a {enumerar([...publicos])}.
-          {' '}{categorias.map((c) => c.nombre).join(' · ')}.
+          Distribuidora de alimentos envasados en porciones individuales desde {empresa.desde}{empresa.clientesPublicables
+            ? `, con más de ${empresa.clientesPublicables} clientes`
+            : ''}.{' '}{categorias.map((c) => c.nombre).join('\u00a0· ')}.
         </p>
       </div>
 
@@ -52,19 +53,6 @@ const atiende = empresa.whatsapp.atiende;
           <dt>Mail</dt>
           <dd><a href={mailtoLink('general')}>{empresa.email}</a></dd>
         </div>
-        {horario.retiroEnDeposito && (
-          <div class="pie__ancho">
-            <dt>Retiro en depósito</dt>
-            <dd>En el mismo horario. Avisanos antes y lo dejamos preparado.</dd>
-          </div>
-        )}
-        <div class="pie__ancho">
-          <dt>En el rubro</dt>
-          <dd>
-            Desde {empresa.desde}
-            {empresa.clientesPublicables && <> · más de {empresa.clientesPublicables} clientes</>}
-          </dd>
-        </div>
       </dl>
 
       <nav class="pie__nav" aria-label="Páginas del sitio">
@@ -81,18 +69,18 @@ const atiende = empresa.whatsapp.atiende;
 </footer>
 
 <style>
-  /* Abajo, 7rem de aire: en el celular el botón flotante de WhatsApp (3,4rem + 12px, o el borde seguro
-     del iPhone) queda debajo del último renglón del pie y no tapa nada al llegar al final. */
-  .pie { padding-block: var(--e-seccion) max(7rem, calc(3.4rem + env(safe-area-inset-bottom, 0px) + var(--e-6))); }
+  /* Abajo, el aire justo para que el botón flotante de WhatsApp del celular (3,4rem + 12px, o el borde
+     seguro del iPhone) quede debajo del último renglón del pie y no tape nada al llegar al final. */
+  .pie { padding-block: var(--e-seccion) max(5.5rem, calc(3.4rem + env(safe-area-inset-bottom, 0px) + var(--e-5))); }
   .pie__marco {
     display: grid;
-    gap: var(--e-6);
+    gap: var(--e-5);
     padding: clamp(1.25rem, 3.5vw, 3rem);
     border: var(--trazo-grueso) solid var(--tinta);
     border-radius: var(--r-dorso);
   }
-  .pie__cabeza { display: grid; gap: var(--e-5); }
-  .pie__cabeza :global(.pie__wordmark) { width: min(100%, 20rem); }
+  .pie__cabeza { display: grid; gap: var(--e-4); }
+  .pie__cabeza :global(.pie__wordmark) { width: min(100%, 12.5rem); }
   .pie__leyenda {
     font-stretch: 75%;
     font-weight: 600;
@@ -128,7 +116,7 @@ const atiende = empresa.whatsapp.atiende;
   .pie__datos > .pie__ancho { grid-column: 1 / -1; }
   .pie__datos a { text-decoration-thickness: 1px; overflow-wrap: anywhere; }
   .pie__nav { padding-top: var(--e-4); border-top: var(--borde); }
-  .pie__nav ul { display: flex; flex-wrap: wrap; gap: 0 var(--e-5); padding: 0; list-style: none; }
+  .pie__nav ul { display: flex; flex-wrap: wrap; gap: 0 var(--e-4); padding: 0; list-style: none; }
   .pie__nav a {
     display: inline-flex;
     align-items: center;
@@ -139,6 +127,10 @@ const atiende = empresa.whatsapp.atiende;
   .pie__legal { margin-top: var(--e-4); font-size: var(--t-chico); }
 
   @media (min-width: 720px) {
+    .pie__marco { gap: var(--e-6); }
+    .pie__nav ul { column-gap: var(--e-5); }
+    .pie__cabeza { gap: var(--e-5); }
+    .pie__cabeza :global(.pie__wordmark) { width: min(100%, 20rem); }
     .pie__datos { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .pie__datos > .pie__ancho { grid-column: auto; }
   }

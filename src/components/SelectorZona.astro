@@ -60,15 +60,17 @@ const fichas = entregas.map((z) => {
             <dd class="ficha__dia">{z.dia.grande}</dd>
           </div>
           {z.plazo && (
-            <div class="ficha__dato">
+            <div class="ficha__dato ficha__dato--par">
               <dt>Cuándo llega</dt>
               <dd>{mayuscula(z.plazo)}</dd>
             </div>
           )}
-          <div class="ficha__dato">
-            <dt>Pedido mínimo</dt>
-            <dd>{mayuscula(z.pedidoMinimo)}</dd>
-          </div>
+          {z.tieneFecha && (
+            <div class:list={['ficha__dato', { 'ficha__dato--par': z.plazo }]}>
+              <dt>Pedido mínimo</dt>
+              <dd>{mayuscula(z.pedidoMinimo)}</dd>
+            </div>
+          )}
           {z.tieneFecha && (
             <div class:list={['ficha__dato ficha__dato--fecha', { 'solo-js': !z.estimada }]} data-estimada hidden={!z.estimada}>
               <dt data-estimada-rotulo>{z.estimada?.rotulo ?? 'Próximo reparto'}</dt>
@@ -136,13 +138,17 @@ const fichas = entregas.map((z) => {
     letter-spacing: 0;
     opacity: 0.85;
   }
-  .ficha__datos { display: grid; gap: var(--e-3); width: 100%; }
+  /* "Cuándo llega" y "Pedido mínimo" van de a dos (la ficha queda más baja); el resto, a lo ancho */
+  .ficha__datos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--e-3) var(--e-4); width: 100%; }
   .ficha__dato {
+    grid-column: 1 / -1;
     display: grid;
+    align-content: start;
     gap: 0.15rem;
     padding-top: var(--e-3);
     border-top: 1px solid color-mix(in srgb, var(--papel) 35%, transparent);
   }
+  .ficha__dato--par { grid-column: auto; }
   .ficha__dato[hidden] { display: none; }
   .ficha__dato dt {
     font-stretch: var(--ancho-expandida);

@@ -1,0 +1,172 @@
+---
+// Los productos "normales" de una categoría (todos menos el principal), juntos en UN compartimento:
+// los envases en fila, cada uno con su nombre debajo; una cenefa con la marca y un solo
+// "Preguntá el precio" (el mensaje nombra a todos); y un solo "para qué se usa", un renglón por
+// producto. Reemplaza a las tarjetas iguales apiladas (ketchup, mostaza y salsa golf seguidas).
+// Al lado (escritorio) o debajo (celular), el dorso con los usos, como en FichaProducto.
+import { productoPorSlug, type Producto } from '../../data';
+import { colorCategoria } from '../../lib/color';
+import { categoriaDe, enumerar, mayuscula } from '../../lib/textos';
+import BotonWhatsApp from '../BotonWhatsApp.astro';
+import FotoOEnvase from '../FotoOEnvase.astro';
+import { listaConMarca, resumenUso } from './textos';
+
+interface Props {
+  /** Slugs de los productos (de la misma categoría). */
+  productos: string[];
+  /** Da vuelta el orden en el escritorio (el dorso a la izquierda). */
+  invertida?: boolean;
+  class?: string;
+}
+const { productos: slugs, invertida = false, class: clase } = Astro.props;
+const prods = slugs.map((s) => productoPorSlug(s)).filter((p): p is Producto => Boolean(p));
+const c = categoriaDe(prods[0]);
+const color = colorCategoria[c.slug];
+// Si todos son de la misma marca, va una vez en la cenefa; si no, cada uno con la suya.
+const marcaComun = prods.every((p) => p.marca && p.marca === prods[0].marca) ? prods[0].marca : undefined;
+// "ketchup, mostaza y salsa golf Natura" (para el mensaje de WhatsApp)
+const consulta = listaConMarca(prods, { propiaComoMarca: true });
+const extra = (p: Producto) =>
+  [p.variantes && mayuscula(enumerar(p.variantes)), p.gramaje, p.unidadesPorCaja && `${p.unidadesPorCaja} unidades por caja`].filter(Boolean).join('\u00a0· ');
+---
+<div class:list={['grupo', `grupo--${c.envase}`, `grupo--n${prods.length}`, { 'grupo--invertida': invertida }, clase]}>
+  <div class="grupo__tarjeta">
+    <ul class="grupo__envases" role="list" style={`--fondo:var(--${color.fondo});--texto:var(--${color.texto})`}>
+      {prods.map((p) => (
+        <li class:list={['grupo__item', `grupo__item--${p.slug}`]}>
+          <div class="grupo__figura">
+            <FotoOEnvase producto={p.slug} ancho={360} sizes="(min-width: 1080px) 220px, 30vw" />
+          </div>
+          <div class="grupo__rotulo">
+            <h3 class="grupo__nombre">{p.nombre}</h3>
+            {!marcaComun && p.marca && <p class="grupo__marca-item">{p.marca}</p>}
+          </div>
+        </li>
+      ))}
+    </ul>
+    <div class="grupo__cenefa fondo-tinta">
+      {marcaComun && <p class="grupo__marca">{marcaComun}</p>}
+      <BotonWhatsApp variante="compacto" contexto="producto" vars={{ producto: consulta }} tono="papel">
+        Preguntá el precio
+      </BotonWhatsApp>
+    </div>
+  </div>
+
+  <div class="grupo__dorso">
+    <p class="t-rotulo">Para qué se usa</p>
+    <dl class="usos">
+      {prods.map((p) => (
+        <div class="usos__fila">
+          <dt>{p.nombre}</dt>
+          <dd>
+            {resumenUso(p.slug)}
+            {extra(p) && <span class="usos__extra">{extra(p)}</span>}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  </div>
+</div>
+
+<style>
+  .grupo { display: flex; flex-direction: column; min-width: 0; }
+  .grupo__tarjeta { display: flex; flex-direction: column; min-width: 0; }
+
+  /* Los envases en fila, sobre el color de la familia, con el nombre debajo de cada uno */
+  /* Dos filas compartidas (subgrid): los envases apoyados abajo en la misma línea y los nombres
+     arriba en la misma línea, aunque uno ocupe dos renglones ("Salsa golf"). */
+  .grupo__envases {
+    display: grid;
+    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-flow: column;
+    grid-template-rows: auto auto;
+    gap: var(--e-3) var(--e-4);
+    margin: 0;
+    padding: var(--e-6) var(--e-4) var(--e-5);
+    list-style: none;
+    background: var(--fondo);
+    color: var(--texto);
+  }
+  .grupo__item { display: grid; grid-row: span 2; grid-template-rows: subgrid; justify-items: center; min-width: 0; text-align: center; }
+  .grupo__figura { display: grid; place-items: end center; width: 100%; }
+  .grupo__rotulo { display: grid; gap: 0.2rem; justify-items: center; align-content: start; }
+  .grupo__figura > :global(*) { width: 100%; }
+  .grupo--sobre .grupo__figura > :global(.envase) { width: auto; height: clamp(7.5rem, 14vw, 12rem); }
+  .grupo--sobre .grupo__figura > :global(.foto-producto) { max-width: 9rem; }
+  .grupo--sobre-papel .grupo__figura > :global(*) { max-width: 11rem; }
+  .grupo--pote .grupo__figura > :global(*) { max-width: 7.5rem; }
+  .grupo--paquete .grupo__figura > :global(*) { max-width: 13rem; }
+  .grupo__nombre { font-size: clamp(1.0625rem, 0.95rem + 0.6vw, 1.5rem); line-height: 1.05; overflow-wrap: anywhere; }
+  .grupo__marca-item {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 700;
+    font-size: 0.6875rem;
+    letter-spacing: var(--tracking-rotulo);
+    text-transform: uppercase;
+  }
+
+  .grupo__cenefa {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--e-3) var(--e-4);
+    padding: var(--e-3) var(--e-5);
+  }
+  .grupo__marca {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 700;
+    font-size: var(--t-rotulo);
+    letter-spacing: var(--tracking-rotulo);
+    text-transform: uppercase;
+  }
+
+  /* El dorso: un renglón por producto */
+  .grupo__dorso {
+    display: grid;
+    gap: var(--e-3);
+    align-content: start;
+    padding: var(--e-4) var(--e-5) var(--e-5);
+    border: var(--borde);
+    border-top: 0;
+    border-radius: 0 0 var(--r-envase) var(--r-envase);
+    background: var(--papel);
+  }
+  .usos { margin: 0; }
+  .usos__fila {
+    display: grid;
+    gap: 0.15rem;
+    padding-block: 0.6rem;
+    border-top: 1px solid color-mix(in srgb, var(--tinta) 30%, transparent);
+  }
+  .usos__fila:first-child { border-top: var(--trazo) solid var(--tinta); }
+  .usos dt {
+    font-stretch: var(--ancho-condensada);
+    font-weight: 800;
+    font-size: 0.9375rem;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+  }
+  .usos dd { margin: 0; font-size: 1.0625rem; line-height: 1.35; }
+  .usos__extra { display: block; font-size: 0.9375rem; font-weight: 600; }
+
+  @media (min-width: 720px) {
+    .grupo { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+    .grupo__envases { flex: 1; align-content: center; padding: var(--e-7) var(--e-6) var(--e-6); gap: var(--e-4) var(--e-6); }
+    .grupo__dorso {
+      border-top: var(--borde);
+      border-left: 0;
+      border-radius: 0 var(--r-envase) var(--r-envase) 0;
+      padding: var(--e-6);
+      align-content: center;
+    }
+    .usos__fila { grid-template-columns: minmax(7rem, 2fr) minmax(0, 5fr); column-gap: var(--e-4); align-items: baseline; }
+    .grupo--invertida { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+    .grupo--invertida .grupo__tarjeta { order: 2; }
+    .grupo--invertida .grupo__dorso {
+      border-left: var(--borde);
+      border-right: 0;
+      border-radius: var(--r-envase) 0 0 var(--r-envase);
+    }
+  }
+</style>

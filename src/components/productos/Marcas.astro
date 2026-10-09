@@ -76,16 +76,20 @@ const categoriaDe = (slug: string) => categorias.find((c) => c.slug === slug)!;
     font-size: clamp(1.25rem, 1.05rem + 0.9vw, 1.75rem);
     line-height: 1.3;
   }
-  .marca__productos li { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 0 0.4rem; }
-  .marca__productos li + li::before {
+  /* El punto separador va al final de cada producto (no al principio del siguiente): si la lista
+     salta de renglón, el punto queda arriba y el renglón nuevo no arranca con un punto suelto. */
+  .marca__productos li { display: block; }
+  .marca__productos li:not(:last-child)::after {
     content: '';
-    align-self: center;
+    display: inline-block;
     width: 0.32em;
     height: 0.32em;
-    margin-right: 0.7rem;
+    margin-left: 0.7rem;
+    vertical-align: 0.18em;
     border-radius: 50%;
     background: var(--verde);
   }
+  .marca__variantes { margin-left: 0.4rem; }
   .marca__productos a {
     display: inline-flex;
     align-items: center;

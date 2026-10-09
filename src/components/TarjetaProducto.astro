@@ -39,7 +39,7 @@ const ancho = tamano === 'grande' ? 720 : 420;
     </div>
     {p.variantes && <p class="producto__variantes">{mayuscula(enumerar(p.variantes))}</p>}
     {p.nota && <p class="producto__nota">{p.nota}</p>}
-    {detalles.length > 0 && <p class="producto__nota">{detalles.join(' · ')}</p>}
+    {detalles.length > 0 && <p class="producto__nota">{detalles.join('\u00a0· ')}</p>}
     <BotonWhatsApp variante="compacto" contexto="producto" vars={{ producto: primeraMinuscula(nombreConMarca(p)) }} tono="papel">
       Preguntá el precio
     </BotonWhatsApp>

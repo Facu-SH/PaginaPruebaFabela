@@ -4,7 +4,6 @@
 // sin cookies ni trackers). Instagram y la ficha de Google Maps aparecen solo si tienen valor.
 import Sitio from '../layouts/Sitio.astro';
 import { categorias, empresa, faq } from '../data';
-import { textoHorario } from '../lib/horario';
 import { descripcion, resumenRepartos, telefonoCorto } from '../lib/textos';
 import { url } from '../lib/url';
 import { mailtoLink, telLink } from '../lib/whatsapp';
@@ -18,7 +17,6 @@ import { horarioEnFrase } from '../components/info/textos';
 
 const { calle, localidad, partido } = empresa.direccion;
 const atiende = empresa.whatsapp.atiende;
-const horario = textoHorario(); // "Lunes a viernes, de 5 a 16 h"
 const horarioFrase = horarioEnFrase(); // "de lunes a viernes de 5 a 16 h"
 const tel = telefonoCorto();
 const instagram = empresa.instagram;
@@ -36,7 +34,7 @@ const description = descripcion(`WhatsApp ${horarioFrase} (te contesta ${atiende
       <Migas items={[{ nombre: 'Contacto' }]} />
       <div class="cabeza__grilla">
         <div class="cabeza__titulos">
-          <p class="t-rotulo">{localidad} · {partido} · desde {empresa.desde}</p>
+          <p class="t-rotulo">{localidad}&nbsp;· {partido}&nbsp;· desde {empresa.desde}</p>
           <h1 class="cabeza__titulo">Contacto</h1>
         </div>
         <p class="cabeza__oracion">
@@ -59,7 +57,7 @@ const description = descripcion(`WhatsApp ${horarioFrase} (te contesta ${atiende
         <p class="canal__tel"><a href={telLink()} aria-label={`Llamar al ${empresa.telefono}`}>{tel}</a></p>
         <div class="canal__detalle canal__detalle--sobre">
           <p>
-            {empresa.telefono} · {horario}. Es el mismo número que está impreso en el sobre de edulcorante
+            {empresa.telefono}, en el mismo horario que el WhatsApp. Es el número que está impreso en el sobre de edulcorante
             {' '}{empresa.nombreComercial}.
           </p>
           <Envase producto="edulcorante" class="canal__sobre" />
@@ -73,7 +71,7 @@ const description = descripcion(`WhatsApp ${horarioFrase} (te contesta ${atiende
           <li><a href={mailtoLink('lista')}>Pedir la lista de precios por mail</a></li>
           <li><a href={mailtoLink('pedido')}>Mandar un pedido por mail</a></li>
         </ul>
-        <p class="canal__detalle">Mandalo a cualquier hora: te contestamos {horarioFrase}.</p>
+        <p class="canal__detalle">Mandalo a cualquier hora: te contestamos en el horario de atención.</p>
       </div>
 
       <div class="canal">
@@ -109,7 +107,7 @@ const description = descripcion(`WhatsApp ${horarioFrase} (te contesta ${atiende
     items={[
       { href: '/entregas/', texto: 'Entregas', dato: 'Zonas, días de reparto, pedido mínimo y formas de pago.' },
       { href: '/preguntas-frecuentes/', texto: 'Preguntas frecuentes', dato: `${faq.length} respuestas cortas: pedido mínimo, Factura A, marcas y frío.` },
-      { href: '/productos/', texto: 'Productos', dato: `${categorias.map((c) => c.nombre).join(' · ')}.` },
+      { href: '/productos/', texto: 'Productos', dato: `${categorias.map((c) => c.nombre).join('\u00a0· ')}.` },
     ]}
   />
 </Sitio>
@@ -123,7 +121,7 @@ const description = descripcion(`WhatsApp ${horarioFrase} (te contesta ${atiende
 
   /* ---------- Canales ---------- */
   .canales { display: grid; gap: var(--e-8); padding-top: var(--e-seccion); }
-  .canales__titulo { font-size: clamp(2rem, 1rem + 3.6vw, 4rem); max-width: 9em; margin-bottom: var(--e-5); }
+  .canales__titulo { max-width: 9em; margin-bottom: var(--e-5); }
   .canal {
     display: flex;
     flex-direction: column;

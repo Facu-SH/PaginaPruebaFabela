@@ -54,4 +54,21 @@ const actual = new URL(Astro.url.pathname, sitio).href;
   }
   .migas a { display: inline-flex; align-items: center; min-height: 2.75rem; text-decoration-thickness: 1px; }
   .migas [aria-current] { display: inline-flex; align-items: center; min-height: 2.75rem; }
+
+  /* En el celular, el rótulo expandido no entra en un renglón ("Inicio • Productos • Galletitas y
+     tostadas"): ancho normal y menos interletrado. Si igual no entra, el punto queda al final del
+     renglón de arriba (nunca abre el de abajo). */
+  @media (max-width: 719px) {
+    .migas ol { font-stretch: 100%; letter-spacing: 0.07em; }
+    .migas li + li::before { content: none; }
+    .migas li:not(:last-child)::after {
+      content: '';
+      flex: none;
+      width: 0.45em;
+      height: 0.45em;
+      margin-inline: 0.55em;
+      border-radius: 50%;
+      background: currentColor;
+    }
+  }
 </style>

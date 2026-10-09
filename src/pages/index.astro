@@ -5,7 +5,7 @@
 import Sitio from '../layouts/Sitio.astro';
 import { empresa, entregas, horario, marcas, masVendidos, pagos, pedidoTipicoComercio } from '../data';
 import { horaCorta } from '../lib/horario';
-import { descripcion, enumerar, mayuscula, nombreConMarca, nombreProducto, resumenRepartos, zonasConReparto, zonasCortas } from '../lib/textos';
+import { descripcion, enumerar, mayuscula, nombreProducto, resumenRepartos, zonasConReparto, zonasCortas } from '../lib/textos';
 import { url } from '../lib/url';
 import BandejaClinica from '../components/BandejaClinica.astro';
 import BloqueDato from '../components/BloqueDato.astro';
@@ -39,7 +39,7 @@ const description = descripcion(
   <section class="portada" aria-labelledby="portada-titulo">
     <div class="contenedor portada__grilla">
       <div class="portada__cabeza">
-        <p class="t-rotulo">{localidad} · {partido} · desde {empresa.desde}</p>
+        <p class="t-rotulo">{localidad}&nbsp;· {partido}&nbsp;· desde {empresa.desde}</p>
         <h1 id="portada-titulo" class="portada__titulo">Porciones individuales para clínicas, bares y kioscos.</h1>
       </div>
       <div class="portada__texto">
@@ -56,7 +56,7 @@ const description = descripcion(
           detalle
           titulo={`Sobre de edulcorante de ${empresa.nombreComercial}: blanco con una curva verde, el logo y el teléfono impresos`}
         />
-        <figcaption class="t-rotulo">El sobre de edulcorante {empresa.nombreComercial}, nuestra línea propia</figcaption>
+        <figcaption class="t-rotulo">Edulcorante {empresa.nombreComercial}: nuestra línea propia</figcaption>
       </figure>
     </div>
   </section>
@@ -67,10 +67,7 @@ const description = descripcion(
   <section class="mas" aria-labelledby="mas-titulo">
     <div class="contenedor mas__cabeza">
       <h2 id="mas-titulo">Lo que más sale</h2>
-      <p class="t-lectura">
-        {mayuscula(enumerar(masSale.map((p) => nombreConMarca(p).replace(/^./, (l) => l.toLowerCase()))))}: lo que más nos
-        piden bares, kioscos y clínicas, cada porción en su envase.
-      </p>
+      <p class="t-lectura">Lo que más nos piden bares, kioscos y clínicas.</p>
     </div>
     <div class="mas__filas">
       {masSale.map((p) => <FilaProducto producto={p.slug} />)}
@@ -82,12 +79,10 @@ const description = descripcion(
     <div class="contenedor">
       <div class="productos__cabeza">
         <h2 id="productos-titulo">Productos en porción individual</h2>
-        <p class="t-lectura">
-          Trabajamos con {enumerar(ajenas)}, y con nuestra línea propia de edulcorante. Cada familia, en su envase de siempre.
-        </p>
+        <p class="t-lectura">Trabajamos con {enumerar(ajenas)}, y con nuestra línea propia de edulcorante.</p>
       </div>
       <CajaCategorias />
-      <p class="productos__todos"><a class="link-flecha" href={url('/productos/')}>Todos los productos, con marcas y sabores</a></p>
+      <p class="productos__todos"><a class="link-flecha" href={url('/productos/')}>Ver todos los productos</a></p>
     </div>
   </section>
 
@@ -96,10 +91,7 @@ const description = descripcion(
     <section class="clinicas" aria-labelledby="clinicas-titulo">
       <p class="t-rotulo">Clínicas, geriátricos e instituciones</p>
       <h2 id="clinicas-titulo" class="publicos__titulo">Una porción para cada comida</h2>
-      <p class="t-lectura">
-        Las instituciones nos piden un poco de todo, porque dan algo en cada comida: {nombreProducto('azucar')} y
-        {' '}{nombreProducto('mermeladas')} en el desayuno, {nombreProducto('mayonesa')} y {nombreProducto('ketchup')} en el almuerzo.
-      </p>
+      <p class="t-lectura">Las instituciones nos piden un poco de todo, porque dan algo en cada comida.</p>
       <BandejaClinica variante="compacta" />
       <BloqueDato dato={mayuscula(pagos.instituciones)} aclaracion={`Para clínicas e instituciones, con ${pagos.facturacion[0]}.`} />
       <a class="link-flecha" href={url('/clinicas/')}>Porciones individuales para clínicas</a>
@@ -108,12 +100,11 @@ const description = descripcion(
     <section class="comercios fondo-tinta" aria-labelledby="comercios-titulo">
       <p class="t-rotulo">Kioscos, bares, almacenes y confiterías</p>
       <h2 id="comercios-titulo" class="publicos__titulo">{mayuscula(capital.pedidoMinimo)} en {capital.zona}</h2>
-      <EscenaUso tipo="cafe" />
+      <EscenaUso tipo="cafe" class="comercios__escena" />
       <p class="t-lectura">
         El {nombreProducto(usoA.producto)} para {usoA.uso}, la {nombreProducto(usoB.producto)} para {usoB.uso}: pedí lo que
-        necesites, aunque sea poco. En {capital.zona} lo tenés {capital.plazo}.
+        necesites, aunque sea poco.
       </p>
-      <p class="comercios__nota">Si abrís temprano, {atiende} ya está del otro lado desde las {abre}.</p>
       <a class="link-flecha" href={url('/comercios/')}>Para kioscos, bares y almacenes</a>
     </section>
   </div>
@@ -125,7 +116,7 @@ const description = descripcion(
         <p class="t-rotulo">Repartimos desde {localidad}</p>
         <h2 id="entregas-titulo">¿Qué día llegamos a tu zona?</h2>
         <p class="t-lectura">{resumenRepartos()}</p>
-        <a class="link-flecha" href={url('/entregas/')}>Zonas, retiro en el depósito y formas de pago</a>
+        <a class="link-flecha" href={url('/entregas/')}>Zonas, retiro y formas de pago</a>
       </div>
       <SelectorZona />
     </div>
@@ -161,7 +152,7 @@ const description = descripcion(
     display: grid;
     gap: var(--e-3);
     justify-items: end;
-    margin: 0 calc(var(--gutter) * -1) 0 30%;
+    margin: 0 calc(var(--gutter) * -1) 0 36%;
   }
   .portada__sobre :global(.envase) { width: 100%; }
   .portada__sobre figcaption { padding-right: var(--gutter); max-width: 22em; text-align: right; }
@@ -169,7 +160,7 @@ const description = descripcion(
   /* ---------- Lo que más sale ---------- */
   .mas { padding-top: var(--e-seccion); }
   .mas__cabeza { display: grid; gap: var(--e-4); margin-bottom: clamp(1.75rem, 4vw, 3.5rem); }
-  .mas__filas { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(1.75rem, 4vw, 3.5rem); }
+  .mas__filas { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(1.25rem, 4vw, 3.5rem); }
 
   /* ---------- Productos ---------- */
   .productos { padding-block: var(--e-seccion); }
@@ -186,8 +177,10 @@ const description = descripcion(
     gap: var(--e-5);
     padding: var(--e-seccion) var(--gutter);
   }
-  .publicos__titulo { font-size: clamp(2.1rem, 1rem + 3.6vw, 4.5rem); max-width: 9em; }
-  .comercios__nota { font-size: 0.9375rem; color: color-mix(in srgb, var(--papel) 85%, var(--tinta)); }
+  /* Dos columnas angostas en el escritorio: el h2 de sección, con tope para que "Sin mínimo" entre en un renglón */
+  .publicos__titulo { max-width: 9em; font-size: min(var(--t-titulo-2), 3.75rem); }
+  /* El pocillo, más chico y corrido a la derecha en el celular: acompaña al título, no lo empuja */
+  .comercios :global(.comercios__escena) { width: min(64%, 420px); align-self: flex-end; margin-block: calc(var(--e-4) * -1) calc(var(--e-2) * -1); }
 
   /* ---------- Entregas ---------- */
   .entregas { padding-block: var(--e-seccion); border-top: var(--borde); }
@@ -207,6 +200,7 @@ const description = descripcion(
     .publicos { grid-template-columns: 7fr 5fr; }
     .clinicas { padding-left: max(var(--gutter), calc((100vw - var(--ancho-max)) / 2 + var(--gutter))); padding-right: clamp(2rem, 4vw, 4rem); }
     .comercios { padding-left: clamp(2rem, 4vw, 4rem); padding-right: max(var(--gutter), calc((100vw - var(--ancho-max)) / 2 + var(--gutter))); }
+    .comercios :global(.comercios__escena) { width: min(88%, 420px); align-self: flex-start; margin-block: 0; }
 
     .entregas__grilla { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: var(--e-7); align-items: start; }
   }

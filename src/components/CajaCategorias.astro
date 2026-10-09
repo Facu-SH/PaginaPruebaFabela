@@ -23,7 +23,7 @@ const atiende = empresa.whatsapp.atiende;
     <div class="caja__vacio">
       <p class="caja__vacio-titulo">Si no lo ves, preguntanos.</p>
       <p class="caja__vacio-texto">
-        Acá están los que más se piden, pero trabajamos más productos en porción individual. {atiende} te dice si lo tenemos.
+        Acá están los que más se piden, pero hay más productos en porción individual: {atiende} te dice si lo tenemos.
       </p>
       <BotonWhatsApp contexto="general">Preguntale a {atiende}</BotonWhatsApp>
     </div>
@@ -36,14 +36,14 @@ const atiende = empresa.whatsapp.atiende;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: var(--e-4);
-    padding: clamp(1.25rem, 2.4vw, 2.25rem);
+    gap: var(--e-3);
+    padding: clamp(1.1rem, 2.4vw, 2.25rem);
     border: var(--trazo-grueso) solid var(--tinta);
   }
   .caja__vacio-titulo {
     font-stretch: var(--ancho-expandida);
     font-weight: 900;
-    font-size: clamp(1.75rem, 1.1rem + 2.6vw, 3.5rem);
+    font-size: clamp(1.5rem, 1rem + 2.6vw, 3.5rem);
     line-height: var(--interlineado-display);
     letter-spacing: var(--tracking-display);
     max-width: 9em;

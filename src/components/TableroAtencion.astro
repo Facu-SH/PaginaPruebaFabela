@@ -123,7 +123,7 @@ const rango = `${rangoDias} de ${horaCorta(horario.abre)} a ${horaCorta(horario.
   .tablero__grilla {
     display: grid;
     grid-template-areas: 'rotulo' 'reloj' 'estado' 'franja' 'accion';
-    gap: var(--e-5);
+    gap: var(--e-4);
   }
   .tablero__rotulo { grid-area: rotulo; color: color-mix(in srgb, var(--papel) 82%, var(--tinta)); }
   .tablero__rango { display: block; margin-top: 0.3em; }
@@ -137,20 +137,32 @@ const rango = `${rangoDias} de ${horaCorta(horario.abre)} a ${horaCorta(horario.
     letter-spacing: -0.035em;
     margin-top: var(--e-2);
   }
-  .tablero__estado { grid-area: estado; display: grid; gap: var(--e-3); align-content: start; }
+  /* --sangria: lo que ocupan el punto y su aire (0,5em + 0,4em del título). El detalle y la cuenta
+     arrancan ahí, alineados con el texto del título; en el escritorio el punto cuelga en el margen. */
+  .tablero__estado {
+    --t-estado: clamp(1.625rem, 1.2rem + 1.7vw, 2.75rem);
+    --sangria: calc(var(--t-estado) * 0.9);
+    grid-area: estado;
+    display: grid;
+    gap: var(--e-3);
+    align-content: start;
+  }
+  [data-tablero]:not([data-abierto]) .tablero__estado { --sangria: 0px; }
+  .tablero__estado > div { display: grid; }
   .tablero__titulo {
     display: flex;
     align-items: baseline;
     gap: 0.4em;
     font-stretch: var(--ancho-expandida);
     font-weight: 900;
-    font-size: clamp(1.625rem, 1.2rem + 1.7vw, 2.75rem);
+    font-size: var(--t-estado);
     line-height: 1;
     letter-spacing: var(--tracking-display);
     text-wrap: balance;
   }
   .tablero__punto { width: 0.5em; height: 0.5em; border-width: 3px; transform: translateY(-0.04em); }
-  .tablero__detalle { margin-top: var(--e-3); max-width: 30em; font-size: var(--t-texto); }
+  .tablero__detalle { margin-top: var(--e-2); max-width: 30em; font-size: var(--t-texto); }
+  .tablero__detalle, .tablero__cuenta { padding-left: var(--sangria); }
   .tablero__cuenta {
     font-stretch: var(--ancho-condensada);
     font-weight: 800;
@@ -231,18 +243,26 @@ const rango = `${rangoDias} de ${horaCorta(horario.abre)} a ${horaCorta(horario.
         'reloj estado'
         'franja franja'
         'accion accion';
-      column-gap: clamp(2rem, 4vw, 4rem);
+      gap: var(--e-5) clamp(2.5rem, 4.5vw, 4.5rem);
       align-items: end;
     }
+    /* El punto cuelga en el aire entre la hora y el estado: título, detalle y cuenta alineados */
+    .tablero__titulo { margin-left: calc(var(--sangria) * -1); }
+    .tablero__detalle, .tablero__cuenta { padding-left: 0; }
   }
+  /* Escritorio: la hora a la izquierda; el estado y el botón apilados a su lado (sin columna vacía) */
   @media (min-width: 1180px) {
     .tablero__grilla {
-      grid-template-columns: auto minmax(0, 1fr) auto;
+      grid-template-columns: auto minmax(0, 1fr);
       grid-template-areas:
-        'rotulo rotulo rotulo'
-        'reloj estado accion'
-        'franja franja franja';
+        'rotulo rotulo'
+        'reloj estado'
+        'reloj accion'
+        'franja franja';
+      row-gap: var(--e-5);
     }
+    .tablero__estado { --t-estado: clamp(2.75rem, 1rem + 2.5vw, 3.5rem); }
+    .tablero__reloj { align-self: end; }
     .tablero__accion { align-self: end; }
   }
 </style>

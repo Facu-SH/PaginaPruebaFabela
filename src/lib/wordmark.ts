@@ -1,4 +1,4 @@
-// Wordmark "DPI" (propuesta de la dirección B, Color de sobre: ver docs/pendientes.md #21 y #24).
+// Wordmark "DPI" (propuesta de la dirección B, Color de sobre: ver docs/pendientes.md, "Decisiones de diseño").
 // Contornos de Archivo (Omnibus-Type, OFL) convertidos a trazos, así el logo no depende de la fuente:
 // - "DPI": Archivo, ancho 125 (expandida), peso 900, interletrado -30.
 // - "PRODUCTOS INDIVIDUALES": Archivo, ancho 62 (condensada), peso 700, justificada al ancho total.

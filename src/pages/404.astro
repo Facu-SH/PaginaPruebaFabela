@@ -13,7 +13,7 @@ import { horarioEnFrase } from '../components/info/textos';
 
 const atiende = empresa.whatsapp.atiende;
 const links = [
-  { href: '/productos/', texto: 'Productos', dato: `${categorias.map((c) => c.nombre).join(' · ')}.` },
+  { href: '/productos/', texto: 'Productos', dato: `${categorias.map((c) => c.nombre).join('\u00a0· ')}.` },
   { href: '/entregas/', texto: 'Entregas', dato: resumenRepartos() },
   { href: '/contacto/', texto: 'Contacto', dato: `Tel. ${telefonoCorto()} · ${empresa.direccion.calle}, ${empresa.direccion.localidad}.` },
   { href: '/', texto: 'Inicio', dato: `Porciones individuales para clínicas, bares y kioscos, desde ${empresa.desde}.` },
@@ -36,7 +36,7 @@ const links = [
           <Envase formato="sobre-papel" clave="azucar" etiqueta="404" titulo="Un sobre con el número 404 impreso, solo, fuera de la caja" />
         </div>
         <div class="perdido__texto">
-          <p class="t-rotulo">Error 404 · página no encontrada</p>
+          <p class="t-rotulo">Error 404&nbsp;· página no encontrada</p>
           <h1 id="perdido-titulo" class="perdido__titulo">Este sobre se perdió en el reparto.</h1>
           <p class="perdido__bajada">
             La página que buscás no está: puede que haya cambiado de dirección o que el link tenga un error. El resto del pedido llega

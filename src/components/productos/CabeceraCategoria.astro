@@ -43,7 +43,7 @@ const orden = [...envases.filter((e) => !propios.has(e.producto)), ...envases.fi
   <div class="contenedor cab__grilla">
     <div class="cab__texto">
       <Migas items={[{ nombre: 'Productos', href: '/productos/' }, { nombre: c.nombre }]} />
-      <p class="t-rotulo cab__rotulo">{marcasDe(slug)}{c.frio && ' · viajan en frío'}</p>
+      <p class="t-rotulo cab__rotulo">{marcasDe(slug)}</p>
       <h1 id="cab-titulo" class="cab__titulo">
         {h1}{' '}
         {h1Aclaracion && <span class="cab__aclaracion">{h1Aclaracion}</span>}

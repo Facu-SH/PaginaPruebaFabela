@@ -42,5 +42,7 @@ const tieneSlot = Astro.slots.has('default');
   {...datos}
 >
   {tieneSlot ? <slot /> : porDefecto}
-  {variante === 'compacto' && <span class="visually-hidden">: escribile a {empresa.whatsapp.atiende}</span>}
+  {variante === 'compacto' && (
+    <span class="visually-hidden">{tieneSlot ? ` por WhatsApp a ${empresa.whatsapp.atiende}` : `: escribile a ${empresa.whatsapp.atiende}`}</span>
+  )}
 </Boton>

@@ -3,7 +3,7 @@
 // Ritmo institucional y ordenado: la cabecera, el día de bandejas (la pieza protagonista),
 // la ficha para el área de compras y, al final, la atención desde las 5 con el botón de WhatsApp.
 import Sitio from '../layouts/Sitio.astro';
-import { comidasClinica, empresa, entregas, horario, pagos } from '../data';
+import { comidasClinica, empresa, horario, pagos } from '../data';
 import { horaCorta, textoHorario } from '../lib/horario';
 import { descripcion, enumerar, nombreProducto, telefonoCorto, zonaCorta, zonasConReparto } from '../lib/textos';
 import { mailtoLink, telLink } from '../lib/whatsapp';
@@ -14,7 +14,6 @@ import FichaInstitucion from '../components/publicos/FichaInstitucion.astro';
 
 const atiende = empresa.whatsapp.atiende;
 const abre = horaCorta(horario.abre, true);
-const capital = entregas.find((z) => z.dias === 'habiles') ?? entregas[0];
 const zonas = enumerar(zonasConReparto().map(zonaCorta));
 const [facturaA] = pagos.facturacion;
 
@@ -38,19 +37,21 @@ const description = descripcion(
 const horarioTexto = textoHorario().replace(/^./, (l) => l.toLowerCase());
 ---
 <Sitio title={title} description={description} colorPagina="dpi" whatsapp={{ contexto: 'clinica' }}>
-  <!-- Cabecera -->
+  <!-- Apertura: la cabecera y el día de bandejas. En el escritorio van lado a lado (la cabecera queda
+       fija mientras bajás), así las bandejas se ven en la primera pantalla. -->
+  <div class="apertura">
   <section class="cabecera" aria-labelledby="clinicas-titulo">
     <div class="contenedor cabecera__grilla">
       <div class="cabecera__migas"><Migas items={[{ nombre: 'Clínicas' }]} /></div>
       <div class="cabecera__titulo">
-        <p class="t-rotulo">{zonas} · desde {empresa.desde}</p>
+        <p class="t-rotulo">{zonas}&nbsp;· desde {empresa.desde}</p>
         <h1 id="clinicas-titulo">Porciones individuales para clínicas y geriátricos</h1>
       </div>
       <p class="cabecera__oracion">{oracion}</p>
       <div class="cabecera__accion">
         <BotonWhatsApp variante="principal" contexto="clinica" />
         <p class="cabecera__nota t-condensada">
-          {facturaA} · {pagos.instituciones} · te contesta {atiende} desde las {abre}
+          {facturaA}&nbsp;· {pagos.instituciones}&nbsp;· te contesta {atiende} desde las {abre}
         </p>
       </div>
     </div>
@@ -69,6 +70,7 @@ const horarioTexto = textoHorario().replace(/^./, (l) => l.toLowerCase());
       <DiaDeBandejas />
     </div>
   </section>
+  </div>
 
   <!-- Cómo trabajamos: la ficha para compras -->
   <section class="trabajo" aria-labelledby="trabajo-titulo">
@@ -94,7 +96,7 @@ const horarioTexto = textoHorario().replace(/^./, (l) => l.toLowerCase());
         <h2 id="temprano-titulo" class="temprano__titulo">Atención desde las 5 de la mañana</h2>
         <p class="t-lectura">
           La cocina de una clínica arranca temprano. {atiende} contesta el WhatsApp de {horarioTexto}: si al armar el
-          desayuno ves que se termina el edulcorante, ya lo podés pedir. En {capital.zona}, {capital.plazo}.
+          desayuno ves que se termina el edulcorante, ya lo podés pedir.
         </p>
         <BotonWhatsApp variante="principal" contexto="clinica">Pedile precios a {atiende} por WhatsApp</BotonWhatsApp>
         <p class="temprano__otros">
@@ -124,12 +126,12 @@ const horarioTexto = textoHorario().replace(/^./, (l) => l.toLowerCase());
   /* ---------- Día de bandejas ---------- */
   .dia { padding-block: var(--e-seccion); }
   .dia__cabeza { display: grid; gap: var(--e-4); margin-bottom: clamp(2rem, 1.5rem + 2vw, 3.5rem); }
-  .dia__cabeza h2 { max-width: 10em; font-size: clamp(2.25rem, 1rem + 4vw, 4.75rem); }
+  .dia__cabeza h2 { max-width: 10em; }
 
   /* ---------- Cómo trabajamos ---------- */
   .trabajo { padding-block: var(--e-seccion); border-top: var(--borde); }
   .trabajo__cabeza { display: grid; gap: var(--e-4); margin-bottom: clamp(1.75rem, 1.2rem + 2vw, 3rem); }
-  .trabajo__cabeza h2 { max-width: 11em; font-size: clamp(2rem, 1rem + 3.6vw, 4.25rem); }
+  .trabajo__cabeza h2 { max-width: 11em; }
 
   /* ---------- Desde las 5 ---------- */
   .temprano { background: var(--verde); padding-block: var(--e-seccion); }
@@ -155,14 +157,24 @@ const horarioTexto = textoHorario().replace(/^./, (l) => l.toLowerCase());
   .temprano__otros span { overflow-wrap: anywhere; }
 
   @media (min-width: 1080px) {
-    .cabecera__grilla { grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--e-6); row-gap: var(--e-5); }
-    .cabecera__migas { grid-column: 1 / -1; }
-    .cabecera__titulo { grid-column: 1 / span 7; grid-row: 2 / span 2; align-self: start; }
-    .cabecera__titulo h1 { max-width: 9em; }
-    .cabecera__oracion { grid-column: 8 / span 5; grid-row: 2; margin-top: calc(var(--e-5) + 0.75rem); font-size: var(--t-texto-grande); line-height: 1.42; }
-    .cabecera__accion { grid-column: 8 / span 5; grid-row: 3; margin-top: 0; }
-
-    .dia__cabeza { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); align-items: end; column-gap: var(--e-7); }
+    /* Apertura: la cabecera (5 columnas, fija al bajar) y las bandejas (7 columnas) lado a lado */
+    .apertura { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); border-bottom: var(--borde); }
+    .apertura > section > .contenedor { max-width: none; padding-inline: 0; }
+    .cabecera {
+      padding: 0 clamp(2rem, 3.5vw, 3.5rem) var(--e-seccion) max(var(--gutter), calc((100vw - var(--ancho-max)) / 2 + var(--gutter)));
+      border-bottom: 0;
+      border-right: var(--borde);
+    }
+    .cabecera__grilla { position: sticky; top: var(--e-5); row-gap: var(--e-4); }
+    .cabecera__titulo h1 { font-size: clamp(3rem, 1rem + 3vw, 4rem); max-width: 9em; }
+    .cabecera__oracion { font-size: var(--t-texto); }
+    .dia {
+      padding: calc(var(--e-2) + 2.75rem + var(--e-5)) max(var(--gutter), calc((100vw - var(--ancho-max)) / 2 + var(--gutter))) var(--e-seccion)
+        clamp(2rem, 3.5vw, 3.5rem);
+    }
+    .dia__cabeza { margin-bottom: var(--e-6); }
+    .dia__cabeza h2 { font-size: var(--t-titulo-2-chico); max-width: 14em; }
+    .dia__cabeza .t-grande { font-size: var(--t-texto); }
 
     .temprano__grilla { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); column-gap: var(--e-7); align-items: start; }
     .temprano__hora { font-size: clamp(9rem, 4rem + 11vw, 15rem); }

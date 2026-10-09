@@ -25,8 +25,7 @@ const horarioTexto = textoHorario().toLowerCase();
         <h2 id={`${id}-titulo`} class="lista__titulo">{titulo}</h2>
         <div class="lista__accion">
           <p class="t-lectura">
-            No está en la web porque cambia seguido: te mandamos la vigente. Pedila por WhatsApp ({horarioTexto}) o por mail,
-            a cualquier hora.
+            No está en la web porque cambia seguido: te mandamos la vigente por WhatsApp ({horarioTexto}) o por mail.
           </p>
           <BotonWhatsApp variante="principal" contexto="lista">Pedí la lista por WhatsApp</BotonWhatsApp>
           <a class="lista__mail" href={mailtoLink('lista')}>O por mail a <span>{empresa.email}</span></a>
@@ -38,7 +37,7 @@ const horarioTexto = textoHorario().toLowerCase();
   <section class="lista-linea" aria-labelledby={`${id}-titulo`}>
     <h2 id={`${id}-titulo`} class="t-rotulo">Lista de precios</h2>
     <p class="lista-linea__texto">{titulo}</p>
-    <p class="t-lectura">No la publicamos porque cambia seguido: te mandamos la vigente, {horarioTexto} por WhatsApp o cuando quieras por mail.</p>
+    <p class="t-lectura">No la publicamos porque cambia seguido: te mandamos la vigente por WhatsApp ({horarioTexto}) o por mail.</p>
     <div class="lista-linea__acciones">
       <BotonWhatsApp contexto="lista">Pedila por WhatsApp</BotonWhatsApp>
       <a class="lista__mail" href={mailtoLink('lista')}>O por mail a <span>{empresa.email}</span></a>

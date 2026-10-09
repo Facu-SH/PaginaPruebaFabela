@@ -4,7 +4,7 @@
 // "qué sale con cada cosa que vendés" (la pieza protagonista), sin mínimo en Capital y el precio.
 import Sitio from '../layouts/Sitio.astro';
 import { empresa, entregas, horario, pagos, pedidoTipicoComercio } from '../data';
-import { horaCorta, textoHorario } from '../lib/horario';
+import { horaCorta } from '../lib/horario';
 import { descripcion, enumerar, mayuscula, nombreProducto, zonaCorta, zonasConReparto } from '../lib/textos';
 import { mailtoLink } from '../lib/whatsapp';
 import BotonWhatsApp from '../components/BotonWhatsApp.astro';
@@ -21,7 +21,8 @@ const pedido = pedidoTipicoComercio.map((x) => nombreProducto(x.producto));
 const [usoA, usoB] = pedidoTipicoComercio;
 const aVeces = pedidoTipicoComercio.filter((x) => x.uso === 'a veces').map((x) => nombreProducto(x.producto));
 const medios = pagos.medios.filter((m) => m !== 'cheque');
-const horarioTexto = textoHorario().replace(/^./, (l) => l.toLowerCase());
+// "en general, al día siguiente del pedido" -> "en general al día siguiente" (después de "si pedís hoy")
+const plazoCorto = (capital.plazo ?? '').replace(/^en general,\s*/, 'en general ').replace(/ del pedido$/, '');
 
 const oracion =
   `${empresa.nombreComercial} vende ${enumerar(pedido)} en porciones individuales a kioscos, bares, almacenes, ` +
@@ -39,12 +40,12 @@ const description = descripcion(`${mayuscula(enumerar(pedido))} en sobre para ki
     <div class="contenedor cabecera__grilla">
       <div class="cabecera__migas"><Migas items={[{ nombre: 'Comercios' }]} /></div>
       <div class="cabecera__titulo">
-        <p class="t-rotulo">Kioscos · bares · almacenes · confiterías · puestos de comida</p>
+        <p class="t-rotulo">Kioscos&nbsp;· bares&nbsp;· almacenes&nbsp;· confiterías&nbsp;· puestos de comida</p>
         <h1 id="comercios-titulo">Edulcorante y mayonesa en sobre para kioscos y bares</h1>
       </div>
       <div class="cabecera__texto">
         <p class="cabecera__oracion">{oracion}</p>
-        <p class="cabecera__dato">{mayuscula(capital.pedidoMinimo)} en {capital.zona}: {capital.plazo}.</p>
+        <p class="cabecera__dato">En {capital.zona}, {capital.pedidoMinimo}: si pedís hoy, lo tenés {plazoCorto}.</p>
         <BotonWhatsApp variante="principal" contexto="comercio" tono="papel" />
       </div>
       <div class="cabecera__punado"><PunadoSobres /></div>
@@ -77,8 +78,8 @@ const description = descripcion(`${mayuscula(enumerar(pedido))} en sobre para ki
       </div>
       <div class="precio__texto">
         <p class="t-grande">
-          No la publicamos porque cambia seguido: {atiende} te manda la vigente, de {horarioTexto}. Si abrís temprano, a
-          las {abre} ya está del otro lado.
+          No la publicamos porque cambia seguido: {atiende} te manda la vigente. Si abrís temprano, desde las {abre} de la
+          mañana ya está del otro lado.
         </p>
         <p>Pagás en {enumerar(medios, 'o')}, con {enumerar(pagos.facturacion.map((f, i) => (i === 0 ? f : `como ${f.toLowerCase()}`)), 'o')}.</p>
         <BotonWhatsApp variante="principal" contexto="lista">Pedí la lista por WhatsApp</BotonWhatsApp>
@@ -117,7 +118,7 @@ const description = descripcion(`${mayuscula(enumerar(pedido))} en sobre para ki
   /* ---------- Precio ---------- */
   .precio { padding-block: var(--e-seccion); }
   .precio__grilla { display: grid; gap: var(--e-5); }
-  .precio__titulo { font-size: clamp(2rem, 1rem + 3.6vw, 4.25rem); max-width: 11em; }
+  .precio__titulo { max-width: 11em; }
   .precio__texto { display: flex; flex-direction: column; align-items: flex-start; gap: var(--e-4); max-width: 34em; }
   .precio__texto :global(.boton) { margin-top: var(--e-2); }
   .precio__mail {

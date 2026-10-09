@@ -23,8 +23,7 @@ const resto = entregas.filter((z) => z !== capital);
         <span class="minimo__zona">en {capital.zona}</span>
       </h2>
       <p class="minimo__plazo">
-        Pedí lo que necesites, aunque sea poco{capital.plazo ? `: lo tenés ${capital.plazo.replace(/,\s*/, ' ')}` : ''}.
-        {capital.detalle && <> Vale para toda {capital.zona} ({capital.detalle}).</>}
+        Pedí lo que necesites, aunque sea poco{capital.detalle ? `: vale para toda ${capital.zona} (${capital.detalle})` : ''}.
       </p>
     </div>
 
@@ -33,7 +32,7 @@ const resto = entregas.filter((z) => z !== capital);
         <div class="minimo__fila">
           <dt class="minimo__nombre">{z.zona}</dt>
           <dd class="minimo__dia">{z.dias === 'consultar' ? 'A coordinar' : `Vamos ${diaDeReparto(z).frase}`}</dd>
-          <dd class="minimo__condicion">{mayuscula(z.pedidoMinimo)}.</dd>
+          <dd class="minimo__condicion">{z.dias === 'consultar' ? 'Escribinos con tu localidad y lo vemos.' : `${mayuscula(z.pedidoMinimo)}.`}</dd>
         </div>
       ))}
     </dl>

@@ -43,7 +43,7 @@ const conCondicion = entregas.filter((z) => /^sin mínimo si /.test(z.pedidoMini
 const condicion = (conCondicion[0]?.pedidoMinimo ?? '').replace(/^sin mínimo /, '');
 const deTuZona = /reparto$/.test(condicion) && conCondicion.length > 1 ? ' de tu zona' : '';
 const respuestaMinimo = [
-  sinMinimo.length > 0 && `En ${lista(sinMinimo.map(zonaCorta))} no hay pedido mínimo.`,
+  sinMinimo.length > 0 && `En ${lista(sinMinimo.map(zonaCorta))}, no.`,
   conCondicion.length > 0 &&
     (sinMinimo.length > 0
       ? `En ${lista(conCondicion.map(zonaCorta))} tampoco, ${condicion}${deTuZona}.`
@@ -55,7 +55,7 @@ const respuestaMinimo = [
 
 // Cuándo llega: la zona de todos los días con su plazo, y las de día fijo.
 const respuestaLlegada = [
-  diaria && `En ${zonaCorta(diaria)}, ${diaria.plazo ?? cuando(diaria)}.`,
+  diaria && `En ${zonaCorta(diaria)}, ${(diaria.plazo ?? cuando(diaria)).replace(/^en general,\s*/, 'en general ').replace(/ del pedido$/, '')}.`,
   conDiaFijo.length > 0 && `${mayuscula(lista(conDiaFijo.map((z, i) => `a ${zonaCorta(z)} ${i === 0 ? 'vamos ' : ''}${cuando(z)}`)))}.`,
   'Depende del producto y del stock, así que te lo confirmamos al tomar el pedido.',
 ]
@@ -73,7 +73,7 @@ const porMarca = ajenas
   .map((m) => `${m.marca}: ${lista(m.items)}`)
   .join('; ');
 const frios = productos.filter((p) => categorias.find((c) => c.slug === p.categoria)?.frio);
-const enFrio = lista(frios.map((p, i) => `${i === 0 ? p.nombre : p.nombre.toLowerCase()}${p.marca ? ` ${p.marca}` : ''}`));
+const enFrioMinuscula = lista(frios.map((p) => `${p.nombre.toLowerCase()}${p.marca ? ` ${p.marca}` : ''}`));
 const edulcorante = productos.find((p) => p.slug === 'edulcorante');
 const surtida = productos.find((p) => p.slug === 'mermelada-surtida');
 const sabores = productos.find((p) => p.slug === 'mermeladas');
@@ -82,7 +82,7 @@ const preguntas: (PreguntaFrecuente | false)[] = [
   {
     grupo: 'pedidos',
     pregunta: '¿Cómo hago un pedido?',
-    respuesta: `Mandale a ${atiende} por WhatsApp lo que necesitás y en qué zona estás. Atiende ${atencion}; si preferís, mandá el pedido por mail a ${empresa.email}. Si ya sos cliente, alcanza con un “Hola, buen día” y el pedido.`,
+    respuesta: `Por WhatsApp. Mandale a ${atiende} lo que necesitás y en qué zona estás; atiende ${atencion}. Si preferís, mandá el pedido por mail a ${empresa.email}. Si ya sos cliente, alcanza con un “Hola, buen día” y el pedido.`,
   },
   {
     grupo: 'pedidos',
@@ -104,12 +104,12 @@ const preguntas: (PreguntaFrecuente | false)[] = [
   {
     grupo: 'pagos',
     pregunta: '¿Cómo pido la lista de precios?',
-    respuesta: `Pedísela a ${atiende} por WhatsApp o por mail a ${empresa.email}. La lista no está publicada en la web porque se actualiza seguido: te mandamos la vigente.`,
+    respuesta: `Por WhatsApp o por mail. Pedísela a ${atiende} o escribí a ${empresa.email}. No está publicada en la web porque se actualiza seguido: te mandamos la vigente.`,
   },
   {
     grupo: 'pedidos',
     pregunta: '¿A qué hora atienden?',
-    respuesta: `${mayuscula(atencion)}, por WhatsApp y por teléfono. Si escribís fuera de ese horario, te contestamos a primera hora.`,
+    respuesta: `${mayuscula(atencion)}. Por WhatsApp y por teléfono; si escribís fuera de ese horario, te contestamos a primera hora.`,
   },
   {
     grupo: 'pagos',
@@ -119,24 +119,24 @@ const preguntas: (PreguntaFrecuente | false)[] = [
   horario.retiroEnDeposito && {
     grupo: 'pedidos',
     pregunta: '¿Se puede retirar en el depósito?',
-    respuesta: `Sí, en ${calle}, ${localidad}, ${atencion}. Avisanos antes por WhatsApp así lo dejamos preparado.`,
+    respuesta: `Sí. En ${calle}, ${localidad}, ${atencion}. Avisanos antes por WhatsApp así lo dejamos preparado.`,
   },
   {
     grupo: 'productos',
     pregunta: '¿Qué marcas trabajan?',
-    respuesta: `${lista(ajenas.map((m) => m.nombre))}, y nuestra línea propia de edulcorante. ${porMarca}. Las marcas pueden cambiar: si buscás una en particular, preguntanos.`,
+    respuesta: `${lista(ajenas.map((m) => m.nombre))}. ${porMarca}; el edulcorante es de nuestra línea propia. Las marcas pueden cambiar: si buscás una en particular, preguntanos.`,
   },
   {
     grupo: 'productos',
     pregunta: `¿Qué es la línea propia ${empresa.nombreComercial}?`,
-    respuesta: `Es nuestro edulcorante en sobre. El sobre es de diseño ${empresa.nombreComercial}, blanco con la curva verde y nuestro teléfono impreso${edulcorante?.masVendido ? ', y es de lo que más se vende' : ''}.${
+    respuesta: `Nuestro edulcorante en sobre. El sobre es de diseño ${empresa.nombreComercial}, blanco con la curva verde y nuestro teléfono impreso${edulcorante?.masVendido ? ', y es de lo que más se vende' : ''}.${
       surtida && sabores?.variantes ? ` También armamos la ${surtida.nombre.toLowerCase()}: una caja con los sabores de ${sabores.marca} (${lista(sabores.variantes)}).` : ''
     }`,
   },
   {
     grupo: 'productos',
     pregunta: '¿Qué productos viajan en frío?',
-    respuesta: `${enFrio}. Son porciones individuales para la tostada del desayuno y viajan en frío.`,
+    respuesta: `${mayuscula(lista(frios.map((p) => `${/a$/.test(p.nombre.split(' ')[0]) ? 'la' : 'el'} ${p.nombre.toLowerCase()}`)))}. Son porciones individuales de ${enFrioMinuscula}, para la tostada del desayuno.`,
   },
   {
     grupo: 'productos',

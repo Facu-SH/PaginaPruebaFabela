@@ -32,7 +32,7 @@ export const categorias: Categoria[] = [
   {
     slug: 'galletitas-y-tostadas',
     nombre: 'Galletitas y tostadas',
-    bajada: 'Paquetitos dulces, de sándwich y sin sal, vainillas y tostadas para el desayuno de clínicas.',
+    bajada: 'Galletitas dulces, de sándwich y sin sal, vainillas y tostadas, para el desayuno y la merienda de las clínicas.',
     envase: 'paquete',
   },
 ];
@@ -73,8 +73,9 @@ export const productos: Producto[] = [
   },
 
   // Lácteos (frío)
-  { slug: 'queso-crema', nombre: 'Queso crema', categoria: 'lacteos', marca: 'Abedul', nota: 'Viene creciendo' }, // (S) marca
-  { slug: 'manteca', nombre: 'Manteca', categoria: 'lacteos', marca: 'Dánica', nota: 'Viene creciendo' }, // (S) marca
+  // El brief dice que los dos "vienen creciendo": es un dato interno, no se muestra.
+  { slug: 'queso-crema', nombre: 'Queso crema', categoria: 'lacteos', marca: 'Abedul' }, // (S) marca
+  { slug: 'manteca', nombre: 'Manteca', categoria: 'lacteos', marca: 'Dánica' }, // (S) marca
 
   // Galletitas y tostadas
   {

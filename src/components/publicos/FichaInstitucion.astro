@@ -30,18 +30,18 @@ const renglones = [
   {
     rotulo: 'Entrega',
     dato: mayuscula(capital.plazo ?? ''),
-    aclaracion: `En ${capital.zona}${capital.detalle ? ` (${capital.detalle})` : ''}. ${conDia.map((z, i) => `${i === 0 ? 'A' : 'a'} ${zonaCorta(z)} vamos ${diaDeReparto(z).frase}`).join(' y ')}.`,
+    aclaracion: `En ${capital.zona}${capital.detalle ? ` (${capital.detalle})` : ''}. ${conDia.map((z, i) => (i === 0 ? `A ${zonaCorta(z)} vamos ${diaDeReparto(z).frase}` : `a ${zonaCorta(z)}, ${diaDeReparto(z).frase}`)).join(' y ')}.`,
     link: { href: '/entregas/', texto: 'Zonas y días de reparto' },
   },
   {
     rotulo: 'Pedido',
-    dato: 'Regular, por WhatsApp o mail',
-    aclaracion: 'Como hacen las instituciones que ya nos compran: escriben «Hola, buen día» y dejan el pedido. Sin formularios ni usuarios.',
+    dato: 'Por WhatsApp o por mail',
+    aclaracion: 'Escribís «Hola, buen día» y dejás el pedido, como hacen hoy nuestros clientes.',
   },
   {
     rotulo: 'Proveedor',
     dato: `${categorias.length} familias en un mismo pedido`,
-    aclaracion: `${categorias.map((c) => c.nombre).join(' · ')}. Si necesitás algo que no ves en la web, preguntanos.`,
+    aclaracion: `${categorias.map((c) => c.nombre).join('\u00a0· ')}. Si necesitás algo que no ves en la web, preguntanos.`,
     link: { href: '/productos/', texto: 'Todos los productos' },
   },
 ];

@@ -40,7 +40,7 @@ const tinta = 'stroke:var(--tinta);stroke-width:2;vector-effect:non-scaling-stro
 ---
 <ol class:list={['dia', clase]} role="list">
   {comidas.map((c) => (
-    <li class:list={['comida', `comida--${c.recipiente}`, { 'comida--pocas': c.pocas }]}>
+    <li class:list={['comida', `comida--${c.recipiente}`, { 'comida--pocas': c.pocas, 'comida--igual': c.igualA }]}>
       <div class="comida__cabeza">
         <Titulo class="comida__nombre">{c.nombre}</Titulo>
         <p class="comida__cuenta t-rotulo">
@@ -108,7 +108,8 @@ const tinta = 'stroke:var(--tinta);stroke-width:2;vector-effect:non-scaling-stro
     padding-top: var(--e-3);
     border-top: var(--trazo-grueso) solid var(--tinta);
   }
-  .comida__nombre { font-size: clamp(2rem, 1.3rem + 2.6vw, 3.5rem); line-height: 0.95; }
+  /* El nombre de la comida, según el ancho de la bandeja (entra en una columna angosta) */
+  .comida__nombre { font-size: clamp(1.75rem, 9.5cqi, 3.5rem); line-height: 0.95; }
   .comida__cuenta { flex: none; text-align: right; color: var(--tinta-suave); }
 
   /* La bandeja: borde de aluminio y la superficie, con el trazo de tinta del sistema */
@@ -190,8 +191,16 @@ const tinta = 'stroke:var(--tinta);stroke-width:2;vector-effect:non-scaling-stro
     color: var(--tinta-suave);
   }
 
+  /* La lista de cada bandeja, de a tres cuando la bandeja es ancha */
+  @container (min-width: 30rem) {
+    .comida__lista { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  /* En el celular (una bandeja abajo de la otra), la comida que repite a otra (la cena) no repite
+     el dibujo: alcanza con el renglón "como en el almuerzo". En el escritorio queda el día completo. */
+  @media (max-width: 899px) {
+    .comida--igual .comida__bandeja { display: none; }
+  }
   @media (min-width: 900px) {
     .dia { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .comida__lista { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   }
 </style>

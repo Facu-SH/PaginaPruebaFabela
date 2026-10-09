@@ -29,7 +29,9 @@ const primera = `${empresa.nombreComercial} reparte en ${capital.zona} ${diaDeRe
 )}.`;
 
 // "sin mínimo si pedís para el día de reparto" -> dato "Sin mínimo" + condición "si pedís para el día de reparto"
+// "Otras zonas" (día y mínimo a consultar): un solo dato, "A coordinar", sin repetirlo en el día.
 const minimos = entregas.map((z) => {
+  if (z.dias === 'consultar') return { zona: z.zona, dia: '', dato: diaDeReparto(z).grande, condicion: 'escribinos con tu localidad' };
   const [dato, ...resto] = z.pedidoMinimo.split(/\s(?=si\s)/);
   return { zona: z.zona, dia: diaDeReparto(z).grande, dato: mayuscula(dato), condicion: resto.join(' ') };
 });
@@ -74,8 +76,8 @@ const description = descripcion(
       <div class="ruta__hoja">
         <HojaDeRuta />
         <p class="ruta__nota">
-          <span aria-hidden="true">*</span> Los días y plazos son en general: dependen del producto y del stock. Cuando tomamos el pedido,
-          {atiende} te confirma qué día llega.
+          <span aria-hidden="true">*</span> Los días y plazos son en general: dependen del producto y del stock. Cuando tomamos el
+          pedido, {atiende} te confirma qué día llega.
         </p>
       </div>
     </div>
@@ -94,7 +96,7 @@ const description = descripcion(
           <div class="minimo__zona">
             <dt>
               <span class="minimo__nombre">{z.zona}</span>
-              <span class="minimo__dia">{z.dia}</span>
+              {z.dia && <span class="minimo__dia">{z.dia}</span>}
             </dt>
             <dd>
               <span class="minimo__dato">{z.dato}</span>
@@ -115,7 +117,7 @@ const description = descripcion(
         </div>
         <div class="frio__texto">
           <h2 id="frio-titulo" class="frio__titulo">Los lácteos viajan en frío</h2>
-          <p>{nombresFrios}: {lacteos.bajada.replace(/^./, (l) => l.toLowerCase())}</p>
+          <p>{nombresFrios}, en porción individual. Apenas los recibís, guardalos en la heladera.</p>
           <a class="link-flecha" href={url(`/productos/${lacteos.slug}/`)}>Ver {lacteos.nombre.toLowerCase()}</a>
         </div>
       </div>
@@ -126,7 +128,7 @@ const description = descripcion(
   <section class="retiro fondo-tinta" id="retiro" aria-labelledby="retiro-titulo">
     <div class="contenedor retiro__grilla">
       <div class="retiro__texto">
-        <p class="t-rotulo retiro__rotulo">{localidad} · {partido}</p>
+        <p class="t-rotulo retiro__rotulo">{localidad}&nbsp;· {partido}</p>
         <h2 id="retiro-titulo" class="retiro__titulo">Retiro en el depósito</h2>
         <p class="t-grande">
           ¿Te queda cerca {localidad}? Pasá a buscar el pedido por el depósito, en el mismo horario en que atiende {atiende}.
@@ -152,7 +154,7 @@ const description = descripcion(
     items={[
       { href: '/preguntas-frecuentes/', texto: 'Preguntas frecuentes', dato: 'Cómo hacer el pedido, qué marcas trabajamos y qué productos viajan en frío.' },
       { href: '/contacto/', texto: 'Contacto', dato: `Tel. ${telefonoCorto()} · ${empresa.email} · ${textoHorario()}.` },
-      { href: '/productos/', texto: 'Productos', dato: `${categorias.map((c) => c.nombre).join(' · ')}.` },
+      { href: '/productos/', texto: 'Productos', dato: `${categorias.map((c) => c.nombre).join('\u00a0· ')}.` },
     ]}
   />
 </Sitio>
@@ -223,7 +225,7 @@ const description = descripcion(
   .frio__envases { display: flex; gap: var(--e-3); }
   .frio__envases :global(.envase) { width: clamp(84px, 22vw, 132px); }
   .frio__texto { display: grid; gap: var(--e-3); justify-items: start; }
-  .frio__titulo { font-size: clamp(1.75rem, 1rem + 2.6vw, 3rem); }
+  .frio__titulo { font-size: var(--t-titulo-2-chico); }
   .frio__texto p { max-width: 32em; }
 
   /* ---------- Retiro ---------- */

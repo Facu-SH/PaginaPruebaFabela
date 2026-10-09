@@ -100,8 +100,8 @@ const description = descripcion(`Pedido mínimo, días de entrega en ${zonasCort
 
   <Siguientes
     items={[
-      { href: '/entregas/', texto: 'Entregas', dato: zonasConReparto().map((z) => z.zona).join(' · ') },
-      { href: '/productos/', texto: 'Productos', dato: `${categorias.map((c) => c.nombre).join(' · ')}.` },
+      { href: '/entregas/', texto: 'Entregas', dato: zonasConReparto().map((z) => z.zona).join('\u00a0· ') },
+      { href: '/productos/', texto: 'Productos', dato: `${categorias.map((c) => c.nombre).join('\u00a0· ')}.` },
       { href: '/contacto/', texto: 'Contacto', dato: `${empresa.direccion.calle}, ${localidad}.` },
     ]}
   />
@@ -147,7 +147,7 @@ const description = descripcion(`Pedido mínimo, días de entrega en ${zonasCort
     gap: var(--e-5);
     padding: calc(var(--e-6) + var(--diente) / 2) clamp(1.25rem, 4vw, 3.5rem);
   }
-  .cierre__titulo { font-size: clamp(2rem, 1rem + 4vw, 4.5rem); max-width: 10em; }
+  .cierre__titulo { max-width: 10em; }
   .cierre__texto { max-width: 30em; font-size: var(--t-texto-grande); line-height: 1.4; }
 
   @media (min-width: 900px) {

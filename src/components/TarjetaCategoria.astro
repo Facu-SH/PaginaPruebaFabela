@@ -175,8 +175,10 @@ const oscuro = color.texto === 'papel';
     }
     .comp--compacta .comp__envases > :global(svg) { flex: 0 0 auto; }
     .comp--compacta .comp__envases--sobre > :global(svg) { width: 22px; }
-    .comp--compacta .comp__envases--sobre-papel > :global(svg) { width: 100%; max-width: none; }
-    .comp--compacta .comp__envases--sobre-papel > :global(svg + svg) { margin-top: -6px; }
+    /* Los sobres de papel, encimados en abanico (no uno abajo del otro): la fila queda baja */
+    .comp--compacta .comp__envases--sobre-papel { flex-wrap: nowrap; align-items: flex-start; }
+    .comp--compacta .comp__envases--sobre-papel > :global(svg) { width: 4.4rem; max-width: none; }
+    .comp--compacta .comp__envases--sobre-papel > :global(svg + svg) { margin: 1.1rem 0 0 -2.3rem; }
     .comp--compacta .comp__envases--pote > :global(svg) { width: calc(50% - 2px); max-width: none; }
     .comp--compacta .comp__envases--paquete > :global(svg) { width: calc(50% - 2px); }
     .comp--compacta .comp__envases--paquete > :global(.envase--vainillas) { width: 100%; }
@@ -186,6 +188,13 @@ const oscuro = color.texto === 'papel';
     .comp--compacta .comp__pie { grid-area: pie; }
     .comp--compacta .comp__ver { display: none; }
     .comp--compacta .comp__pie:not(:has(.comp__frio)) { display: none; }
+  }
+  /* Completa (/productos/) en el celular: los envases más chicos, que el compartimento no se estire */
+  @media (max-width: 719px) {
+    .comp--completa .comp__envases--sobre > :global(svg) { max-width: 60px; }
+    .comp--completa .comp__envases--sobre-papel { max-width: 18rem; }
+    .comp--completa .comp__envases--pote > :global(svg) { max-width: 76px; }
+    .comp--completa .comp__envases--paquete { max-width: 17rem; }
   }
   @media (min-width: 720px) and (max-width: 1079px) {
     .comp--compacta .comp__bajada { display: none; }
