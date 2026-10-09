@@ -8,6 +8,7 @@ import { colorCategoria } from '../lib/color';
 import { categoriaDe, enumerar, mayuscula, nombreConMarca, primeraMinuscula } from '../lib/textos';
 import BotonWhatsApp from './BotonWhatsApp.astro';
 import FotoOEnvase from './FotoOEnvase.astro';
+import { fotoProducto } from '../lib/fotos';
 
 interface Props {
   producto: string;
@@ -20,7 +21,8 @@ const p = productoPorSlug(slug)!;
 const c = categoriaDe(p);
 const color = colorCategoria[c.slug];
 const Titulo = `h${nivel}` as 'h2' | 'h3';
-const sabores = c.envase === 'pote' && p.variantes ? p.variantes : undefined;
+// Los sabores (mermeladas) van dibujados, un potecito por sabor; si el producto tiene foto, va la foto.
+const sabores = c.envase === 'pote' && p.variantes && !fotoProducto(slug) ? p.variantes : undefined;
 const detalles = [p.gramaje, p.unidadesPorCaja ? `${p.unidadesPorCaja} unidades por caja` : undefined].filter(Boolean);
 const ancho = tamano === 'grande' ? 720 : 420;
 ---

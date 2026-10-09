@@ -12,6 +12,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { categorias, empresa, entregas, horario, productoPorSlug, productosPorCategoria } from '../../src/data';
 import { colorCategoria } from '../../src/lib/color';
+import { fotoCategoria } from '../../src/lib/fotos';
 import { horaCorta, textoHorario } from '../../src/lib/horario';
 import { OG, paginas, type PiezaOG } from '../../src/lib/paginas';
 import { diaDeReparto, telefonoCorto } from '../../src/lib/textos';
@@ -39,6 +40,8 @@ const abre = horaCorta(horario.abre, true);
 const pieza = props.tipo === 'og' ? props.pieza : undefined;
 const oscuro = pieza ? ['tinta', 'frutilla'].includes(pieza.fondo) : false;
 const escena = pieza?.escena;
+// Si hay foto de grupo de la categoría (src/assets/categorias/<slug>.jpg), va en lugar de los dibujos.
+const foto = pieza && escena?.tipo === 'envases' && categorias.some((c) => c.slug === pieza.slug) ? fotoCategoria(pieza.slug) : undefined;
 const filas = entregas.map((z) => ({ zona: z.zona.replace(/\s*\(.*\)\s*$/, ''), dia: z.dias === 'consultar' ? 'A consultar' : diaDeReparto(z).grande }));
 const caja = categorias.map((c) => {
   const p = productosPorCategoria(c.slug)[0];
@@ -93,7 +96,11 @@ const qrDestino = new URL('/lista/', Astro.site ?? empresa.dominio).href.replace
             <div class="og__sobre-dpi"><Envase producto="edulcorante" detalle trazo={2.5} /></div>
           )}
 
-          {escena?.tipo === 'envases' && (
+          {foto && (
+            <div class="og__foto"><img src={foto.src} alt="" width={foto.width} height={foto.height} /></div>
+          )}
+
+          {!foto && escena?.tipo === 'envases' && (
             <div class="og__envases">
               {escena.envases.map((e) => (
                 <div class:list={['og__envase', `og__envase--${formaDe(e.producto)}`, `og__envase--${e.producto}`]}>
@@ -233,6 +240,18 @@ const qrDestino = new URL('/lista/', Astro.site ?? empresa.dominio).href.replace
   /* El sobre DPI, grande y apenas girado */
   .og__sobre-dpi { position: absolute; left: 20px; right: -60px; top: 150px; transform: rotate(-6deg); }
   .og__sobre-dpi .envase { width: 100%; }
+
+  /* Foto de grupo de la categoría: una etiqueta sobre el color, apenas girada */
+  .og__foto { position: absolute; inset: 56px 52px 56px 10px; display: grid; place-items: center; }
+  .og__foto img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    border: 3px solid var(--tinta);
+    border-radius: 2px;
+    transform: rotate(2deg);
+  }
 
   /* Envases apoyados en el borde de abajo */
   .og__envases {

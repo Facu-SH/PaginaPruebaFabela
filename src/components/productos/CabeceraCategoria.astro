@@ -7,6 +7,7 @@ import { categorias, empresa, productosPorCategoria, type CategoriaSlug } from '
 import { colorCategoria } from '../../lib/color';
 import BotonWhatsApp from '../BotonWhatsApp.astro';
 import FotoOEnvase from '../FotoOEnvase.astro';
+import { fotoProducto } from '../../lib/fotos';
 import Migas from '../Migas.astro';
 import { consultaCategoria, esPropia, marcasDe } from './textos';
 
@@ -25,7 +26,8 @@ const atiende = empresa.whatsapp.atiende;
 
 // Qué se dibuja: los sabores si es una familia de potecitos con sabores (mermeladas);
 // si no, un envase por producto. Los surtidos no van: son mezcla de los otros.
-const conSabores = c.envase === 'pote' && prods.some((p) => p.variantes);
+// (Si el producto con sabores tiene foto, va la foto en lugar de los potecitos dibujados.)
+const conSabores = c.envase === 'pote' && prods.some((p) => p.variantes && !fotoProducto(p.slug));
 const envases = conSabores
   ? prods.flatMap((p) => (p.variantes ?? []).map((sabor) => ({ producto: p.slug, sabor, clave: `${p.slug}-${sabor}` })))
   : prods.map((p) => ({ producto: p.slug, sabor: undefined, clave: p.slug }));
