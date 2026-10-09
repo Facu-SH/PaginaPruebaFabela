@@ -1,0 +1,83 @@
+---
+// Tablero de despacho: la hora de Buenos Aires en casilleros de formulario, el estado
+// "atendiendo ahora", la franja de 24 h con el horario de atención y el botón a WhatsApp.
+// Sin JS muestra el horario (textoHorario) y la hora de apertura. El script vive en cliente/estado.ts.
+import { empresa, horario } from '../../../data';
+import { textoHorario } from '../../../lib/horario';
+import { waLink } from '../../../lib/whatsapp';
+import { aMinutos, abreReloj, cierraCorto, horaReloj, posicionEnDia, rangoDiasCorto } from '../lib';
+
+const abre = aMinutos(horario.abre);
+const cierra = aMinutos(horario.cierra);
+const izq = posicionEnDia(abre);
+const ancho = posicionEnDia(cierra) - izq;
+const digitos = horaReloj(horario.abre).replace(':', '').split('');
+const marcas = [
+  { h: 0, texto: '00' },
+  { h: abre / 60, texto: horaReloj(horario.abre).slice(0, 2), clave: true },
+  { h: 12, texto: '12' },
+  { h: cierra / 60, texto: horaReloj(horario.cierra).slice(0, 2), clave: true },
+  { h: 24, texto: '24' },
+];
+const atiende = empresa.whatsapp.atiende;
+---
+<section class="dc-tablero" aria-labelledby="dc-tablero-h">
+  <div class="dc-tablero__cabecera">
+    <h2 id="dc-tablero-h">Estado del despacho</h2>
+    <span>Hora de Buenos Aires</span>
+  </div>
+
+  <div class="dc-tablero__reloj">
+    <div class="dc-tablero__hora">
+      <p class="dc-tablero__rotulo" data-dc-rotulo>Abrimos a las</p>
+      <p class="dc-casilleros" data-dc-reloj>
+        <span class="visually-hidden" data-dc-reloj-texto>{abreReloj()}</span>
+        <span aria-hidden="true" class="dc-casilleros__fila">
+          <span class="dc-casillero" data-d="0">{digitos[0]}</span><span class="dc-casillero" data-d="1">{digitos[1]}</span><span class="dc-casilleros__sep">:</span><span class="dc-casillero" data-d="2">{digitos[2]}</span><span class="dc-casillero" data-d="3">{digitos[3]}</span>
+        </span>
+      </p>
+    </div>
+
+    <div class="dc-fechador" data-dc-fechador hidden aria-hidden="true">
+      <span class="dc-fechador__arriba" data-dc-sello-arriba></span>
+      <span class="dc-fechador__fecha" data-dc-sello-fecha></span>
+      <span class="dc-fechador__abajo" data-dc-sello-abajo></span>
+    </div>
+  </div>
+
+  <div class="dc-tablero__estado" aria-live="polite">
+    <p class="dc-tablero__titulo" data-dc-titulo>{textoHorario()}</p>
+    <p class="dc-tablero__detalle">
+      <span data-dc-detalle>Te contesta {atiende} por WhatsApp, en minutos.</span>
+      <span class="dc-tablero__cuenta" data-dc-cuenta></span>
+    </p>
+  </div>
+
+  <div class="dc-franja" aria-hidden="true">
+    <div class="dc-franja__regla">
+      <span class="dc-franja__noche dc-franja__noche--antes" style={`width:${izq}%`}></span>
+      <span class="dc-franja__atencion" style={`left:${izq}%;width:${ancho}%`}>
+        <span><span class="dc-franja__dias">{rangoDiasCorto()} · </span>{abreReloj()} a {cierraCorto()}</span>
+      </span>
+      <span class="dc-franja__noche dc-franja__noche--despues" style={`left:${izq + ancho}%`}></span>
+      <span class="dc-franja__ahora" data-dc-ahora hidden><span>ahora</span></span>
+    </div>
+    <ol class="dc-franja__horas">
+      {marcas.map((m) => (
+        <li class:list={{ 'es-clave': m.clave }} style={`left:${posicionEnDia(m.h * 60)}%`}>{m.texto}</li>
+      ))}
+    </ol>
+  </div>
+
+  <dl class="dc-campos">
+    <div><dt>Atiende</dt><dd>{atiende}</dd></div>
+    <div class="dc-campos__dias"><dt>Días</dt><dd>{rangoDiasCorto()}</dd></div>
+    <div><dt>Desde</dt><dd>{horaReloj(horario.abre)}</dd></div>
+    <div><dt>Hasta</dt><dd>{horaReloj(horario.cierra)}</dd></div>
+  </dl>
+
+  <a class="dc-boton dc-boton--grande" href={waLink('general')} data-dc-cta>
+    <span data-dc-cta-texto>Escribile a {atiende} por WhatsApp</span>
+    <span class="dc-boton__flecha" aria-hidden="true">→</span>
+  </a>
+</section>

@@ -1,0 +1,135 @@
+---
+// Los dos públicos, en dos papeles distintos:
+// - Clínicas: la planilla de bandejas de un día (duplicado rosa). Productos × comidas, con el envase en cada celda.
+// - Comercios: el ticket angosto de un pedido de mostrador.
+import { categorias, comidasClinica, empresa, entregas, pagos, productoPorSlug, productos } from '../../../data';
+import { waLink } from '../../../lib/whatsapp';
+import { capitalizar, colorDe, colorVariante, envaseDe, listaNatural } from '../lib';
+import Envase from './Envase.astro';
+
+// Filas de la planilla: primero lo dulce (desayuno y merienda), después los aderezos.
+const enComida = (slug: string, comida: string) =>
+  comidasClinica.some((c) => c.comida === comida && (c.productos as readonly string[]).includes(slug));
+const slugsPlanilla = productos
+  .map((p) => p.slug)
+  .filter((s) => comidasClinica.some((c) => (c.productos as readonly string[]).includes(s)));
+const esDulce = (s: string) => enComida(s, 'Desayuno') || enComida(s, 'Merienda');
+const filas = [...slugsPlanilla.filter(esDulce), ...slugsPlanilla.filter((s) => !esDulce(s))]
+  .map((s) => productoPorSlug(s)!)
+  .map((p) => ({
+    p,
+    envase: envaseDe(p),
+    color: p.variantes ? colorVariante(p.variantes[0], colorDe(p.slug)) : colorDe(p.slug),
+  }));
+const comidas = comidasClinica.map((c) => c.comida);
+
+// Comercios: lo que se pide en un kiosco o un bar (según el brief).
+const capital = entregas.find((z) => z.id === 'capital')!;
+const ticket = [
+  { slug: 'edulcorante', uso: 'el café' },
+  { slug: 'mayonesa', uso: 'el pancho' },
+  { slug: 'azucar', uso: 'a veces' },
+  { slug: 'mermeladas', uso: 'a veces' },
+].map((t) => {
+  const p = productoPorSlug(t.slug)!;
+  const nombre = p.variantes ? (categorias.find((c) => c.slug === p.categoria)?.nombre ?? p.nombre) : p.nombre;
+  return { ...t, p, nombre };
+});
+const atiende = empresa.whatsapp.atiende;
+---
+<div class="dc-hoja dc-hoja--rosa dc-clientes">
+  <p class="dc-copia" aria-hidden="true">Duplicado · clientes</p>
+  <section class="dc-planilla" id="clinicas" aria-labelledby="dc-clinicas-h">
+    <div class="dc-planilla__texto">
+      <h2 class="dc-h2" id="dc-clinicas-h">Porciones individuales para clínicas: una para cada comida</h2>
+      <p>
+        {capitalizar(listaNatural(comidas.map((c) => c.toLowerCase())))}: armamos el mix completo de la bandeja para que no falte nada.
+        Facturamos con {pagos.facturacion[0]} y trabajamos con {pagos.instituciones}.
+      </p>
+    </div>
+
+    <div class="dc-planilla__hoja">
+      <table class="dc-planilla__tabla">
+        <caption>Planilla de bandejas de un día: qué porción va en cada comida</caption>
+        <thead>
+          <tr>
+            <th scope="col" class="dc-planilla__esquina">Porción</th>
+            {comidas.map((c) => (
+              <th scope="col">
+                <span class="dc-largo">{c}</span>
+                <span class="dc-corto" aria-hidden="true">{c.length <= 4 ? c : `${c.slice(0, 3)}.`}</span>
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {filas.map(({ p, envase, color }) => (
+            <tr>
+              <th scope="row">
+                {p.nombre}
+                {p.marca && <span class="dc-planilla__marca">{p.marca}</span>}
+              </th>
+              {comidas.map((c) => (
+                <td>
+                  {enComida(p.slug, c) ? (
+                    <>
+                      <Envase tipo={envase} color={color} modo="mini" />
+                      <span class="visually-hidden">sí</span>
+                    </>
+                  ) : (
+                    <>
+                      <span class="dc-planilla__vacio" aria-hidden="true">·</span>
+                      <span class="visually-hidden">no</span>
+                    </>
+                  )}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <a class="dc-boton" href={waLink('clinica')}>
+      <span>Consulta de clínica o institución</span>
+      <span class="dc-boton__flecha" aria-hidden="true">→</span>
+    </a>
+  </section>
+
+  <section class="dc-comercios" id="comercios" aria-labelledby="dc-comercios-h">
+    <div class="dc-comercios__texto">
+      <h2 class="dc-h2" id="dc-comercios-h">Edulcorante y mayonesa en sobre para kioscos y bares</h2>
+      <p>
+        Kioscos, bares, almacenes y confiterías: el aderezo que va con el pancho, el azúcar y el edulcorante del café.
+        En {capital.zona} pedís lo que usás: {capital.pedidoMinimo}.
+      </p>
+    </div>
+
+    <figure class="dc-ticket">
+      <div class="dc-ticket__papel">
+        <p class="dc-ticket__cabeza">{empresa.nombreComercial} · pedido de mostrador</p>
+        <p class="dc-ticket__sub">kiosco · bar · almacén</p>
+        <ul class="dc-ticket__items">
+          {ticket.map(({ p, nombre, uso }) => (
+            <li>
+              <span>{nombre}{p.marca ? ` ${p.marca}` : ''}</span>
+              <span>{uso}</span>
+            </li>
+          ))}
+        </ul>
+        <dl class="dc-ticket__datos">
+          <div><dt>Mínimo en {capital.zona}</dt><dd>{capital.pedidoMinimo}</dd></div>
+          <div><dt>Llega</dt><dd>{capital.plazo}</dd></div>
+          <div><dt>Pago</dt><dd>{listaNatural(pagos.medios, 'o')}</dd></div>
+        </dl>
+        <p class="dc-ticket__gracias">Te atiende {atiende} · ¡gracias!</p>
+      </div>
+      <figcaption class="visually-hidden">Ticket de ejemplo con lo que suele pedir un kiosco o un bar</figcaption>
+    </figure>
+
+    <a class="dc-boton" href={waLink('comercio')}>
+      <span>Consulta de comercio</span>
+      <span class="dc-boton__flecha" aria-hidden="true">→</span>
+    </a>
+  </section>
+</div>

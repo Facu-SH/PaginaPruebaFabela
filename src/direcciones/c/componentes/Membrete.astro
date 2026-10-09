@@ -1,0 +1,33 @@
+---
+// Cabecera como membrete de formulario: wordmark, datos de la casa y las secciones.
+import { empresa } from '../../../data';
+import { telLink, waLink } from '../../../lib/whatsapp';
+import Wordmark from './Wordmark.astro';
+
+const { localidad, partido } = empresa.direccion;
+const secciones = [
+  { href: '#productos', texto: 'Productos' },
+  { href: '#clinicas', texto: 'Clínicas' },
+  { href: '#comercios', texto: 'Comercios' },
+  { href: '#entregas', texto: 'Entregas' },
+  { href: '#lista', texto: 'Precios' },
+];
+---
+<header class="dc-membrete">
+  <a class="dc-membrete__logo" href="#inicio">
+    <Wordmark id="dc-wm-cabecera" />
+  </a>
+  <p class="dc-membrete__casa">
+    <span class="dc-membrete__razon">{empresa.razonSocial}</span>
+    <span>{localidad}, {partido}</span>
+    <span><a href={telLink()}>Tel. {empresa.telefono}</a></span>
+  </p>
+  <a class="dc-membrete__wa" href={waLink('general')} data-dc-wa-cabecera>
+    WhatsApp<span class="visually-hidden">: escribile a {empresa.whatsapp.atiende}</span>
+  </a>
+  <nav class="dc-membrete__nav" aria-label="Secciones de la página">
+    <ul>
+      {secciones.map((s) => <li><a href={s.href}>{s.texto}</a></li>)}
+    </ul>
+  </nav>
+</header>
