@@ -4,7 +4,7 @@
 // estante) con el nombre, la marca, un dato y "Preguntá el precio" donde iría el precio.
 // Siempre ilustrada: la repetición es el punto (no mezclar fotos en una fila).
 import { productoPorSlug } from '../data';
-import { categoriaDe, enumerar, mayuscula, nombreConMarca } from '../lib/textos';
+import { categoriaDe, enumerar, mayuscula, nombreConMarca, primeraMinuscula } from '../lib/textos';
 import BotonWhatsApp from './BotonWhatsApp.astro';
 import Envase from './Envase.astro';
 
@@ -34,7 +34,7 @@ const repeticiones = Array.from({ length: cantidad }, (_, i) => p.variantes?.[i 
       <Titulo class="fila__nombre">{nombre}</Titulo>
       {p.marca && <p class="fila__marca">{p.marca}</p>}
       {texto && <p class="fila__dato">{texto}</p>}
-      <BotonWhatsApp variante="compacto" contexto="producto" vars={{ producto: nombreConMarca(p).toLowerCase() }} tono="papel" class="fila__precio">
+      <BotonWhatsApp variante="compacto" contexto="producto" vars={{ producto: primeraMinuscula(nombreConMarca(p)) }} tono="papel" class="fila__precio">
         Preguntá el precio
       </BotonWhatsApp>
     </div>

@@ -5,7 +5,7 @@
 // de tarjetas iguales.
 import { productoPorSlug } from '../data';
 import { colorCategoria } from '../lib/color';
-import { categoriaDe, enumerar, mayuscula, nombreConMarca } from '../lib/textos';
+import { categoriaDe, enumerar, mayuscula, nombreConMarca, primeraMinuscula } from '../lib/textos';
 import BotonWhatsApp from './BotonWhatsApp.astro';
 import FotoOEnvase from './FotoOEnvase.astro';
 
@@ -38,7 +38,7 @@ const ancho = tamano === 'grande' ? 720 : 420;
     {p.variantes && <p class="producto__variantes">{mayuscula(enumerar(p.variantes))}</p>}
     {p.nota && <p class="producto__nota">{p.nota}</p>}
     {detalles.length > 0 && <p class="producto__nota">{detalles.join(' · ')}</p>}
-    <BotonWhatsApp variante="compacto" contexto="producto" vars={{ producto: nombreConMarca(p).toLowerCase() }} tono="papel">
+    <BotonWhatsApp variante="compacto" contexto="producto" vars={{ producto: primeraMinuscula(nombreConMarca(p)) }} tono="papel">
       Preguntá el precio
     </BotonWhatsApp>
   </div>

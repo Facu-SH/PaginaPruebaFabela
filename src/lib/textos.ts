@@ -12,6 +12,9 @@ export const enumerar = (items: readonly string[], conjuncion = 'y') =>
 export const nombreProducto = (slug: string) => (productoPorSlug(slug)?.nombre ?? slug).toLowerCase();
 
 /** "Mayonesa Natura", "Edulcorante DPI", "Tostadas". */
+/** "Mayonesa Natura" -> "mayonesa Natura": baja solo la primera letra (las marcas quedan como son). */
+export const primeraMinuscula = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
+
 export const nombreConMarca = (p: Producto) => (p.marca ? `${p.nombre} ${p.marca}` : p.nombre);
 
 export const categoria = (slug: CategoriaSlug) => categorias.find((c) => c.slug === slug)!;

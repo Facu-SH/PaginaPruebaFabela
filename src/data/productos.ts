@@ -69,7 +69,7 @@ export const productos: Producto[] = [
     nombre: 'Mermelada surtida',
     categoria: 'mermeladas',
     marca: 'DPI',
-    nota: 'Caja mixta que arma DPI con los sabores anteriores',
+    nota: 'Caja mixta que arma DPI con los cuatro sabores',
   },
 
   // Lácteos (frío)
