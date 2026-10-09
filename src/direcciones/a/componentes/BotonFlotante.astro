@@ -1,0 +1,57 @@
+---
+// Botón flotante de WhatsApp, solo en el celular. Lleva el punto de estado (abierto/cerrado).
+import { empresa } from '../../../data';
+import { waLink } from '../../../lib/whatsapp';
+import IconoCharla from './IconoCharla.astro';
+---
+<a class="a-boton flotante" href={waLink('general')} data-a-estado="punto">
+  <span class="flotante__icono">
+    <IconoCharla />
+    <span class="flotante__punto" aria-hidden="true"></span>
+  </span>
+  <span>Escribile a {empresa.whatsapp.atiende}</span>
+  <span class="visually-hidden" data-a-estado-titulo></span><span hidden data-a-estado-detalle></span>
+</a>
+
+<style>
+  :global(.dir-a) .flotante {
+    position: fixed;
+    right: max(0.75rem, env(safe-area-inset-right));
+    bottom: max(0.75rem, env(safe-area-inset-bottom));
+    z-index: 40;
+    min-height: 3.4rem;
+    padding: 0.7em 1.15em 0.7em 0.95em;
+    box-shadow:
+      0 10px 22px rgb(28 34 48 / 0.28),
+      0 2px 4px rgb(28 34 48 / 0.2);
+  }
+  .flotante__icono {
+    position: relative;
+    display: inline-flex;
+  }
+  .flotante__icono :global(svg) {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  .flotante__punto {
+    position: absolute;
+    top: -0.15rem;
+    right: -0.2rem;
+    width: 0.62rem;
+    height: 0.62rem;
+    border-radius: 50%;
+    background: var(--verde);
+    border: 2px solid var(--papel-claro);
+    display: none;
+  }
+  [data-abierto='true'] .flotante__punto {
+    display: block;
+    background: #5fd08a;
+    border-color: var(--verde);
+  }
+  @media (min-width: 64rem) {
+    :global(.dir-a) .flotante {
+      display: none;
+    }
+  }
+</style>
