@@ -5,3 +5,6 @@ dist/
 .DS_Store
 # capturas temporales del script (las definitivas van en docs/capturas/)
 tmp/
+
+# copias de trabajo temporales de los agentes
+.claude/worktrees/
