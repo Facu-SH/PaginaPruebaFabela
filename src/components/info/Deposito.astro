@@ -1,0 +1,124 @@
+---
+// El depósito como el rótulo pegado en una caja de reparto: la dirección en grande, el horario
+// de retiro y "avisanos antes". El punto del logo marca "acá estamos". El mapa se abre en
+// Google Maps (link armado desde empresa.direccion): sin iframes, sin cookies.
+// Si empresa.googleMaps tiene valor, suma el link a la ficha. Las acciones (WhatsApp) van en el slot.
+import { empresa, horario } from '../../data';
+import { textoHorario } from '../../lib/horario';
+import { linkMapa } from './textos';
+
+interface Props {
+  /** Nivel del título del rótulo (si la sección ya tiene h2, el rótulo es h3). */
+  nivel?: 2 | 3;
+  /** Texto del rótulo. */
+  rotulo?: string;
+  class?: string;
+}
+const { nivel = 3, rotulo = 'Depósito', class: clase } = Astro.props;
+const Titulo = `h${nivel}` as 'h2' | 'h3';
+const { calle, localidad, partido, provincia } = empresa.direccion;
+---
+<div class:list={['deposito', clase]}>
+  <div class="deposito__cabeza">
+    <Titulo class="t-rotulo deposito__rotulo">{rotulo} · {empresa.nombreComercial}</Titulo>
+    <span class="deposito__punto" aria-hidden="true"></span>
+  </div>
+  <address class="deposito__direccion">
+    <span class="deposito__calle">{calle}</span>
+    <span class="deposito__localidad">{localidad}, {partido}</span>
+    <span class="deposito__provincia">{provincia}</span>
+  </address>
+  <dl class="deposito__datos">
+    {horario.retiroEnDeposito && (
+      <div>
+        <dt>Retiro</dt>
+        <dd>{textoHorario()}</dd>
+      </div>
+    )}
+    <div>
+      <dt>Antes de venir</dt>
+      <dd>Avisanos y te lo dejamos preparado</dd>
+    </div>
+  </dl>
+  <ul class="deposito__mapas" role="list">
+    <li>
+      <a class="link-flecha" href={linkMapa()} target="_blank" rel="noopener">Cómo llegar en Google Maps<span class="visually-hidden"> (se abre en otra pestaña)</span></a>
+    </li>
+    {empresa.googleMaps && (
+      <li>
+        <a class="link-flecha" href={empresa.googleMaps} target="_blank" rel="noopener">Nuestra ficha en Google Maps<span class="visually-hidden"> (se abre en otra pestaña)</span></a>
+      </li>
+    )}
+  </ul>
+  {Astro.slots.has('default') && <div class="deposito__acciones"><slot /></div>}
+</div>
+
+<style>
+  .deposito {
+    display: grid;
+    gap: var(--e-4);
+    padding: 0 0 clamp(1.25rem, 3vw, 2rem);
+    border: var(--trazo-grueso) solid var(--tinta);
+    border-radius: var(--r-recto);
+    background: var(--papel);
+    color: var(--tinta);
+    --foco: var(--tinta);
+    --anillo: var(--papel);
+  }
+  .deposito > :not(.deposito__cabeza) { margin-inline: clamp(1.1rem, 3vw, 2rem); }
+  .deposito__cabeza {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--e-4);
+    padding: 0.7rem clamp(1.1rem, 3vw, 2rem);
+    background: var(--tinta);
+    color: var(--papel);
+  }
+  .deposito__rotulo { font-size: var(--t-rotulo); font-weight: 700; letter-spacing: var(--tracking-rotulo); line-height: 1.3; }
+  .deposito__punto {
+    flex: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    background: var(--verde);
+  }
+  .deposito__direccion {
+    display: grid;
+    gap: 0.35rem;
+    font-style: normal;
+    padding-top: var(--e-2);
+  }
+  .deposito__calle {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 900;
+    font-size: clamp(1.75rem, 1rem + 3vw, 3rem);
+    line-height: 0.98;
+    letter-spacing: var(--tracking-display);
+    text-wrap: balance;
+  }
+  .deposito__localidad { font-weight: 700; font-size: var(--t-texto-grande); line-height: 1.2; }
+  .deposito__provincia { font-size: 0.9375rem; color: var(--tinta-suave); }
+  .deposito__datos {
+    display: grid;
+    border-top: var(--borde);
+  }
+  .deposito__datos > div {
+    display: grid;
+    grid-template-columns: 7.5rem minmax(0, 1fr);
+    gap: var(--e-3);
+    align-items: baseline;
+    padding-block: 0.6rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--tinta) 30%, transparent);
+  }
+  .deposito__datos dt {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 700;
+    font-size: 0.6875rem;
+    letter-spacing: var(--tracking-rotulo);
+    text-transform: uppercase;
+  }
+  .deposito__datos dd { font-weight: 600; }
+  .deposito__mapas { display: grid; gap: 0; padding: 0; list-style: none; }
+  .deposito__acciones { padding-top: var(--e-2); }
+</style>

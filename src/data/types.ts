@@ -105,4 +105,6 @@ export interface Marca {
 export interface PreguntaFrecuente {
   pregunta: string;
   respuesta: string;
+  /** Tema, para agruparlas en /preguntas-frecuentes/ (opcional). */
+  grupo?: 'pedidos' | 'pagos' | 'productos';
 }

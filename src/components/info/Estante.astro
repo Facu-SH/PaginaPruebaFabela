@@ -1,0 +1,62 @@
+---
+// Un estante de envases mezclados (un sobre de cada familia, intercalados) que se corta en los bordes:
+// la caja recién abierta, apoyada sobre lo que viene abajo (una cenefa oscura o una regla). Decorativo.
+// Sale de src/data/productos.ts: si se suma un producto, aparece en el estante.
+// `hueco`: deja vacío el lugar de un sobre (la 404: el sobre que se perdió en el reparto).
+import { categorias, productosPorCategoria } from '../../data';
+import Envase from '../Envase.astro';
+
+interface Props {
+  /** Envases en la fila (sobran a propósito: se cortan en el borde). */
+  cantidad?: number;
+  /** Posición (desde 0) del lugar vacío, si lo hay. */
+  hueco?: number;
+  class?: string;
+}
+const { cantidad = 30, hueco, class: clase } = Astro.props;
+
+// Una cola por categoría (las mermeladas, un potecito por sabor) y se toman de a uno, por turnos.
+type Item = { producto: string; sabor?: string };
+const colas: Item[][] = categorias.map((c) =>
+  productosPorCategoria(c.slug).flatMap((p): Item[] =>
+    c.envase === 'pote' && p.variantes ? p.variantes.map((sabor) => ({ producto: p.slug, sabor })) : [{ producto: p.slug }],
+  ),
+);
+const mezcla: Item[] = [];
+for (let vuelta = 0; mezcla.length < cantidad && vuelta < 50; vuelta++) {
+  for (const cola of colas) {
+    if (cola.length) mezcla.push(cola[vuelta % cola.length]);
+    if (mezcla.length >= cantidad) break;
+  }
+}
+---
+<div class:list={['estante', clase]} aria-hidden="true">
+  {mezcla.map((e, i) => (i === hueco ? <span class="estante__hueco"></span> : <Envase producto={e.producto} sabor={e.sabor} trazo={1.5} />))}
+</div>
+
+<style>
+  .estante {
+    --u: clamp(0.95rem, 0.7rem + 0.8vw, 1.25rem);
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: calc(var(--u) * 0.55);
+    overflow: clip;
+    padding-top: var(--e-3);
+  }
+  .estante > :global(svg) { flex: none; width: auto; }
+  .estante > :global(.envase--almohadilla) { height: calc(var(--u) * 6.4); }
+  .estante > :global(.envase--sobre-papel) { height: calc(var(--u) * 4.2); }
+  .estante > :global(.envase--pote) { height: calc(var(--u) * 4); }
+  .estante > :global(.envase--galletitas) { height: calc(var(--u) * 3.7); }
+  .estante > :global(.envase--vainillas) { height: calc(var(--u) * 2.5); }
+  .estante > :global(.envase--tostadas) { height: calc(var(--u) * 4.2); }
+  /* El lugar vacío: la marca que dejó el sobre en la caja */
+  .estante__hueco {
+    flex: none;
+    width: calc(var(--u) * 5.46);
+    height: calc(var(--u) * 4.2);
+    border: var(--trazo) dashed var(--tinta);
+    border-bottom: 0;
+  }
+</style>

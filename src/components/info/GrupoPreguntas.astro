@@ -1,0 +1,137 @@
+---
+// Un tema de preguntas frecuentes, como una planilla numerada: la cenefa oscura con el tema y
+// cuántas preguntas tiene, y cada pregunta con su número, el título y la respuesta.
+// La primera oración de la respuesta (la respuesta corta) va destacada en verde DPI; el texto
+// visible es exactamente el de src/data/faq.ts (el JSON-LD FAQPage sale de ahí).
+// Todo está en el HTML, abierto: nada de acordeones que esconden la respuesta.
+import type { PreguntaFrecuente } from '../../data';
+import { url } from '../../lib/url';
+
+interface Props {
+  id: string;
+  titulo: string;
+  preguntas: PreguntaFrecuente[];
+  /** Número de la primera pregunta (la numeración sigue entre temas). */
+  inicio?: number;
+  /** Link al final del tema (navegación interna). */
+  enlace?: { href: string; texto: string };
+  class?: string;
+}
+const { id, titulo, preguntas, inicio = 1, enlace, class: clase } = Astro.props;
+
+/** "¿Hay pedido mínimo?" -> "hay-pedido-minimo" (para linkear una pregunta puntual). */
+const ancla = (s: string) =>
+  s
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+
+/** Separa la primera oración (la respuesta corta) del resto, sin cambiar el texto. */
+const partir = (r: string) => {
+  const m = r.match(/^(.+?[.!?])(\s+)([\s\S]*)$/);
+  return m ? { corta: m[1], espacio: m[2], resto: m[3] } : { corta: r, espacio: '', resto: '' };
+};
+const items = preguntas.map((p, i) => ({ ...p, n: String(inicio + i).padStart(2, '0'), ancla: ancla(p.pregunta), ...partir(p.respuesta) }));
+const cuenta = preguntas.length === 1 ? '1 pregunta' : `${preguntas.length} preguntas`;
+---
+<section class:list={['grupo', clase]} id={id} aria-labelledby={`${id}-titulo`}>
+  <div class="grupo__cenefa fondo-tinta">
+    <div class="contenedor grupo__cenefa-in">
+      <h2 id={`${id}-titulo`} class="grupo__titulo">{titulo}</h2>
+      <p class="grupo__cuenta">{cuenta}</p>
+    </div>
+  </div>
+
+  <ol class="contenedor grupo__lista" role="list">
+    {items.map((p) => (
+      <li class="pregunta" id={p.ancla}>
+        <span class="pregunta__numero cifras" aria-hidden="true">{p.n}</span>
+        <h3 class="pregunta__titulo">{p.pregunta}</h3>
+        <p class="pregunta__respuesta">
+          <strong class="pregunta__corta">{p.corta}</strong>{p.espacio}{p.resto && <span class="pregunta__resto">{p.resto}</span>}
+        </p>
+      </li>
+    ))}
+  </ol>
+
+  {enlace && (
+    <p class="contenedor grupo__enlace">
+      <a class="link-flecha" href={url(enlace.href)}>{enlace.texto}</a>
+    </p>
+  )}
+</section>
+
+<style>
+  .grupo { padding-bottom: var(--e-6); }
+  .grupo__cenefa-in {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--e-2) var(--e-5);
+    padding-block: var(--e-5);
+  }
+  .grupo__titulo { font-size: clamp(1.75rem, 1rem + 3vw, 3.5rem); }
+  .grupo__cuenta {
+    font-stretch: var(--ancho-condensada);
+    font-weight: 800;
+    font-size: 1.1875rem;
+    color: var(--verde);
+  }
+
+  .grupo__lista { padding-block: 0; list-style: none; }
+  .pregunta {
+    display: grid;
+    grid-template-columns: 2.6rem minmax(0, 1fr);
+    gap: var(--e-3) var(--e-3);
+    padding-block: var(--e-5) var(--e-6);
+    border-bottom: var(--borde);
+    scroll-margin-top: var(--e-4);
+  }
+  .pregunta:last-child { border-bottom: 0; }
+  .pregunta:target { background: var(--papel-hondo); box-shadow: 0 0 0 100vmax var(--papel-hondo); clip-path: inset(0 -100vmax); }
+  .pregunta__numero {
+    grid-row: 1;
+    font-stretch: var(--ancho-condensada);
+    font-weight: 800;
+    font-size: 1.5rem;
+    line-height: 1.05;
+    letter-spacing: 0.01em;
+  }
+  .pregunta__titulo {
+    grid-row: 1;
+    font-size: var(--t-titulo-3);
+    line-height: 1.05;
+    text-wrap: balance;
+  }
+  .pregunta__respuesta {
+    grid-column: 2;
+    max-width: 34em;
+  }
+  .pregunta__corta {
+    font-weight: 800;
+    font-size: var(--t-texto-grande);
+    line-height: 1.35;
+    background: var(--verde);
+    padding-inline: 0.25em;
+    margin-left: -0.25em;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+  .pregunta__resto { display: block; margin-top: var(--e-3); }
+
+  .grupo__enlace { padding-top: var(--e-2); }
+
+  @media (min-width: 900px) {
+    .pregunta {
+      grid-template-columns: 4.5rem minmax(0, 5fr) minmax(0, 7fr);
+      column-gap: var(--e-6);
+      align-items: start;
+      padding-block: var(--e-6);
+    }
+    .pregunta__numero { font-size: 2.25rem; line-height: 0.95; }
+    .pregunta__respuesta { grid-column: 3; grid-row: 1; }
+  }
+</style>
