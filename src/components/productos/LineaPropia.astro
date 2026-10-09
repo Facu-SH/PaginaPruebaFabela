@@ -1,0 +1,109 @@
+---
+// La línea propia de DPI: el sobre de edulcorante en primer plano (tan grande que se corta en
+// el borde, como visto de cerca) y lo que lleva su nombre.
+// - productos (/productos/): bloque verde, la voz de DPI; el edulcorante y la caja surtida.
+// - endulzantes (/productos/endulzantes/): ficha oscura; solo el edulcorante, que es el diferencial.
+import { empresa, masVendidos, productos } from '../../data';
+import { enumerar, nombreConMarca, telefonoCorto } from '../../lib/textos';
+import { url } from '../../lib/url';
+import CajaSurtida from './CajaSurtida.astro';
+import Envase from '../Envase.astro';
+import { marcaPropia } from './textos';
+
+interface Props {
+  variante?: 'productos' | 'endulzantes';
+  id?: string;
+}
+const { variante = 'productos', id = 'linea-propia' } = Astro.props;
+const propios = productos.filter((p) => p.marca === marcaPropia);
+const sobre = propios.find((p) => p.categoria === 'endulzantes');
+const surtida = propios.find((p) => p.categoria === 'mermeladas');
+const sabores = productos.find((p) => p.categoria === 'mermeladas' && p.variantes)?.variantes ?? [];
+const nombreSobre = sobre ? `${sobre.nombre} ${marcaPropia}` : marcaPropia;
+const otrosMasVendidos = masVendidos()
+  .filter((p) => p.slug !== sobre?.slug)
+  .map((p) => nombreConMarca(p).replace(/^./, (l) => l.toLowerCase()));
+const quienLoLleva = `Lo llevan bares, kioscos y clínicas${otrosMasVendidos.length ? `, y está entre lo que más sale, con ${enumerar(otrosMasVendidos)}` : ''}.`;
+---
+{sobre && (
+  <section class:list={['propia', `propia--${variante}`, { 'fondo-tinta': variante === 'endulzantes' }]} id={id} aria-labelledby={`${id}-titulo`}>
+    <div class="contenedor propia__grilla">
+      <div class="propia__texto">
+        <p class="t-rotulo">Línea propia {marcaPropia}</p>
+        {variante === 'productos' ? (
+          <>
+            <h2 id={`${id}-titulo`} class="propia__titulo">Lo que lleva nuestro nombre</h2>
+            <p class="t-lectura">
+              El {sobre.nombre.toLowerCase()} viene en un sobre que diseñamos nosotros: blanco, con la curva verde, el logo de
+              {' '}{marcaPropia} y nuestro teléfono ({telefonoCorto()}) impresos.
+              {surtida && sabores.length > 0 && ` Y la ${surtida.nombre.toLowerCase()} la armamos acá, mezclando ${enumerar(sabores)} en la misma caja.`}
+            </p>
+            <ul class="propia__links" role="list">
+              <li><a class="link-flecha" href={url(`/productos/${sobre.categoria}/`)}>{nombreSobre} y azúcar en sobre</a></li>
+              {surtida && <li><a class="link-flecha" href={url(`/productos/${surtida.categoria}/`)}>Mermeladas y caja surtida</a></li>}
+            </ul>
+          </>
+        ) : (
+          <>
+            <h2 id={`${id}-titulo`} class="propia__titulo">{nombreSobre}: el sobre es nuestro</h2>
+            <p class="t-lectura">
+              Es nuestra línea propia: el sobre lo diseñamos en {empresa.nombreComercial}, blanco, con la curva verde, el logo y
+              nuestro teléfono ({telefonoCorto()}) impresos. {quienLoLleva}
+            </p>
+          </>
+        )}
+      </div>
+
+      <figure class="propia__figura">
+        <div class="propia__sobre">
+          <Envase producto={sobre.slug} detalle titulo={`Sobre de ${nombreSobre.toLowerCase()}: blanco con una curva verde, el logo de ${marcaPropia} y el teléfono impresos`} />
+        </div>
+        {variante === 'productos' && surtida && <CajaSurtida class="propia__surtida" filas={2} />}
+      </figure>
+    </div>
+  </section>
+)}
+
+<style>
+  .propia { background: var(--verde); overflow: clip; }
+  .propia--endulzantes { background: var(--tinta); }
+  .propia__grilla { display: grid; gap: var(--e-5); padding-top: var(--e-seccion); }
+  .propia__texto { display: flex; flex-direction: column; align-items: flex-start; gap: var(--e-4); }
+  .propia__titulo { max-width: 9em; }
+  .propia--endulzantes .propia__titulo { font-size: clamp(2.25rem, 1rem + 4vw, 4.5rem); max-width: 10em; }
+  .propia--endulzantes .t-rotulo { color: var(--verde); }
+  .propia__links { display: grid; gap: 0; padding: 0; list-style: none; }
+
+  /* El sobre de cerca: más ancho que la pantalla, cortado a la derecha y abajo */
+  .propia__figura { position: relative; margin: 0 calc(var(--gutter) * -1) 0 0; }
+  .propia__sobre {
+    width: 128%;
+    margin-bottom: -18%;
+    transform: rotate(-7deg);
+    transform-origin: 20% 40%;
+  }
+  .propia__sobre :global(.envase) { width: 100%; }
+  /* La caja surtida: solo cuando hay lugar al costado del sobre */
+  .propia__figura :global(.propia__surtida) { display: none; }
+
+  @media (min-width: 1080px) {
+    .propia__grilla {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      column-gap: clamp(2rem, 4vw, 4rem);
+      align-items: center;
+      padding-top: 0;
+    }
+    .propia__texto { padding-block: var(--e-seccion); }
+    .propia__figura { align-self: stretch; min-height: 32rem; }
+    .propia__sobre { position: absolute; left: 10%; top: 10%; width: 112%; margin: 0; }
+    .propia--productos .propia__figura :global(.propia__surtida) {
+      display: block;
+      position: absolute;
+      left: -2%;
+      bottom: 6%;
+      width: 36%;
+      max-width: 19rem;
+      transform: rotate(5deg);
+    }
+  }
+</style>

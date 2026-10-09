@@ -1,0 +1,103 @@
+---
+// Las marcas que reparte DPI, como texto (sin logos): cada marca en grande, como en el frente
+// del envase, y al lado lo que traemos de ella, con link a su categoría. Sale de src/data/
+// (marcas y productos): si cambia una marca, cambia acá sola. La línea propia va aparte (LineaPropia).
+import { categorias, marcas, productos } from '../../data';
+import { enumerar } from '../../lib/textos';
+import { url } from '../../lib/url';
+
+interface Props {
+  id?: string;
+}
+const { id = 'marcas' } = Astro.props;
+const filas = marcas
+  .filter((m) => !m.propia)
+  .map((m) => ({ marca: m, prods: productos.filter((p) => p.marca === m.nombre) }))
+  .filter((f) => f.prods.length > 0);
+const nombres = filas.map((f) => f.marca.nombre);
+const categoriaDe = (slug: string) => categorias.find((c) => c.slug === slug)!;
+---
+<section class="marcas fondo-tinta" id={id} aria-labelledby={`${id}-titulo`}>
+  <div class="contenedor">
+    <div class="marcas__cabeza">
+      <p class="t-rotulo marcas__rotulo">Las marcas que repartimos</p>
+      <h2 id={`${id}-titulo`} class="marcas__titulo">{enumerar(nombres)}, en porción individual</h2>
+    </div>
+    <ul class="marcas__lista" role="list">
+      {filas.map(({ marca, prods }) => (
+        <li class="marca">
+          <p class="marca__nombre">{marca.nombre}</p>
+          <ul class="marca__productos" role="list">
+            {prods.map((p) => (
+              <li>
+                <a href={url(`/productos/${p.categoria}/`)} aria-label={`${p.nombre} ${marca.nombre}: ver ${categoriaDe(p.categoria).nombre.toLowerCase()}`}>
+                  {p.nombre}
+                </a>
+                {p.variantes && <span class="marca__variantes">{enumerar(p.variantes)}</span>}
+              </li>
+            ))}
+          </ul>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .marcas { padding-block: var(--e-seccion); }
+  .marcas__cabeza { display: grid; gap: var(--e-3); margin-bottom: clamp(1.75rem, 4vw, 3rem); }
+  .marcas__rotulo { color: var(--verde); }
+  .marcas__titulo { font-size: var(--t-titulo-3); line-height: 1.05; max-width: 20em; }
+
+  .marcas__lista { padding: 0; list-style: none; border-top: var(--trazo-grueso) solid var(--papel); }
+  .marca {
+    display: grid;
+    gap: var(--e-2) var(--e-6);
+    padding-block: var(--e-4) var(--e-5);
+    border-bottom: var(--trazo) solid color-mix(in srgb, var(--papel) 45%, var(--tinta));
+  }
+  .marca__nombre {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 900;
+    font-size: clamp(3rem, 1.6rem + 6vw, 7.5rem);
+    line-height: 0.88;
+    letter-spacing: -0.035em;
+    text-transform: uppercase;
+  }
+  .marca__productos {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 1.1rem;
+    padding: 0;
+    list-style: none;
+    font-stretch: var(--ancho-condensada);
+    font-weight: 700;
+    font-size: clamp(1.25rem, 1.05rem + 0.9vw, 1.75rem);
+    line-height: 1.3;
+  }
+  .marca__productos li { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 0 0.4rem; }
+  .marca__productos li + li::before {
+    content: '';
+    align-self: center;
+    width: 0.32em;
+    height: 0.32em;
+    margin-right: 0.7rem;
+    border-radius: 50%;
+    background: var(--verde);
+  }
+  .marca__productos a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    text-decoration-thickness: 2px;
+    text-decoration-color: color-mix(in srgb, var(--papel) 50%, var(--tinta));
+  }
+  .marca__productos a:hover { text-decoration-color: var(--verde); }
+  .marca__variantes { font-weight: 500; font-size: 0.75em; color: color-mix(in srgb, var(--papel) 82%, var(--tinta)); }
+
+  @media (min-width: 900px) {
+    .marca { grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); align-items: end; }
+    .marca__productos { padding-bottom: 0.2rem; }
+  }
+</style>

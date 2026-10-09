@@ -1,0 +1,107 @@
+---
+// /lista/: destino del QR de la lista de precios impresa que se deja en los repartos.
+// Quien escanea ya tiene la lista en la mano: la acción principal es hacer el pedido (contexto
+// 'pedido'); la segunda, pedir la lista vigente (contexto 'lista'). Abajo, el tablero de atención
+// (su aparición destacada en esta página, sin botón propio: los botones son los de arriba),
+// el teléfono y el mail como alternativa, y links discretos al resto del sitio.
+// Sin migas: es una sola pantalla y lo primero tiene que ser el botón.
+import Sitio from '../layouts/Sitio.astro';
+import { categorias, empresa, horario } from '../data';
+import { horaCorta, textoHorario } from '../lib/horario';
+import { enumerar, nombreProducto, telefonoCorto } from '../lib/textos';
+import { url } from '../lib/url';
+import { mailtoLink, telLink } from '../lib/whatsapp';
+import Boton from '../components/Boton.astro';
+import BotonWhatsApp from '../components/BotonWhatsApp.astro';
+import TableroAtencion from '../components/TableroAtencion.astro';
+import { zonaDiaria, zonasTexto } from '../components/productos/textos';
+
+const DPI = empresa.nombreComercial;
+const atiende = empresa.whatsapp.atiende;
+const capital = zonaDiaria();
+const localidad = empresa.direccion.localidad;
+const que = enumerar(['mayonesa', 'azucar', 'edulcorante'].map(nombreProducto).concat(categorias.find((c) => c.slug === 'mermeladas')?.nombre.toLowerCase() ?? []));
+const title = `Lista de precios y pedidos por WhatsApp · ${DPI}`;
+const description = `Pedidos y lista de precios de ${DPI}, distribuidora de porciones individuales de ${empresa.direccion.localidad}: por WhatsApp, ${textoHorario().toLowerCase()}, o por mail. En ${capital.zona}, ${capital.pedidoMinimo}.`;
+---
+<Sitio title={title} description={description} colorPagina="dpi" whatsapp={{ contexto: 'pedido' }}>
+  <section class="qr" aria-labelledby="qr-titulo">
+    <div class="contenedor qr__grilla">
+      <div class="qr__cabeza">
+        <p class="t-rotulo">Lista de precios · {DPI}</p>
+        <h1 id="qr-titulo" class="qr__titulo">Pedí por WhatsApp</h1>
+        <p class="qr__oracion">
+          {DPI} es la distribuidora de {localidad} que reparte {que} en porción individual a clínicas, bares y kioscos de
+          {' '}{zonasTexto()}. Mandá tu pedido y te contesta {atiende}, desde las {horaCorta(horario.abre)} de la mañana.
+        </p>
+      </div>
+
+      <div class="qr__acciones">
+        <BotonWhatsApp variante="principal" contexto="pedido" ancho class="qr__principal">Hacer un pedido</BotonWhatsApp>
+        <div class="qr__segunda">
+          <p>¿Tu lista ya tiene un tiempo?</p>
+          <BotonWhatsApp contexto="lista" tono="papel">Pedí la lista vigente</BotonWhatsApp>
+        </div>
+        <p class="qr__dato">
+          <strong>{capital.zona}:</strong> {capital.pedidoMinimo} y {capital.plazo}.
+        </p>
+      </div>
+    </div>
+  </section>
+  <div class="filo" aria-hidden="true" style="--filo: var(--verde)"></div>
+
+  <TableroAtencion boton={false} class="lista-tablero" />
+
+  <section class="otro" aria-labelledby="otro-titulo">
+    <div class="contenedor otro__grilla">
+      <h2 id="otro-titulo" class="otro__titulo">¿Preferís llamar o mandar un mail?</h2>
+      <div class="otro__acciones">
+        <Boton href={telLink()}>Llamá al {telefonoCorto()}</Boton>
+        <a class="otro__mail" href={mailtoLink('pedido')}>O mandá un mail a <span>{empresa.email}</span></a>
+      </div>
+      <nav class="otro__nav" aria-label="Más del sitio">
+        <ul role="list">
+          <li><a class="link-flecha" href={url('/productos/')}>Todos los productos</a></li>
+          <li><a class="link-flecha" href={url('/entregas/')}>Zonas y días de reparto</a></li>
+          <li><a class="link-flecha" href={url('/')}>Inicio</a></li>
+        </ul>
+      </nav>
+    </div>
+  </section>
+</Sitio>
+
+<style>
+  /* ---------- La pantalla del QR ---------- */
+  .qr { background: var(--verde); padding-block: var(--e-5) var(--e-6); }
+  .qr__grilla { display: grid; gap: var(--e-5); }
+  .qr__cabeza { display: grid; gap: var(--e-3); }
+  .qr__titulo { font-size: clamp(3rem, 1.4rem + 6vw, 6.25rem); line-height: 0.9; max-width: 7em; }
+  .qr__oracion { max-width: 34em; font-size: 1rem; line-height: 1.45; }
+  .qr__acciones { display: grid; gap: var(--e-4); justify-items: start; }
+  .qr__acciones :global(.qr__principal) { width: 100%; }
+  .qr__acciones :global(.qr__principal .boton__cuerpo) { min-height: 5rem; font-size: 1.375rem; }
+  .qr__segunda { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-2) var(--e-4); }
+  .qr__segunda p { font-weight: 700; }
+  .qr__dato { font-size: 0.9375rem; padding-top: var(--e-3); border-top: var(--trazo) solid var(--tinta); width: 100%; }
+
+  /* El filo verde cuelga sobre el tablero */
+  .filo { background: var(--verde); margin-bottom: calc(var(--diente) / -2); position: relative; z-index: 1; }
+
+  /* ---------- Alternativas ---------- */
+  .otro { padding-block: var(--e-7); }
+  .otro__grilla { display: grid; gap: var(--e-5); }
+  .otro__titulo { font-size: var(--t-titulo-3); max-width: 14em; }
+  .otro__acciones { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-3) var(--e-5); }
+  .otro__mail { display: inline-flex; flex-wrap: wrap; gap: 0 0.3em; align-items: center; min-height: 2.75rem; font-weight: 700; }
+  .otro__mail span { overflow-wrap: anywhere; }
+  .otro__nav ul { display: flex; flex-wrap: wrap; gap: 0 var(--e-5); padding: var(--e-4) 0 0; list-style: none; border-top: 1px solid color-mix(in srgb, var(--tinta) 30%, transparent); }
+  .otro__nav a { font-size: 0.9375rem; }
+
+  @media (min-width: 900px) {
+    .qr { padding-block: var(--e-7) var(--e-8); }
+    .qr__grilla { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: var(--e-7); align-items: end; }
+    .qr__oracion { font-size: var(--t-texto-grande); line-height: 1.4; }
+    .otro__grilla { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: var(--e-7); align-items: center; }
+    .otro__nav { grid-column: 1 / -1; }
+  }
+</style>
