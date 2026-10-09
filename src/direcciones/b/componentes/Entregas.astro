@@ -1,0 +1,198 @@
+---
+// "¿Qué día llegamos a tu zona?". Sin JS: la lista completa de zonas.
+// Con JS (cliente.ts): aparece el selector y se ve solo la ficha de la zona elegida.
+import { empresa, entregas, horario, pagos } from '../../../data';
+import { textoHorario } from '../../../lib/horario';
+import { waLink } from '../../../lib/whatsapp';
+import { diaDeReparto, enumerar, mayuscula, zonaCorta, zonasConReparto } from '../sistema';
+import Boton from './Boton.astro';
+
+const atiende = empresa.whatsapp.atiende;
+const { calle, localidad } = empresa.direccion;
+
+const resumen =
+  zonasConReparto()
+    .map((z, i) => (i === 0 ? `A ${z.zona} vamos ${diaDeReparto(z).frase}` : `a ${zonaCorta(z)}, ${diaDeReparto(z).frase}`))
+    .join('; ') + '.';
+
+const [primera, ...otras] = pagos.facturacion;
+const facturacion = otras.length
+  ? `Hacemos ${primera} y también facturamos a ${enumerar(otras).toLowerCase()}.`
+  : `Hacemos ${primera}.`;
+
+// Para "otras zonas" el mensaje deja el lugar para que la persona escriba su localidad.
+const fichas = entregas.map((z) => {
+  const otra = z.dias === 'consultar';
+  return {
+    ...z,
+    dia: diaDeReparto(z),
+    link: waLink('zona', { zona: otra ? '(escribí acá tu localidad)' : z.zona }),
+    boton: otra ? `Contale a ${atiende} dónde estás` : `Pedí para ${zonaCorta(z)} por WhatsApp`,
+  };
+});
+---
+<section class="b-entregas" id="entregas" aria-labelledby="b-entregas-titulo" data-b-zonas>
+  <div class="b-contenedor b-entregas__grilla">
+    <div class="b-entregas__texto">
+      <p class="b-rotulo">Repartimos desde {localidad}</p>
+      <h2 id="b-entregas-titulo" class="b-display b-entregas__titulo">¿Qué día llegamos a tu zona?</h2>
+      <p class="b-entregas__resumen">{resumen}</p>
+
+      <fieldset class="b-zonas" data-b-zonas-selector hidden>
+        <legend class="b-zonas__leyenda">Elegí tu zona</legend>
+        <div class="b-zonas__opciones">
+          {entregas.map((z, i) => (
+            <label class="b-zonas__opcion">
+              <input type="radio" name="b-zona" value={z.id} checked={i === 0} />
+              <span>{z.zona}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+    </div>
+
+    <div class="b-fichas" aria-live="polite">
+      {fichas.map((z) => (
+        <article class="b-ficha" data-b-zona={z.id} aria-labelledby={`b-ficha-${z.id}`}>
+          <h3 id={`b-ficha-${z.id}`} class="b-ficha__zona">
+            {z.zona}
+            {z.detalle && <span class="b-ficha__detalle">{z.detalle}</span>}
+          </h3>
+          <dl class="b-ficha__datos">
+            <div class="b-ficha__dato b-ficha__dato--dia">
+              <dt>Día de reparto</dt>
+              <dd class="b-display b-ficha__dia">{z.dia.grande}</dd>
+            </div>
+            {z.plazo && (
+              <div class="b-ficha__dato">
+                <dt>Cuándo llega</dt>
+                <dd>{mayuscula(z.plazo)}</dd>
+              </div>
+            )}
+            <div class="b-ficha__dato">
+              <dt>Pedido mínimo</dt>
+              <dd>{mayuscula(z.pedidoMinimo)}</dd>
+            </div>
+          </dl>
+          <Boton href={z.link} variante="claro" externo>{z.boton}</Boton>
+        </article>
+      ))}
+    </div>
+  </div>
+
+  <div class="b-contenedor">
+    <p class="b-entregas__pie">
+      {horario.retiroEnDeposito && (
+        <>
+          <strong>¿Estás cerca?</strong> Retirá en el depósito, {calle}, {localidad}: {textoHorario().toLowerCase()}.{' '}
+        </>
+      )}
+      Aceptamos {enumerar(pagos.medios)}. {facturacion}
+    </p>
+  </div>
+</section>
+
+<style>
+  .b-entregas { padding-block: clamp(4rem, 8vw, 7rem) clamp(3rem, 6vw, 5rem); }
+  .b-entregas__grilla { display: grid; gap: 2rem; }
+  .b-entregas__texto { display: flex; flex-direction: column; gap: 1.1rem; }
+  .b-entregas__titulo { font-size: clamp(2.2rem, 1rem + 3.8vw, 4.75rem); max-width: 9em; }
+  .b-entregas__resumen { max-width: 32em; }
+
+  /* Selector */
+  .b-zonas { border: 0; padding: 0; margin-top: 0.75rem; min-width: 0; }
+  .b-zonas__leyenda {
+    font-stretch: 125%;
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+  .b-zonas__opciones { display: flex; flex-wrap: wrap; gap: 8px; }
+  .b-zonas__opcion { position: relative; cursor: pointer; }
+  .b-zonas__opcion input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .b-zonas__opcion span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 3rem;
+    padding: 0.55rem 1.05rem;
+    border: 2px solid var(--b-tinta);
+    border-radius: 999px;
+    font-stretch: 112%;
+    font-weight: 700;
+    font-size: 1rem;
+    background: var(--b-papel);
+  }
+  .b-zonas__opcion:hover span { background: var(--b-blanco); }
+  .b-zonas__opcion input:checked + span { background: var(--b-tinta); color: var(--b-papel); }
+  .b-zonas__opcion input:focus-visible + span { outline: 3px solid var(--b-tinta); outline-offset: 3px; }
+
+  /* Fichas: sobres oscuros con las puntas crimpadas arriba y abajo */
+  .b-fichas { display: grid; gap: 14px; align-content: start; }
+  .b-ficha {
+    --d: 16px;
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.1rem;
+    padding: calc(1.4rem + var(--d) / 2) clamp(1.25rem, 3vw, 2.5rem);
+    background: var(--b-tinta);
+    color: var(--b-papel);
+    -webkit-mask:
+      conic-gradient(from 135deg at top, #000 90deg, #0000 0) top / var(--d) calc(var(--d) / 2) repeat-x,
+      conic-gradient(from -45deg at bottom, #000 90deg, #0000 0) bottom / var(--d) calc(var(--d) / 2) repeat-x,
+      linear-gradient(#000 0 0) center / 100% calc(100% - var(--d) + 1px) no-repeat;
+    mask:
+      conic-gradient(from 135deg at top, #000 90deg, #0000 0) top / var(--d) calc(var(--d) / 2) repeat-x,
+      conic-gradient(from -45deg at bottom, #000 90deg, #0000 0) bottom / var(--d) calc(var(--d) / 2) repeat-x,
+      linear-gradient(#000 0 0) center / 100% calc(100% - var(--d) + 1px) no-repeat;
+  }
+  .b-ficha[hidden] { display: none; }
+  .b-ficha__zona {
+    font-stretch: 125%;
+    font-weight: 900;
+    font-size: 1.375rem;
+    line-height: 1.1;
+  }
+  .b-ficha__detalle {
+    display: block;
+    margin-top: 0.2rem;
+    font-stretch: 100%;
+    font-weight: 500;
+    font-size: 0.9375rem;
+    opacity: 0.85;
+  }
+  .b-ficha__datos { display: grid; gap: 0.9rem; width: 100%; }
+  .b-ficha__dato { display: grid; gap: 0.15rem; padding-top: 0.75rem; border-top: 1px solid color-mix(in srgb, var(--b-papel) 35%, transparent); }
+  .b-ficha__dato dt {
+    font-stretch: 125%;
+    font-weight: 700;
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+  .b-ficha__dato dd { font-weight: 600; }
+  .b-ficha__dato .b-ficha__dia { font-weight: 900; font-size: clamp(1.6rem, 1rem + 2vw, 2.4rem); color: var(--b-verde); }
+  .b-ficha :global(:focus-visible) { outline-color: var(--b-papel); box-shadow: none; }
+
+  /* Con JS: una sola ficha, grande */
+  /* Alto fijo para que la página no salte al cambiar de zona; el botón queda abajo. */
+  [data-js='si'] .b-ficha { min-height: 25rem; }
+  [data-js='si'] .b-ficha :global(.b-boton) { margin-top: auto; }
+  [data-js='si'] .b-ficha__dato .b-ficha__dia { font-size: clamp(2.2rem, 10.5cqi, 4.25rem); }
+
+  .b-entregas__pie {
+    margin-top: clamp(2rem, 4vw, 3rem);
+    padding-top: 1.25rem;
+    border-top: 2px solid var(--b-tinta);
+    max-width: 52em;
+  }
+
+  @media (min-width: 900px) {
+    .b-entregas__grilla { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 3rem; align-items: start; }
+    .b-entregas:not([data-js='si']) .b-fichas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+</style>

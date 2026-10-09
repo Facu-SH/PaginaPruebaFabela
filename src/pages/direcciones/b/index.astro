@@ -1,0 +1,63 @@
+---
+// Fase 1 · Dirección B · Color de sobre.
+// Cada categoría tiene el color de su envase; bloques sólidos, Archivo expandida negra
+// y los sobres dibujados en SVG. Todo dato del negocio sale de src/data/.
+import '@fontsource-variable/archivo/wdth.css';
+import archivoLatin from '@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2?url';
+import '../../../direcciones/b/b.css';
+
+import Base from '../../../layouts/Base.astro';
+import { empresa } from '../../../data';
+import Sprite from '../../../direcciones/b/componentes/Sprite.astro';
+import Encabezado from '../../../direcciones/b/componentes/Encabezado.astro';
+import Portada from '../../../direcciones/b/componentes/Portada.astro';
+import MasVendidos from '../../../direcciones/b/componentes/MasVendidos.astro';
+import Caja from '../../../direcciones/b/componentes/Caja.astro';
+import Publicos from '../../../direcciones/b/componentes/Publicos.astro';
+import Entregas from '../../../direcciones/b/componentes/Entregas.astro';
+import Lista from '../../../direcciones/b/componentes/Lista.astro';
+import Dorso from '../../../direcciones/b/componentes/Dorso.astro';
+import Flotante from '../../../direcciones/b/componentes/Flotante.astro';
+
+const { localidad, partido } = empresa.direccion;
+const titulo = `${empresa.nombreComercial} · Porciones individuales en ${localidad} · Dirección B: Color de sobre`;
+const descripcion = `${empresa.nombreComercial} (${empresa.razonSocial}) distribuye alimentos en porciones individuales desde ${localidad}, ${partido}, desde ${empresa.desde}: sobres de aderezos, azúcar y edulcorante, mermeladas, manteca y galletitas para clínicas y comercios.`;
+---
+<Base title={titulo} description={descripcion} noindex themeColor="#a9cc8f">
+  <link slot="head" rel="preload" href={archivoLatin} as="font" type="font/woff2" crossorigin />
+  <div class="dir-b">
+    <a class="b-saltar" href="#contenido">Saltar al contenido</a>
+    <Sprite />
+    <Encabezado />
+    <main id="contenido">
+      <Portada />
+      <MasVendidos />
+      <Caja />
+      <Publicos />
+      <Entregas />
+      <Lista />
+    </main>
+    <Dorso />
+    <Flotante />
+  </div>
+</Base>
+
+<script>
+  import { iniciarEstado, iniciarZonas } from '../../../direcciones/b/cliente';
+  iniciarEstado();
+  iniciarZonas();
+</script>
+
+<style>
+  .b-saltar {
+    position: absolute;
+    left: 12px;
+    top: -100px;
+    z-index: 30;
+    padding: 0.75rem 1rem;
+    background: var(--b-tinta);
+    color: var(--b-papel);
+    font-weight: 700;
+  }
+  .b-saltar:focus { top: 12px; }
+</style>

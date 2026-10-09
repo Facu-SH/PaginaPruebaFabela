@@ -1,0 +1,190 @@
+---
+// Los dos públicos. Clínicas: la bandeja con una porción para cada comida.
+// Comercios: el café con sus sobres, sin pedido mínimo en Capital.
+import { categorias, comidasClinica, empresa, entregas, horario, pagos, productoPorSlug } from '../../../data';
+import { horaCorta } from '../../../lib/horario';
+import { waLink } from '../../../lib/whatsapp';
+import { enumerar, mayuscula, producto } from '../sistema';
+import Boton from './Boton.astro';
+import Almohadilla from './Almohadilla.astro';
+import SobrePapel from './SobrePapel.astro';
+import Pote from './Pote.astro';
+import Paquete from './Paquete.astro';
+
+const envaseDe = (slug: string) => {
+  const p = productoPorSlug(slug);
+  return categorias.find((c) => c.slug === p?.categoria)?.envase ?? 'sobre';
+};
+const nombreDe = (slug: string) => productoPorSlug(slug)?.nombre ?? slug;
+const sabor = (slug: string) => productoPorSlug(slug)?.variantes?.[0] ?? slug;
+const tipoPaquete = (slug: string): 'galletitas' | 'vainillas' | 'tostadas' =>
+  slug === 'vainillas' ? 'vainillas' : slug === 'tostadas' ? 'tostadas' : 'galletitas';
+
+const capital = entregas.find((z) => z.dias === 'habiles') ?? entregas[0];
+const atiende = empresa.whatsapp.atiende;
+const abre = horaCorta(horario.abre);
+---
+<section class="b-publicos" aria-label="Para quién trabajamos">
+  <article class="b-clinicas" id="clinicas" aria-labelledby="b-clinicas-titulo">
+    <p class="b-rotulo">Clínicas, geriátricos e instituciones</p>
+    <h2 id="b-clinicas-titulo" class="b-display b-clinicas__titulo">Una porción para cada comida</h2>
+    <p class="b-clinicas__intro">
+      Porciones individuales para clínicas: las instituciones nos piden un poco de todo, porque dan algo en cada comida.
+      Así se arma la bandeja:
+    </p>
+
+    <figure class="b-bandeja">
+      <ol class="b-bandeja__comidas" role="list">
+        {comidasClinica.map((c) => (
+          <li class="b-bandeja__comp">
+            <h3 class="b-bandeja__comida">{c.comida}</h3>
+            <div class="b-bandeja__envases" aria-hidden="true">
+              {c.productos.map((slug) => {
+                const e = envaseDe(slug);
+                if (e === 'sobre') return <Almohadilla clave={slug} etiqueta={nombreDe(slug)} class="mini mini--alm" style="--b-trazo:1.5" />;
+                if (e === 'sobre-papel')
+                  return <SobrePapel variante={slug === 'edulcorante' ? 'edulcorante' : 'azucar'} class="mini mini--sob" style="--b-trazo:1.5" />;
+                if (e === 'pote') return <Pote clave={sabor(slug)} etiqueta={nombreDe(slug)} class="mini mini--pote" style="--b-trazo:1.5" />;
+                return <Paquete tipo={tipoPaquete(slug)} etiqueta={nombreDe(slug)} class={`mini mini--paq mini--${tipoPaquete(slug)}`} style="--b-trazo:1.5" />;
+              })}
+            </div>
+            <p class="b-bandeja__lista">{mayuscula(enumerar(c.productos.map(producto)))}</p>
+          </li>
+        ))}
+      </ol>
+    </figure>
+
+    <p class="b-clinicas__pago">
+      Facturamos con {pagos.facturacion[0]} y trabajamos con {pagos.instituciones}. Contanos cuántas bandejas sirven por
+      día y te armamos el pedido.
+    </p>
+    <Boton href={waLink('clinica')} externo>Consulta para clínicas</Boton>
+  </article>
+
+  <article class="b-comercios" id="comercios" aria-labelledby="b-comercios-titulo">
+    <p class="b-rotulo">Kioscos, bares, almacenes y confiterías</p>
+    <h2 id="b-comercios-titulo" class="b-display b-comercios__titulo">
+      {mayuscula(capital.pedidoMinimo)} en {capital.zona}
+    </h2>
+
+    <div class="b-cafe" aria-hidden="true">
+      <svg class="b-cafe__taza" viewBox="0 0 240 200">
+        <circle cx="110" cy="100" r="92" style="fill:var(--b-blanco);stroke:var(--b-papel);stroke-width:2" />
+        <rect x="150" y="86" width="64" height="28" rx="14" style="fill:var(--b-blanco);stroke:var(--b-tinta);stroke-width:2" />
+        <circle cx="110" cy="100" r="60" style="fill:var(--b-blanco);stroke:var(--b-tinta);stroke-width:2" />
+        <circle cx="110" cy="100" r="47" style="fill:var(--b-galletita);stroke:var(--b-tinta);stroke-width:2" />
+        <circle cx="96" cy="88" r="13" style="fill:var(--b-manteca);opacity:.55" />
+      </svg>
+      <SobrePapel variante="azucar" etiqueta={producto('azucar')} class="b-cafe__sobre b-cafe__sobre--1" />
+      <SobrePapel variante="edulcorante" class="b-cafe__sobre b-cafe__sobre--2" />
+      <Almohadilla clave="mayonesa" etiqueta={producto('mayonesa')} class="b-cafe__alm" />
+    </div>
+
+    <p class="b-comercios__texto">
+      El {producto('azucar')} y el {producto('edulcorante')} que acompañan el café, la {producto('mayonesa')} del pancho.
+      Pedí lo que necesites, aunque sea poco: en {capital.zona} lo tenés {capital.plazo}.
+    </p>
+    <Boton href={waLink('comercio')} variante="claro" externo>Consulta para comercios</Boton>
+    <p class="b-comercios__nota">{atiende} contesta desde las {abre}: si abrís temprano, ya está del otro lado.</p>
+  </article>
+</section>
+
+<style>
+  .b-publicos {
+    display: grid;
+    border-top: 2px solid var(--b-tinta);
+  }
+  .b-clinicas, .b-comercios {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.25rem;
+    padding: clamp(3rem, 6vw, 5.5rem) var(--b-gutter);
+  }
+  .b-clinicas__titulo, .b-comercios__titulo { font-size: clamp(2.2rem, 1rem + 3.6vw, 4.5rem); max-width: 9em; }
+  .b-clinicas__intro, .b-clinicas__pago, .b-comercios__texto { max-width: 34em; }
+
+  /* La bandeja */
+  .b-bandeja { width: 100%; margin: 0.5rem 0; }
+  .b-bandeja__comidas {
+    list-style: none;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    background: var(--b-aluminio);
+    border: 2px solid var(--b-tinta);
+    border-radius: 22px;
+  }
+  .b-bandeja__comp {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 0.85rem 0.8rem 0.9rem;
+    background: var(--b-papel);
+    border: 2px solid var(--b-tinta);
+    border-radius: 14px;
+  }
+  .b-bandeja__comida {
+    font-stretch: 125%;
+    font-weight: 900;
+    font-size: 1rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+  .b-bandeja__envases {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 6px;
+    min-height: 64px;
+  }
+  .b-bandeja__envases :global(.mini--alm) { width: 20px; }
+  .b-bandeja__envases :global(.mini--sob) { width: 40px; }
+  .b-bandeja__envases :global(.mini--pote) { width: 30px; }
+  .b-bandeja__envases :global(.mini--paq) { width: 46px; }
+  .b-bandeja__envases :global(.mini--vainillas) { width: 58px; }
+  .b-bandeja__lista {
+    margin-top: auto;
+    font-stretch: 75%;
+    font-weight: 600;
+    font-size: 0.875rem;
+    line-height: 1.3;
+  }
+
+  /* Comercios */
+  .b-comercios {
+    background: var(--b-tinta);
+    color: var(--b-papel);
+  }
+  .b-comercios :global(:focus-visible) { outline-color: var(--b-papel); box-shadow: 0 0 0 6px var(--b-tinta); }
+  .b-comercios__nota { font-size: 0.9375rem; opacity: 0.85; }
+
+  .b-cafe {
+    position: relative;
+    width: min(100%, 420px);
+    aspect-ratio: 5 / 3.6;
+    margin-block: 0.5rem;
+  }
+  .b-cafe__taza { position: absolute; left: 0; top: 0; width: 66%; height: auto; }
+  .b-cafe :global(.b-cafe__sobre) { position: absolute; width: 38%; height: auto; }
+  .b-cafe :global(.b-cafe__sobre--1) { right: 2%; top: 2%; transform: rotate(-9deg); }
+  .b-cafe :global(.b-cafe__sobre--2) { right: 10%; top: 38%; transform: rotate(7deg); }
+  .b-cafe :global(.b-cafe__alm) { position: absolute; width: 11%; height: auto; right: 0; bottom: 0; transform: rotate(18deg); }
+
+  @media (min-width: 720px) {
+    .b-bandeja__comidas { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+
+  @media (min-width: 1080px) {
+    .b-publicos { grid-template-columns: 7fr 5fr; }
+    .b-clinicas {
+      padding-left: max(var(--b-gutter), calc((100vw - var(--b-max)) / 2 + var(--b-gutter)));
+      padding-right: clamp(2rem, 4vw, 4rem);
+    }
+    .b-comercios {
+      padding-left: clamp(2rem, 4vw, 4rem);
+      padding-right: max(var(--b-gutter), calc((100vw - var(--b-max)) / 2 + var(--b-gutter)));
+    }
+  }
+</style>

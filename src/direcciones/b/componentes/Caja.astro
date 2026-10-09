@@ -1,0 +1,276 @@
+---
+// Productos: la caja con divisiones. Cada categoría ocupa un compartimento de su color,
+// con sus envases dibujados en el formato real. El último compartimento queda vacío a propósito.
+import { categorias, empresa, marcas, productosPorCategoria, type Producto } from '../../../data';
+import { waLink } from '../../../lib/whatsapp';
+import { colorCategoria, enumerar } from '../sistema';
+import Almohadilla from './Almohadilla.astro';
+import SobrePapel from './SobrePapel.astro';
+import Pote from './Pote.astro';
+import Paquete from './Paquete.astro';
+
+const ajenas = marcas.filter((m) => !m.propia).map((m) => m.nombre);
+const propia = marcas.find((m) => m.propia)?.nombre ?? empresa.nombreComercial;
+
+const nombreLargo = (p: Producto) => (p.variantes ? `${p.nombre}: ${enumerar(p.variantes)}` : p.nombre);
+const marcaCorta = (p: Producto) => (p.marca === propia ? `${propia} · propia` : p.marca);
+// Productos seguidos de la misma marca van en una sola línea ("Mayonesa, ketchup… · Natura").
+const porMarca = (prods: Producto[]) => {
+  const grupos: { marca?: string; items: Producto[] }[] = [];
+  for (const p of prods) {
+    const ultimo = grupos[grupos.length - 1];
+    if (ultimo && p.marca && ultimo.marca === p.marca && !p.variantes && !ultimo.items[0].variantes) ultimo.items.push(p);
+    else grupos.push({ marca: p.marca, items: [p] });
+  }
+  return grupos.map((g) => ({
+    marca: g.items[0].marca ? marcaCorta(g.items[0]) : undefined,
+    nombres: g.items.length === 1 ? nombreLargo(g.items[0]) : enumerar(g.items.map((p, i) => (i === 0 ? p.nombre : p.nombre.toLowerCase()))),
+  }));
+};
+
+// Potecitos a dibujar: los sabores si la categoría tiene variantes (mermeladas); si no, cada producto.
+const potes = (prods: Producto[]) =>
+  prods.some((p) => p.variantes)
+    ? prods.flatMap((p) => p.variantes ?? []).map((v) => ({ clave: v, etiqueta: v }))
+    : prods.map((p) => ({ clave: p.slug, etiqueta: p.nombre }));
+const tipoPaquete = (slug: string): 'galletitas' | 'vainillas' | 'tostadas' =>
+  slug === 'vainillas' ? 'vainillas' : slug === 'tostadas' ? 'tostadas' : 'galletitas';
+---
+<section class="b-caja" id="productos" aria-labelledby="b-caja-titulo">
+  <div class="b-contenedor">
+    <div class="b-caja__cabeza">
+      <h2 id="b-caja-titulo" class="b-display b-caja__titulo">Productos en porción individual</h2>
+      <p class="b-caja__intro">
+        Trabajamos con {enumerar(ajenas)}, y con nuestra línea propia de edulcorante. Cada familia viene en su envase de
+        siempre: sobre, potecito o paquetito.
+      </p>
+    </div>
+
+    <div class="b-caja__grilla">
+      {categorias.map((cat) => {
+        const color = colorCategoria[cat.slug];
+        const prods = productosPorCategoria(cat.slug);
+        return (
+          <article
+            class:list={['b-comp', `b-comp--${cat.slug}`]}
+            style={`--fondo:${color.fondo};--texto:${color.texto}`}
+            aria-labelledby={`b-comp-${cat.slug}`}
+          >
+            <div class="b-comp__texto">
+              <h3 id={`b-comp-${cat.slug}`} class="b-display b-comp__nombre">{cat.nombre}</h3>
+              <p class="b-comp__bajada">{cat.bajada}</p>
+            </div>
+
+            <div class:list={['b-comp__envases', `b-comp__envases--${cat.envase}`]} aria-hidden="true">
+              {cat.slug === 'aderezos' &&
+                prods.map((p) => <Almohadilla clave={p.slug} etiqueta={p.nombre} />)}
+              {cat.slug === 'endulzantes' &&
+                prods.map((p) => (
+                  <SobrePapel variante={p.slug === 'edulcorante' ? 'edulcorante' : 'azucar'} etiqueta={p.nombre} />
+                ))}
+              {cat.envase === 'pote' &&
+                potes(prods).map((v) => <Pote clave={v.clave} etiqueta={v.etiqueta} />)}
+              {cat.envase === 'paquete' &&
+                prods.map((p) => <Paquete tipo={tipoPaquete(p.slug)} etiqueta={p.nombre} />)}
+            </div>
+
+            <ul class="b-comp__lista" role="list">
+              {porMarca(prods).map((g) => (
+                <li>
+                  <span class="b-comp__producto">{g.nombres}</span>
+                  {g.marca && <span class="b-comp__marca">{g.marca}</span>}
+                </li>
+              ))}
+            </ul>
+
+            <div class="b-comp__pie">
+              {cat.frio && <p class="b-comp__frio">Viaja en frío</p>}
+              <a
+                class="b-comp__link"
+                href={waLink('producto', { producto: cat.nombre.toLowerCase() })}
+                target="_blank"
+                rel="noopener"
+              >
+                Preguntá por {cat.nombre.toLowerCase()}<span aria-hidden="true">&nbsp;→</span>
+              </a>
+            </div>
+          </article>
+        );
+      })}
+
+      <aside class="b-comp b-comp--vacio" aria-labelledby="b-comp-vacio">
+        <p id="b-comp-vacio" class="b-display b-comp__vacio-titulo">Si no lo ves, preguntanos.</p>
+        <div class="b-comp__vacio-texto">
+          <p>
+            Acá están los que más se piden, pero trabajamos más productos en porción individual.{' '}
+            {empresa.whatsapp.atiende} te dice si lo tenemos.
+          </p>
+          <a class="b-link" href={waLink('general')} target="_blank" rel="noopener">
+            Preguntale a {empresa.whatsapp.atiende} por WhatsApp<span aria-hidden="true">&nbsp;→</span>
+          </a>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<style>
+  .b-caja { padding-block: clamp(4rem, 9vw, 8rem) clamp(3rem, 6vw, 6rem); }
+  .b-caja__cabeza {
+    display: grid;
+    gap: 1rem;
+    margin-bottom: clamp(2rem, 4vw, 3.5rem);
+  }
+  .b-caja__titulo { font-size: clamp(2.3rem, 1rem + 4.4vw, 5.25rem); max-width: 11em; }
+  .b-caja__intro { max-width: 34em; }
+
+  .b-caja__grilla {
+    display: grid;
+    gap: 10px;
+  }
+
+  .b-comp {
+    container-type: inline-size;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: clamp(1.25rem, 2.4vw, 2.25rem);
+    background: var(--fondo);
+    color: var(--texto);
+  }
+  .b-comp__nombre { font-size: clamp(2rem, 11cqi, 4.25rem); }
+  .b-comp__bajada { margin-top: 0.75rem; max-width: 30em; }
+
+  .b-comp__envases {
+    display: flex;
+    align-items: flex-end;
+    gap: clamp(8px, 2.5cqi, 18px);
+    margin-block: auto;
+    padding-block: 0.5rem;
+  }
+  .b-comp__envases > :global(svg) { flex: 1 1 0; min-width: 0; height: auto; }
+  .b-comp__envases--sobre > :global(svg) { max-width: 104px; }
+  .b-comp__envases--sobre-papel > :global(svg) { max-width: 220px; }
+  .b-comp__envases--pote { flex-wrap: wrap; }
+  .b-comp__envases--pote > :global(svg) { flex: 0 1 calc(25% - 14px); max-width: 120px; }
+  .b-comp--lacteos .b-comp__envases--pote > :global(svg) { flex-basis: calc(50% - 10px); max-width: 104px; }
+  .b-comp__envases--paquete { flex-wrap: wrap; align-items: center; }
+  .b-comp__envases--paquete > :global(svg) { flex: 0 1 auto; width: calc(50% - 10px); }
+  .b-comp__envases--paquete > :global(.b-paq--vainillas) { order: 2; width: 100%; max-width: 300px; }
+
+  .b-comp__lista {
+    list-style: none;
+    padding: 0;
+    border-top: 2px solid currentColor;
+  }
+  .b-comp__lista li {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.1rem 1rem;
+    padding-block: 0.55rem;
+    border-bottom: 1px solid color-mix(in srgb, currentColor 40%, transparent);
+  }
+  .b-comp__producto { font-weight: 600; }
+  .b-comp__marca {
+    font-stretch: 125%;
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .b-comp__pie {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1rem;
+  }
+  .b-comp__frio {
+    font-stretch: 125%;
+    font-weight: 800;
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 0.4rem 0.7rem;
+    border: 2px solid currentColor;
+  }
+  .b-comp__link {
+    font-weight: 700;
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.22em;
+  }
+  .b-comp__link:hover { text-decoration-thickness: 4px; }
+  .b-comp--mermeladas .b-comp__link:focus-visible { outline-color: var(--b-papel); box-shadow: none; }
+
+  /* El compartimento vacío */
+  .b-comp--vacio {
+    --fondo: var(--b-papel);
+    --texto: var(--b-tinta);
+    border: 3px solid var(--b-tinta);
+    gap: 1.25rem;
+  }
+  .b-comp__vacio-titulo { font-size: clamp(2rem, 10.5cqi, 4.5rem); max-width: 9em; }
+  .b-comp__vacio-texto { display: grid; gap: 1rem; max-width: 34em; }
+
+  @media (min-width: 720px) {
+    .b-caja__grilla { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .b-comp--aderezos, .b-comp--vacio { grid-column: 1 / -1; }
+  }
+
+  @media (min-width: 1080px) {
+    .b-caja__grilla {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 12px;
+    }
+    /* Fila 1: aderezos a todo el ancho (la mayonesa es lo que más sale) */
+    .b-comp--aderezos {
+      grid-column: 1 / -1;
+      grid-row: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      grid-template-rows: auto 1fr auto;
+      grid-template-areas: 'texto envases' 'lista envases' 'pie envases';
+      column-gap: clamp(2rem, 4vw, 4rem);
+    }
+    .b-comp--aderezos .b-comp__texto { grid-area: texto; }
+    .b-comp--aderezos .b-comp__envases {
+      grid-area: envases;
+      margin-block: 0;
+      align-self: end;
+      justify-content: flex-end;
+      gap: 18px;
+    }
+    .b-comp--aderezos .b-comp__envases--sobre > :global(svg) { max-width: 150px; }
+    .b-comp--aderezos .b-comp__lista { grid-area: lista; align-self: end; margin-top: 1.5rem; }
+    .b-comp--aderezos .b-comp__pie { grid-area: pie; }
+
+    /* Fila 2 */
+    .b-comp--endulzantes { grid-column: 1 / span 4; grid-row: 2; }
+    .b-comp--mermeladas { grid-column: 5 / span 5; grid-row: 2; }
+    .b-comp--lacteos { grid-column: 10 / span 3; grid-row: 2; }
+    .b-comp--mermeladas .b-comp__envases--pote > :global(svg) { max-width: 124px; }
+    .b-comp--lacteos .b-comp__envases--pote > :global(svg) { max-width: 112px; }
+
+    /* Fila 3: galletitas y el compartimento vacío */
+    .b-comp--galletitas-y-tostadas {
+      grid-column: 1 / span 7;
+      grid-row: 3;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      grid-template-rows: auto 1fr auto;
+      grid-template-areas: 'texto texto' 'envases lista' 'envases pie';
+      column-gap: clamp(1.5rem, 3vw, 3rem);
+    }
+    .b-comp--galletitas-y-tostadas .b-comp__texto { grid-area: texto; }
+    .b-comp--galletitas-y-tostadas .b-comp__envases { grid-area: envases; margin-block: 0; align-self: end; }
+    .b-comp--galletitas-y-tostadas .b-comp__lista { grid-area: lista; align-self: end; }
+    .b-comp--galletitas-y-tostadas .b-comp__pie { grid-area: pie; }
+    .b-comp--vacio { grid-column: 8 / span 5; grid-row: 3; justify-content: space-between; }
+  }
+</style>

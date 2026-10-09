@@ -1,0 +1,70 @@
+---
+// Formas de envase que se repiten en la página (se dibujan una vez y se reusan con <use>).
+// Los colores llegan por custom properties: --c (envase), --b-trazo (grosor de línea).
+import { bajada, barra, caja, dpi, punto } from '../wordmark';
+import { contornoDentado, estrias } from '../sistema';
+
+const trazo = 'stroke:var(--b-tinta);stroke-width:var(--b-trazo,2);vector-effect:non-scaling-stroke;stroke-linejoin:round';
+const estria = 'fill:none;stroke:var(--b-tinta);stroke-opacity:.3;stroke-width:1;vector-effect:non-scaling-stroke';
+
+// Almohadilla (sobre de aderezo) parada: 64 × 160, puntas crimpadas arriba y abajo.
+const ALM = { w: 64, h: 160, sello: 18 };
+const almContorno = contornoDentado(ALM.w, ALM.h, 5.4, 5, { arriba: true, abajo: true });
+const almEstrias =
+  estrias(4, ALM.w - 4, 5, ALM.sello, 3.2) + estrias(4, ALM.w - 4, ALM.h - ALM.sello, ALM.h - 5, 3.2);
+
+// Sobre de papel (azúcar, edulcorante): 130 × 100, dentado en los cuatro lados.
+const SOB = { w: 130, h: 100, m: 10 };
+const sobContorno = contornoDentado(SOB.w, SOB.h, 5, 3.4, { arriba: true, derecha: true, abajo: true, izquierda: true });
+const sobEstrias =
+  estrias(6, SOB.w - 6, 3.4, SOB.m, 3) +
+  estrias(6, SOB.w - 6, SOB.h - SOB.m, SOB.h - 3.4, 3) +
+  estrias(3.4, SOB.m, SOB.m + 2, SOB.h - SOB.m - 2, 3, false) +
+  estrias(SOB.w - SOB.m, SOB.w - 3.4, SOB.m + 2, SOB.h - SOB.m - 2, 3, false);
+// La curva verde del sobre de edulcorante DPI (dentro del margen sellado).
+const curva = `M${SOB.m} ${SOB.m}H30C38 52 84 44 112 ${SOB.h - SOB.m}H${SOB.m}Z`;
+---
+<svg class="b-sprite" width="0" height="0" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="b-alm" viewBox={`0 0 ${ALM.w} ${ALM.h}`}>
+      <path d={almContorno} style={`fill:var(--c);${trazo}`} />
+      <path d={almEstrias} style={estria} />
+      <path d={`M0 ${ALM.sello}H${ALM.w}M0 ${ALM.h - ALM.sello}H${ALM.w}`} style={`fill:none;${trazo}`} />
+    </symbol>
+
+    <symbol id="b-sob" viewBox={`0 0 ${SOB.w} ${SOB.h}`}>
+      <path d={sobContorno} style={`fill:var(--c,#fff);${trazo}`} />
+      <path d={sobEstrias} style={estria} />
+    </symbol>
+
+    <symbol id="b-sob-curva" viewBox={`0 0 ${SOB.w} ${SOB.h}`}>
+      <path d={curva} style="fill:var(--b-verde)" />
+    </symbol>
+
+    <symbol id="b-pote" viewBox="0 0 100 100">
+      <rect x="2" y="2" width="96" height="96" rx="16" style={`fill:var(--b-blanco);${trazo}`} />
+      <rect x="13" y="13" width="74" height="74" rx="10" style="fill:var(--c)" />
+      <path d="M18 2H58L98 42V82Q98 98 82 98H18Q2 98 2 82V18Q2 2 18 2Z" style={`fill:var(--b-aluminio);${trazo}`} />
+      <rect x="2" y="54" width="96" height="24" style="fill:var(--c)" />
+      <path d="M18 2H58L98 42V82Q98 98 82 98H18Q2 98 2 82V18Q2 2 18 2Z" style={`fill:none;${trazo}`} />
+      <path d="M58 2L98 42H58Z" style={`fill:var(--b-aluminio-dorso);${trazo}`} />
+    </symbol>
+
+    <symbol id="b-dpi" viewBox={`${caja.x} ${caja.y} ${caja.ancho} ${688 + barra.y + barra.alto}`}>
+      <rect x={barra.x} y={barra.y} width={barra.ancho} height={barra.alto} style="fill:var(--b-tinta)" />
+      <circle cx={punto.cx} cy={punto.cy} r={punto.r} style="fill:var(--wm-punto,var(--b-verde))" />
+      <path d={dpi} style="fill:var(--b-tinta)" />
+    </symbol>
+
+    <symbol id="b-dpi-bajada" viewBox={`${caja.x} ${caja.y} ${caja.ancho} ${caja.alto}`}>
+      <rect x={barra.x} y={barra.y} width={barra.ancho} height={barra.alto} style="fill:var(--b-tinta)" />
+      <circle cx={punto.cx} cy={punto.cy} r={punto.r} style="fill:var(--wm-punto,var(--b-verde))" />
+      <path d={dpi} style="fill:var(--b-tinta)" />
+      <path d={bajada} style="fill:var(--b-tinta)" />
+    </symbol>
+  </defs>
+</svg>
+
+<style>
+  .b-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+</style>

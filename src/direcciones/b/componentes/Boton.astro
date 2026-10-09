@@ -1,0 +1,23 @@
+---
+// Botón con forma de sobre: cuerpo sólido y puntas crimpadas a los costados.
+// El foco se dibuja en el <a> (la máscara del cuerpo no lo recorta).
+interface Props {
+  href: string;
+  variante?: 'oscuro' | 'claro';
+  grande?: boolean;
+  class?: string;
+  /** Abre en otra pestaña (WhatsApp, mail). */
+  externo?: boolean;
+}
+const { href, variante = 'oscuro', grande = false, class: clase, externo = false } = Astro.props;
+---
+<a
+  href={href}
+  class:list={['b-boton', { 'b-boton--claro': variante === 'claro', 'b-boton--grande': grande }, clase]}
+  {...(externo ? { target: '_blank', rel: 'noopener' } : {})}
+>
+  <span class="b-boton__cuerpo">
+    <slot />
+    <span class="b-boton__flecha" aria-hidden="true">→</span>
+  </span>
+</a>
