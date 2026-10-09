@@ -49,3 +49,10 @@ Cada dato se cambia en **una sola línea** del archivo indicado.
 | 20 | Acceso al dominio `dpi-arg.com.ar` (quién lo administra, dónde están los DNS) para publicar el sitio nuevo en Cloudflare Pages o Netlify | a definir |
 | 21 | Logo: el sitio usa propuestas de renovación del wordmark "DPI" (misma estructura: esfera, DPI, línea, "Productos Individuales"). Hay que elegir una y, si se aprueba, actualizar también los sobres impresos | fase 1 |
 | 22 | Fotos reales de producto | más adelante (fase 4: guía de fotos y prompts) |
+
+## Decisiones de diseño para que el dueño vea
+
+| # | Tema | Estado |
+|---|---|---|
+| 23 | Dirección visual elegida: **B · Color de sobre** con piezas de C (ver `docs/direcciones/resumen.md`). Las tres propuestas están en `docs/capturas/fase-1/` | elegida por el equipo, se puede revisar |
+| 24 | Wordmark: punto sólido de color (B) o esfera tramada (A). Las dos mantienen la estructura del logo actual | a elegir |
