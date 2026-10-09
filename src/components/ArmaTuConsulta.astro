@@ -1,0 +1,242 @@
+---
+// "Armá tu consulta": el remito de C en lenguaje de sobre. Renglones por categoría con casilla
+// y cantidad aproximada, tipo de negocio y zona; muestra "Así le llega a Diego" y el botón abre
+// WhatsApp con mensajeConsulta() (src/data/mensajes.ts). No guarda nada.
+// Sin JS: se ve la lista de productos y un botón de WhatsApp genérico (contexto 'pedido').
+// Va en /productos/. El script es src/scripts/consulta.ts.
+import { categorias, empresa, entregas, productosPorCategoria } from '../data';
+import { colorCategoria } from '../lib/color';
+import { enumerar, nombreConMarca } from '../lib/textos';
+import BotonWhatsApp from './BotonWhatsApp.astro';
+import Envase from './Envase.astro';
+
+interface Props {
+  titulo?: string;
+  id?: string;
+  class?: string;
+}
+const atiende = empresa.whatsapp.atiende;
+const { titulo = 'Armá tu consulta', id = 'consulta', class: clase } = Astro.props;
+const grupos = categorias.map((c) => ({ c, color: colorCategoria[c.slug], items: productosPorCategoria(c.slug) }));
+const zonas = entregas.filter((z) => z.dias !== 'consultar');
+const tipos = [
+  { valor: 'una clínica o institución', texto: 'Clínica, geriátrico o institución' },
+  { valor: 'un comercio (bar, kiosco, almacén)', texto: 'Bar, kiosco, almacén o confitería' },
+  { valor: 'otro tipo de negocio', texto: 'Otro' },
+];
+---
+<form class:list={['consulta', clase]} id={id} aria-labelledby={`${id}-titulo`} data-consulta>
+  <div class="consulta__cabeza">
+    <h2 id={`${id}-titulo`} class="consulta__titulo">{titulo}</h2>
+    <p class="t-lectura solo-js">
+      Marcá lo que te interesa y, si querés, anotá una cantidad aproximada. Se arma el mensaje y se lo mandás a {atiende} por
+      WhatsApp: te contesta con precios y disponibilidad.
+    </p>
+    <p class="t-lectura sin-js">Pedí cualquiera de estos productos por WhatsApp: te contesta {atiende}.</p>
+  </div>
+
+  <div class="consulta__rubros">
+    {grupos.map(({ c, color, items }) => (
+      <fieldset class="rubro" style={`--fondo:var(--${color.fondo});--texto:var(--${color.texto})`}>
+        <legend class="rubro__nombre">
+          <span>{c.nombre}</span>
+          {c.frio && <span class="rubro__frio">viaja en frío</span>}
+        </legend>
+        <div class="rubro__cuerpo">
+          <Envase producto={items[0]?.slug} class="rubro__envase" trazo={1.5} />
+          <ul class="rubro__renglones" role="list">
+            {items.map((p) => (
+              <li class="renglon">
+                <input class="renglon__casilla solo-js" type="checkbox" id={`${id}-p-${p.slug}`} value={nombreConMarca(p)} data-producto={p.slug} />
+                <label class="renglon__desc" for={`${id}-p-${p.slug}`}>
+                  <span class="renglon__nombre">{p.nombre}</span>
+                  {p.variantes && <span class="renglon__variantes">{enumerar(p.variantes)}</span>}
+                  {p.marca && <span class="renglon__marca">{p.marca}</span>}
+                </label>
+                <span class="renglon__cant solo-js">
+                  <label class="visually-hidden" for={`${id}-c-${p.slug}`}>Cantidad aproximada de {p.nombre.toLowerCase()}</label>
+                  <input type="text" id={`${id}-c-${p.slug}`} autocomplete="off" placeholder="cantidad" data-cantidad={p.slug} />
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </fieldset>
+    ))}
+  </div>
+
+  <div class="consulta__datos solo-js">
+    <label class="campo campo--otro">
+      <span class="t-rotulo">¿Otro producto en porción individual?</span>
+      <input type="text" autocomplete="off" data-otro />
+    </label>
+    <fieldset class="campo">
+      <legend class="t-rotulo">Es para</legend>
+      <div class="campo__opciones">
+        {tipos.map((t) => (
+          <label class="opcion"><input type="radio" name={`${id}-tipo`} value={t.valor} data-tipo /> <span>{t.texto}</span></label>
+        ))}
+      </div>
+    </fieldset>
+    <label class="campo">
+      <span class="t-rotulo">Zona</span>
+      <select data-zona-consulta>
+        <option value="">Elegí tu zona</option>
+        {zonas.map((z) => <option value={z.zona}>{z.zona}</option>)}
+        <option value="otra zona">Otra zona</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="consulta__envio">
+    <div class="vista solo-js" aria-live="polite">
+      <p class="t-rotulo">Así le llega a {atiende}</p>
+      <p class="vista__texto" data-vista>Marcá al menos un producto y el mensaje se arma solo.</p>
+    </div>
+    <BotonWhatsApp variante="principal" contexto="pedido" datos={{ 'data-consulta-enviar': '' }}>
+      <span class="solo-js">Mandá la consulta por WhatsApp</span><span class="sin-js">Pedí por WhatsApp</span>
+    </BotonWhatsApp>
+  </div>
+</form>
+
+<script>
+  import '../scripts/consulta';
+</script>
+
+<style>
+  .consulta { display: grid; gap: var(--e-6); }
+  .consulta__cabeza { display: grid; gap: var(--e-4); }
+  .consulta__titulo { max-width: 10em; }
+
+  .consulta__rubros { display: grid; gap: 10px; }
+  .rubro { margin: 0; padding: 0; border: var(--borde); background: var(--papel); min-width: 0; }
+  .rubro__nombre {
+    float: left; /* la legend ocupa todo el ancho como una faja */
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.25rem 1rem;
+    padding: 0.7rem 1rem;
+    background: var(--fondo);
+    color: var(--texto);
+    border-bottom: var(--borde);
+    font-stretch: var(--ancho-expandida);
+    font-weight: 900;
+    font-size: 1.25rem;
+    line-height: 1.05;
+    letter-spacing: var(--tracking-display);
+  }
+  .rubro__frio { font-weight: 700; font-size: var(--t-rotulo); letter-spacing: var(--tracking-rotulo); text-transform: uppercase; }
+  .rubro__cuerpo { clear: both; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--e-3); padding: var(--e-2) var(--e-3) var(--e-2) var(--e-4); }
+  .rubro__cuerpo :global(.rubro__envase) { display: none; }
+  .rubro__cuerpo :global(.rubro__envase) { width: 100%; max-height: 4.5rem; margin-top: 0.4rem; }
+  .rubro__cuerpo :global(.envase--almohadilla) { width: 1.6rem; justify-self: center; }
+  .rubro__renglones { padding: 0; list-style: none; }
+
+  .renglon {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) 5.75rem;
+    align-items: center;
+    gap: var(--e-3);
+    min-height: 3.25rem;
+    padding-block: 0.35rem;
+  }
+  .renglon + .renglon { border-top: 1px solid color-mix(in srgb, var(--tinta) 25%, transparent); }
+  :global(html:not(.js)) .renglon { grid-template-columns: minmax(0, 1fr); }
+  .renglon__casilla {
+    appearance: none;
+    width: 1.75rem;
+    height: 1.75rem;
+    margin: 0;
+    border: var(--borde);
+    border-radius: var(--r-recto);
+    background: var(--blanco);
+    cursor: pointer;
+    display: grid;
+    place-content: center;
+  }
+  .renglon__casilla::after {
+    content: '';
+    width: 0.9rem;
+    height: 0.5rem;
+    border-left: 3px solid var(--papel);
+    border-bottom: 3px solid var(--papel);
+    transform: rotate(-45deg) translate(1px, -2px);
+    opacity: 0;
+  }
+  .renglon__casilla:checked { background: var(--tinta); }
+  .renglon__casilla:checked::after { opacity: 1; }
+  .renglon__desc { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 0.6rem; cursor: pointer; padding-block: 0.25rem; }
+  .renglon__nombre { font-weight: 700; }
+  .renglon__variantes { font-size: 0.9375rem; color: var(--tinta-suave); }
+  .renglon__marca {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 700;
+    font-size: 0.6875rem;
+    letter-spacing: var(--tracking-rotulo);
+    text-transform: uppercase;
+  }
+  .renglon__cant input {
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0.35rem 0.5rem;
+    border: 0;
+    border-bottom: var(--borde);
+    background: transparent;
+    font-size: 1rem;
+  }
+  .renglon__cant input::placeholder { color: var(--tinta-suave); opacity: 1; font-size: 0.875rem; }
+
+  .consulta__datos { display: grid; gap: var(--e-5); }
+  .campo { display: grid; gap: var(--e-2); border: 0; padding: 0; margin: 0; min-width: 0; }
+  .campo legend { margin-bottom: var(--e-2); }
+  .campo input[type='text'], .campo select {
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.55rem 0.8rem;
+    border: var(--borde);
+    border-radius: var(--r-recto);
+    background: var(--blanco);
+    font-size: 1rem;
+  }
+  .campo__opciones { display: flex; flex-wrap: wrap; gap: var(--e-2); }
+  .opcion { position: relative; cursor: pointer; }
+  .opcion input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+  .opcion span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 3rem;
+    padding: 0.5rem 1rem;
+    border: var(--borde);
+    border-radius: var(--r-pastilla);
+    background: var(--papel);
+    font-weight: 700;
+    font-size: 0.9375rem;
+  }
+  .opcion input:checked + span { background: var(--tinta); color: var(--papel); }
+  .opcion input:focus-visible + span { outline: 3px solid var(--tinta); outline-offset: 3px; }
+
+  .consulta__envio { display: grid; gap: var(--e-5); justify-items: start; }
+  .vista {
+    width: 100%;
+    max-width: 34rem;
+    padding: var(--e-4) var(--e-5);
+    border: var(--borde);
+    border-radius: var(--r-envase) var(--r-envase) var(--r-envase) var(--r-recto);
+    background: var(--blanco);
+  }
+  .vista__texto { margin-top: var(--e-2); white-space: pre-line; font-size: 1rem; }
+
+  @media (min-width: 600px) {
+    .rubro__cuerpo { grid-template-columns: 3.25rem minmax(0, 1fr); }
+    .rubro__cuerpo :global(.rubro__envase) { display: block; }
+  }
+  @media (min-width: 900px) {
+    .consulta__rubros { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+    .consulta__datos { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    .campo--otro { grid-column: 1 / -1; }
+    .consulta__envio { grid-template-columns: minmax(0, 1fr) auto; align-items: end; }
+  }
+</style>

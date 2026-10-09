@@ -1,16 +1,210 @@
 ---
+// Inicio. Portada (qué es, para quién, dónde; Diego desde las 5), tablero de atención,
+// lo que más sale, la caja de categorías, los dos públicos en corto, entregas y lista de precios.
+// El detalle de cada tema vive en su página: la home resume y linkea.
 import Sitio from '../layouts/Sitio.astro';
-import TableroAtencion from '../components/TableroAtencion.astro';
+import { empresa, entregas, horario, marcas, masVendidos, pagos, pedidoTipicoComercio } from '../data';
+import { horaCorta } from '../lib/horario';
+import { enumerar, mayuscula, nombreConMarca, nombreProducto, resumenRepartos, zonasConReparto } from '../lib/textos';
+import { url } from '../lib/url';
+import BandejaClinica from '../components/BandejaClinica.astro';
+import BloqueDato from '../components/BloqueDato.astro';
+import BotonWhatsApp from '../components/BotonWhatsApp.astro';
+import CajaCategorias from '../components/CajaCategorias.astro';
 import Envase from '../components/Envase.astro';
-import FotoOEnvase from '../components/FotoOEnvase.astro';
+import EscenaUso from '../components/EscenaUso.astro';
+import FilaProducto from '../components/FilaProducto.astro';
+import ListaPreciosCTA from '../components/ListaPreciosCTA.astro';
+import SelectorZona from '../components/SelectorZona.astro';
+import TableroAtencion from '../components/TableroAtencion.astro';
+
+const { localidad, partido } = empresa.direccion;
+const atiende = empresa.whatsapp.atiende;
+const abre = horaCorta(horario.abre);
+const que = enumerar(['mayonesa', 'azucar', 'edulcorante', 'mermeladas', 'manteca', 'galletitas'].map(nombreProducto));
+const donde = enumerar(zonasConReparto().map((z) => z.zona));
+const capital = entregas.find((z) => z.dias === 'habiles') ?? entregas[0];
+const masSale = masVendidos();
+const ajenas = marcas.filter((m) => !m.propia).map((m) => m.nombre);
+const [usoA, usoB] = pedidoTipicoComercio;
+
+const title = `${empresa.nombreComercial} · Porciones individuales para clínicas y comercios`;
+const description = `${empresa.nombreComercial} (${empresa.razonSocial}) distribuye alimentos en porciones individuales desde ${localidad}, ${partido}, desde ${empresa.desde}: sobres de aderezos, azúcar y edulcorante, mermeladas, manteca y galletitas para clínicas, bares y kioscos de ${donde}.`;
 ---
-<Sitio title="Prueba · DPI" description="Prueba">
+<Sitio title={title} description={description}>
+  <!-- Portada -->
+  <section class="portada" aria-labelledby="portada-titulo">
+    <div class="contenedor portada__grilla">
+      <div class="portada__cabeza">
+        <p class="t-rotulo">{localidad} · {partido} · desde {empresa.desde}</p>
+        <h1 id="portada-titulo" class="portada__titulo">Porciones individuales para clínicas, bares y kioscos.</h1>
+      </div>
+      <div class="portada__texto">
+        <p class="portada__oracion">
+          {empresa.nombreComercial} es una distribuidora de {localidad}, {partido}, que desde {empresa.desde} vende {que} en
+          porciones individuales a clínicas, bares, kioscos y comercios de {donde}.
+        </p>
+        <p class="portada__dato">{atiende} contesta el WhatsApp desde las {abre} de la mañana. En minutos.</p>
+        <BotonWhatsApp variante="principal" />
+      </div>
+      <figure class="portada__sobre">
+        <Envase
+          producto="edulcorante"
+          detalle
+          titulo={`Sobre de edulcorante de ${empresa.nombreComercial}: blanco con una curva verde, el logo y el teléfono impresos`}
+        />
+        <figcaption class="t-rotulo">El sobre de edulcorante {empresa.nombreComercial}, nuestra línea propia</figcaption>
+      </figure>
+    </div>
+  </section>
+
   <TableroAtencion />
-  <div style="display:flex;gap:10px;width:600px">
-    <Envase producto="mayonesa" style="width:40px" />
-    <Envase producto="edulcorante" style="width:120px" detalle />
-    <Envase producto="mermeladas" sabor="durazno" style="width:80px" />
-    <Envase producto="vainillas" style="width:120px" />
-    <FotoOEnvase producto="tostadas" class="x" />
+
+  <!-- Lo que más sale -->
+  <section class="mas" aria-labelledby="mas-titulo">
+    <div class="contenedor mas__cabeza">
+      <h2 id="mas-titulo">Lo que más sale</h2>
+      <p class="t-lectura">
+        {mayuscula(enumerar(masSale.map((p) => nombreConMarca(p).replace(/^./, (l) => l.toLowerCase()))))}: lo que más nos
+        piden bares, kioscos y clínicas, cada porción en su envase.
+      </p>
+    </div>
+    <div class="mas__filas">
+      {masSale.map((p) => <FilaProducto producto={p.slug} />)}
+    </div>
+  </section>
+
+  <!-- Productos: la caja -->
+  <section class="productos" id="productos" aria-labelledby="productos-titulo">
+    <div class="contenedor">
+      <div class="productos__cabeza">
+        <h2 id="productos-titulo">Productos en porción individual</h2>
+        <p class="t-lectura">
+          Trabajamos con {enumerar(ajenas)}, y con nuestra línea propia de edulcorante. Cada familia, en su envase de siempre.
+        </p>
+      </div>
+      <CajaCategorias />
+      <p class="productos__todos"><a class="link-flecha" href={url('/productos/')}>Todos los productos, con marcas y sabores</a></p>
+    </div>
+  </section>
+
+  <!-- Los dos públicos -->
+  <div class="publicos">
+    <section class="clinicas" aria-labelledby="clinicas-titulo">
+      <p class="t-rotulo">Clínicas, geriátricos e instituciones</p>
+      <h2 id="clinicas-titulo" class="publicos__titulo">Una porción para cada comida</h2>
+      <p class="t-lectura">
+        Las instituciones nos piden un poco de todo, porque dan algo en cada comida: {nombreProducto('azucar')} y
+        {' '}{nombreProducto('mermeladas')} en el desayuno, {nombreProducto('mayonesa')} y {nombreProducto('ketchup')} en el almuerzo.
+      </p>
+      <BandejaClinica variante="compacta" />
+      <BloqueDato dato={mayuscula(pagos.instituciones)} aclaracion={`Para clínicas e instituciones, con ${pagos.facturacion[0]}.`} />
+      <a class="link-flecha" href={url('/clinicas/')}>Porciones individuales para clínicas</a>
+    </section>
+
+    <section class="comercios fondo-tinta" aria-labelledby="comercios-titulo">
+      <p class="t-rotulo">Kioscos, bares, almacenes y confiterías</p>
+      <h2 id="comercios-titulo" class="publicos__titulo">{mayuscula(capital.pedidoMinimo)} en {capital.zona}</h2>
+      <EscenaUso tipo="cafe" />
+      <p class="t-lectura">
+        El {nombreProducto(usoA.producto)} para {usoA.uso}, la {nombreProducto(usoB.producto)} para {usoB.uso}: pedí lo que
+        necesites, aunque sea poco. En {capital.zona} lo tenés {capital.plazo}.
+      </p>
+      <p class="comercios__nota">Si abrís temprano, {atiende} ya está del otro lado desde las {abre}.</p>
+      <a class="link-flecha" href={url('/comercios/')}>Para kioscos, bares y almacenes</a>
+    </section>
   </div>
+
+  <!-- Entregas -->
+  <section class="entregas" id="entregas" aria-labelledby="entregas-titulo">
+    <div class="contenedor entregas__grilla">
+      <div class="entregas__texto">
+        <p class="t-rotulo">Repartimos desde {localidad}</p>
+        <h2 id="entregas-titulo">¿Qué día llegamos a tu zona?</h2>
+        <p class="t-lectura">{resumenRepartos()}</p>
+        <a class="link-flecha" href={url('/entregas/')}>Zonas, retiro en el depósito y formas de pago</a>
+      </div>
+      <SelectorZona />
+    </div>
+  </section>
+
+  <ListaPreciosCTA />
 </Sitio>
+
+<style>
+  /* ---------- Portada ---------- */
+  .portada {
+    background: var(--verde);
+    padding-top: clamp(1.5rem, 1rem + 3vw, 4.5rem);
+    padding-bottom: clamp(1.5rem, 1rem + 2.5vw, 4rem);
+    overflow: clip;
+  }
+  .portada__grilla { display: grid; gap: var(--e-4) var(--e-5); }
+  .portada__cabeza { display: grid; gap: var(--e-4); }
+  .portada__texto { display: flex; flex-direction: column; align-items: flex-start; gap: var(--e-4); }
+  .portada__sobre { margin-top: var(--e-4) !important; }
+  .portada__titulo { max-width: 11em; text-wrap: pretty; }
+  .portada__oracion { max-width: 36em; font-size: 1rem; line-height: 1.45; }
+  .portada__dato {
+    font-stretch: 118%;
+    font-weight: 800;
+    font-size: clamp(1.25rem, 1rem + 1.2vw, 1.9rem);
+    line-height: 1.12;
+    letter-spacing: -0.01em;
+    max-width: 19em;
+    margin-top: var(--e-2);
+  }
+  .portada__sobre {
+    display: grid;
+    gap: var(--e-3);
+    justify-items: end;
+    margin: 0 calc(var(--gutter) * -1) 0 30%;
+  }
+  .portada__sobre :global(.envase) { width: 100%; }
+  .portada__sobre figcaption { padding-right: var(--gutter); max-width: 22em; text-align: right; }
+
+  /* ---------- Lo que más sale ---------- */
+  .mas { padding-top: var(--e-seccion); }
+  .mas__cabeza { display: grid; gap: var(--e-4); margin-bottom: clamp(1.75rem, 4vw, 3.5rem); }
+  .mas__filas { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(1.75rem, 4vw, 3.5rem); }
+
+  /* ---------- Productos ---------- */
+  .productos { padding-block: var(--e-seccion); }
+  .productos__cabeza { display: grid; gap: var(--e-4); margin-bottom: clamp(1.75rem, 4vw, 3.5rem); }
+  .productos__cabeza h2 { max-width: 11em; }
+  .productos__todos { margin-top: var(--e-4); }
+
+  /* ---------- Públicos ---------- */
+  .publicos { display: grid; border-top: var(--borde); }
+  .clinicas, .comercios {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--e-5);
+    padding: var(--e-seccion) var(--gutter);
+  }
+  .publicos__titulo { font-size: clamp(2.1rem, 1rem + 3.6vw, 4.5rem); max-width: 9em; }
+  .comercios__nota { font-size: 0.9375rem; color: color-mix(in srgb, var(--papel) 85%, var(--tinta)); }
+
+  /* ---------- Entregas ---------- */
+  .entregas { padding-block: var(--e-seccion); border-top: var(--borde); }
+  .entregas__grilla { display: grid; gap: var(--e-6); }
+  .entregas__texto { display: flex; flex-direction: column; align-items: flex-start; gap: var(--e-4); }
+  .entregas__texto h2 { max-width: 9em; }
+
+  @media (min-width: 1080px) {
+    .portada__grilla { grid-template-columns: repeat(12, minmax(0, 1fr)); align-items: start; column-gap: var(--e-6); }
+    .portada__cabeza { grid-column: 1 / -1; gap: var(--e-5); }
+    .portada__titulo { max-width: none; }
+    .portada__texto { grid-column: 1 / span 6; gap: var(--e-5); padding-top: var(--e-4); }
+    .portada__oracion { font-size: var(--t-texto-grande); line-height: 1.4; }
+    .portada__sobre { grid-column: 7 / span 6; margin: 0; width: min(100%, 36rem); justify-self: end; }
+    .portada__sobre figcaption { padding-right: 0; }
+
+    .publicos { grid-template-columns: 7fr 5fr; }
+    .clinicas { padding-left: max(var(--gutter), calc((100vw - var(--ancho-max)) / 2 + var(--gutter))); padding-right: clamp(2rem, 4vw, 4rem); }
+    .comercios { padding-left: clamp(2rem, 4vw, 4rem); padding-right: max(var(--gutter), calc((100vw - var(--ancho-max)) / 2 + var(--gutter))); }
+
+    .entregas__grilla { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: var(--e-7); align-items: start; }
+  }
+</style>

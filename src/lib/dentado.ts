@@ -40,3 +40,13 @@ export function estrias(x0: number, x1: number, y0: number, y1: number, paso: nu
   else for (let y = y0; y <= y1 + 0.01; y += paso) d.push(`M${x0} ${n1(y)}H${x1}`);
   return d.join('');
 }
+
+/**
+ * Lo mismo que `estrias`, pero como UNA línea punteada (stroke-dasharray): pesa mucho menos.
+ * Devuelve el path y el estilo; las rayitas escalan con el dibujo.
+ */
+export function estriasLinea(x0: number, x1: number, y0: number, y1: number, paso: number, vertical = true) {
+  const d = vertical ? `M${x0} ${n1((y0 + y1) / 2)}H${x1}` : `M${n1((x0 + x1) / 2)} ${y0}V${y1}`;
+  const ancho = n1(vertical ? y1 - y0 : x1 - x0);
+  return { d, estilo: `fill:none;stroke:var(--tinta);stroke-opacity:.3;stroke-width:${ancho};stroke-dasharray:1 ${n1(paso - 1)}` };
+}

@@ -1,0 +1,96 @@
+---
+// "Lo que más sale": una fila de envases a todo el ancho, repetidos como al abrir la caja,
+// que se corta en los bordes (se entiende que hay más). Termina en una cenefa (la etiqueta del
+// estante) con el nombre, la marca, un dato y "Preguntá el precio" donde iría el precio.
+// Siempre ilustrada: la repetición es el punto (no mezclar fotos en una fila).
+import { productoPorSlug } from '../data';
+import { categoriaDe, enumerar, mayuscula, nombreConMarca } from '../lib/textos';
+import BotonWhatsApp from './BotonWhatsApp.astro';
+import Envase from './Envase.astro';
+
+interface Props {
+  producto: string;
+  /** Envases en la fila (sobran a propósito). */
+  cantidad?: number;
+  /** Dato de la cenefa (por defecto, los sabores o la nota del producto). */
+  dato?: string;
+  nivel?: 2 | 3;
+  class?: string;
+}
+const { producto: slug, cantidad = 22, dato, nivel = 3, class: clase } = Astro.props;
+const p = productoPorSlug(slug)!;
+const c = categoriaDe(p);
+const Titulo = `h${nivel}` as 'h2' | 'h3';
+const texto = dato ?? (p.variantes ? mayuscula(enumerar(p.variantes)) : (p.nota ?? ''));
+const nombre = p.variantes ? c.nombre : p.nombre;
+const repeticiones = Array.from({ length: cantidad }, (_, i) => p.variantes?.[i % p.variantes.length]);
+---
+<div class:list={['fila', `fila--${c.envase}`, clase]}>
+  <div class="fila__envases" aria-hidden="true">
+    {repeticiones.map((sabor) => <Envase producto={slug} sabor={c.envase === 'pote' ? sabor : undefined} />)}
+  </div>
+  <div class="fila__cenefa fondo-tinta">
+    <div class="contenedor fila__cenefa-in">
+      <Titulo class="fila__nombre">{nombre}</Titulo>
+      {p.marca && <p class="fila__marca">{p.marca}</p>}
+      {texto && <p class="fila__dato">{texto}</p>}
+      <BotonWhatsApp variante="compacto" contexto="producto" vars={{ producto: nombreConMarca(p).toLowerCase() }} tono="papel" class="fila__precio">
+        Preguntá el precio
+      </BotonWhatsApp>
+    </div>
+  </div>
+</div>
+
+<style>
+  .fila { min-width: 0; }
+  .fila__envases {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    overflow: clip;
+    padding-block: 4px;
+  }
+  .fila__envases > :global(svg) { flex: none; }
+
+  /* Almohadillas paradas, apretadas como en la caja */
+  .fila--sobre .fila__envases { gap: clamp(5px, 0.6vw, 9px); }
+  .fila--sobre .fila__envases > :global(svg) { width: clamp(42px, 5.4vw, 80px); }
+  .fila--sobre .fila__envases > :global(svg:nth-child(3n + 2)) { margin-bottom: 7px; }
+  .fila--sobre .fila__envases > :global(svg:nth-child(4n)) { margin-bottom: 3px; }
+  /* Sobres de papel encimados */
+  .fila--sobre-papel .fila__envases > :global(svg) { width: clamp(108px, 11.5vw, 176px); }
+  .fila--sobre-papel .fila__envases > :global(svg + svg) { margin-left: calc(clamp(108px, 11.5vw, 176px) * -0.2); }
+  /* Potecitos en hilera */
+  .fila--pote .fila__envases { gap: clamp(8px, 1vw, 14px); }
+  .fila--pote .fila__envases > :global(svg) { width: clamp(72px, 7.6vw, 118px); }
+  .fila--paquete .fila__envases { gap: 10px; }
+  .fila--paquete .fila__envases > :global(svg) { width: clamp(116px, 11.5vw, 172px); }
+
+  .fila__cenefa { margin-top: 0.9rem; }
+  .fila__cenefa-in {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.2rem 1rem;
+    padding-block: 0.8rem;
+  }
+  .fila__nombre { font-size: 1.375rem; line-height: 1.05; }
+  .fila__marca {
+    grid-column: 2;
+    grid-row: 1;
+    font-stretch: var(--ancho-expandida);
+    font-weight: 700;
+    font-size: var(--t-rotulo);
+    letter-spacing: var(--tracking-rotulo);
+    text-transform: uppercase;
+  }
+  .fila__dato { grid-column: 1 / -1; font-size: 0.9375rem; }
+  .fila__cenefa-in :global(.fila__precio) { grid-column: 1 / -1; justify-self: start; margin-top: var(--e-2); }
+
+  @media (min-width: 900px) {
+    .fila__cenefa-in { grid-template-columns: auto auto minmax(0, 1fr) auto; gap: var(--e-6); padding-block: var(--e-3); }
+    .fila__nombre { font-size: 1.75rem; }
+    .fila__marca, .fila__dato { grid-column: auto; grid-row: auto; }
+    .fila__cenefa-in :global(.fila__precio) { grid-column: auto; margin-top: 0; }
+  }
+</style>

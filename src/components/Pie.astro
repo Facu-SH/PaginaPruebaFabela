@@ -32,11 +32,11 @@ const atiende = empresa.whatsapp.atiende;
       </div>
 
       <dl class="pie__datos">
-        <div>
+        <div class="pie__ancho">
           <dt>Nombre</dt>
           <dd>{empresa.nombreComercial} · {empresa.razonSocial}</dd>
         </div>
-        <div>
+        <div class="pie__ancho">
           <dt>Depósito</dt>
           <dd>{direccionLinea()}</dd>
         </div>
@@ -45,20 +45,20 @@ const atiende = empresa.whatsapp.atiende;
           <dd><a href={telLink()}>{empresa.telefono}</a></dd>
         </div>
         <div>
-          <dt>Mail</dt>
-          <dd><a href={mailtoLink('general')}>{empresa.email}</a></dd>
-        </div>
-        <div>
           <dt>Horario</dt>
           <dd>{textoHorario()}</dd>
         </div>
+        <div class="pie__ancho">
+          <dt>Mail</dt>
+          <dd><a href={mailtoLink('general')}>{empresa.email}</a></dd>
+        </div>
         {horario.retiroEnDeposito && (
-          <div>
+          <div class="pie__ancho">
             <dt>Retiro en depósito</dt>
             <dd>En el mismo horario. Avisanos antes y lo dejamos preparado.</dd>
           </div>
         )}
-        <div>
+        <div class="pie__ancho">
           <dt>En el rubro</dt>
           <dd>
             Desde {empresa.desde}
@@ -108,7 +108,8 @@ const atiende = empresa.whatsapp.atiende;
   .pie__tel a:hover { text-decoration: underline; text-decoration-thickness: 4px; }
   .pie__datos {
     display: grid;
-    gap: var(--e-4) var(--e-6);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--e-4) var(--e-5);
     padding-top: var(--e-5);
     border-top: var(--borde);
   }
@@ -120,6 +121,7 @@ const atiende = empresa.whatsapp.atiende;
     text-transform: uppercase;
   }
   .pie__datos dd { font-weight: 500; }
+  .pie__datos > .pie__ancho { grid-column: 1 / -1; }
   .pie__datos a { text-decoration-thickness: 1px; overflow-wrap: anywhere; }
   .pie__nav { padding-top: var(--e-4); border-top: var(--borde); }
   .pie__nav ul { display: flex; flex-wrap: wrap; gap: 0 var(--e-5); padding: 0; list-style: none; }
@@ -134,6 +136,7 @@ const atiende = empresa.whatsapp.atiende;
 
   @media (min-width: 720px) {
     .pie__datos { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .pie__datos > .pie__ancho { grid-column: auto; }
   }
   @media (min-width: 1080px) {
     .pie { padding-bottom: var(--e-8); }

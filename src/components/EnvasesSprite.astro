@@ -1,26 +1,28 @@
 ---
-// Las formas de envase, dibujadas una sola vez por página como <symbol> y reusadas con <use>
-// (ver Envase.astro). Lo incluye el layout Sitio.astro: no hace falta sumarlo en cada página.
-// Los colores llegan por custom properties: --c (envase) y --trazo-env (grosor de la línea).
-import { contornoDentado, estrias } from '../lib/dentado';
+// Las formas de envase y el wordmark, dibujados una sola vez por página como <symbol> y reusados
+// con <use> (ver Envase.astro y Wordmark.astro). Lo incluye el layout Sitio.astro.
+// Los colores llegan por custom properties: --c (envase), --trazo-env (grosor de la línea),
+// --wm-punto y --wm-tinta (wordmark).
+import { contornoDentado, estriasLinea } from '../lib/dentado';
 import { bajada, barra, caja, dpi, punto } from '../lib/wordmark';
 
 const trazo = 'stroke:var(--tinta);stroke-width:var(--trazo-env,2);vector-effect:non-scaling-stroke;stroke-linejoin:round';
-const estria = 'fill:none;stroke:var(--tinta);stroke-opacity:.3;stroke-width:1;vector-effect:non-scaling-stroke';
+const Estria = (x0: number, x1: number, y0: number, y1: number, paso: number, vertical = true) => estriasLinea(x0, x1, y0, y1, paso, vertical);
 
 // Almohadilla (sobre de aderezo) parada: 64 × 160, puntas crimpadas arriba y abajo.
 const ALM = { w: 64, h: 160, sello: 18 };
 const almContorno = contornoDentado(ALM.w, ALM.h, 5.4, 5, { arriba: true, abajo: true });
-const almEstrias = estrias(4, ALM.w - 4, 5, ALM.sello, 3.2) + estrias(4, ALM.w - 4, ALM.h - ALM.sello, ALM.h - 5, 3.2);
+const almEstrias = [Estria(4, ALM.w - 4, 5, ALM.sello, 3.2), Estria(4, ALM.w - 4, ALM.h - ALM.sello, ALM.h - 5, 3.2)];
 
 // Sobre de papel (azúcar, edulcorante): 130 × 100, dentado en los cuatro lados.
 const SOB = { w: 130, h: 100, m: 10 };
 const sobContorno = contornoDentado(SOB.w, SOB.h, 5, 3.4, { arriba: true, derecha: true, abajo: true, izquierda: true });
-const sobEstrias =
-  estrias(6, SOB.w - 6, 3.4, SOB.m, 3) +
-  estrias(6, SOB.w - 6, SOB.h - SOB.m, SOB.h - 3.4, 3) +
-  estrias(3.4, SOB.m, SOB.m + 2, SOB.h - SOB.m - 2, 3, false) +
-  estrias(SOB.w - SOB.m, SOB.w - 3.4, SOB.m + 2, SOB.h - SOB.m - 2, 3, false);
+const sobEstrias = [
+  Estria(6, SOB.w - 6, 3.4, SOB.m, 3),
+  Estria(6, SOB.w - 6, SOB.h - SOB.m, SOB.h - 3.4, 3),
+  Estria(3.4, SOB.m, SOB.m + 2, SOB.h - SOB.m - 2, 3, false),
+  Estria(SOB.w - SOB.m, SOB.w - 3.4, SOB.m + 2, SOB.h - SOB.m - 2, 3, false),
+];
 // La curva verde del sobre de edulcorante DPI (dentro del margen sellado).
 const curva = `M${SOB.m} ${SOB.m}H30C38 52 84 44 112 ${SOB.h - SOB.m}H${SOB.m}Z`;
 
@@ -29,11 +31,11 @@ const PAQ = { galletitas: { w: 170, h: 100 }, vainillas: { w: 230, h: 66 }, tost
 const s = 15; // ancho del sellado
 const paquete = (w: number, h: number) => ({
   contorno: contornoDentado(w, h, 6, 5, { izquierda: true, derecha: true }),
-  rayas: estrias(5, s, 6, h - 6, 3, false) + estrias(w - s, w - 5, 6, h - 6, 3, false),
+  rayas: [Estria(5, s, 6, h - 6, 3, false), Estria(w - s, w - 5, 6, h - 6, 3, false)],
   sellos: `M${s} 0V${h}M${w - s} 0V${h}`,
 });
 const agujeros = (cx: number, cy: number) =>
-  [[-6, -5], [6, -5], [0, 1], [-6, 7], [6, 7]].map(([dx, dy]) => ({ cx: cx + dx, cy: cy + dy }));
+  [[-6, -5], [6, -5], [0, 1], [-6, 7], [6, 7]].map(([dx, dy]) => `M${cx + dx + 1.7} ${cy + dy}a1.7 1.7 0 1 0 -3.4 0a1.7 1.7 0 1 0 3.4 0`).join('');
 const g = paquete(PAQ.galletitas.w, PAQ.galletitas.h);
 const va = paquete(PAQ.vainillas.w, PAQ.vainillas.h);
 const to = paquete(PAQ.tostadas.w, PAQ.tostadas.h);
@@ -43,13 +45,13 @@ const altoDpi = 688 + barra.y + barra.alto;
   <defs>
     <symbol id="env-alm" viewBox={`0 0 ${ALM.w} ${ALM.h}`}>
       <path d={almContorno} style={`fill:var(--c);${trazo}`} />
-      <path d={almEstrias} style={estria} />
+      {almEstrias.map((e) => <path d={e.d} style={e.estilo} />)}
       <path d={`M0 ${ALM.sello}H${ALM.w}M0 ${ALM.h - ALM.sello}H${ALM.w}`} style={`fill:none;${trazo}`} />
     </symbol>
 
     <symbol id="env-sob" viewBox={`0 0 ${SOB.w} ${SOB.h}`}>
       <path d={sobContorno} style={`fill:var(--c,#fff);${trazo}`} />
-      <path d={sobEstrias} style={estria} />
+      {sobEstrias.map((e) => <path d={e.d} style={e.estilo} />)}
     </symbol>
     <symbol id="env-sob-curva" viewBox={`0 0 ${SOB.w} ${SOB.h}`}>
       <path d={curva} style="fill:var(--verde)" />
@@ -69,20 +71,16 @@ const altoDpi = 688 + barra.y + barra.alto;
 
     <symbol id="env-paq-galletitas" viewBox={`0 0 ${PAQ.galletitas.w} ${PAQ.galletitas.h}`}>
       <path d={g.contorno} style={`fill:var(--galletita);${trazo}`} />
-      <path d={g.rayas} style={estria} />
+      {g.rayas.map((e) => <path d={e.d} style={e.estilo} />)}
       <path d={g.sellos} style={`fill:none;${trazo}`} />
       <rect x="28" y="33" width={PAQ.galletitas.w - 56} height="54" rx="9" style={`fill:var(--papel);${trazo}`} />
-      {[52, 85, 118].map((cx) => (
-        <>
-          <circle cx={cx} cy="60" r="15" style={`fill:var(--galletita);${trazo}`} />
-          {agujeros(cx, 58).map((p) => <circle cx={p.cx} cy={p.cy} r="1.7" style="fill:var(--tinta);opacity:.55" />)}
-        </>
-      ))}
+      {[52, 85, 118].map((cx) => <circle cx={cx} cy="60" r="15" style={`fill:var(--galletita);${trazo}`} />)}
+      <path d={[52, 85, 118].map((cx) => agujeros(cx, 58)).join('')} style="fill:var(--tinta);opacity:.55" />
     </symbol>
 
     <symbol id="env-paq-vainillas" viewBox={`0 0 ${PAQ.vainillas.w} ${PAQ.vainillas.h}`}>
       <path d={va.contorno} style={`fill:var(--galletita);${trazo}`} />
-      <path d={va.rayas} style={estria} />
+      {va.rayas.map((e) => <path d={e.d} style={e.estilo} />)}
       <path d={va.sellos} style={`fill:none;${trazo}`} />
       <rect x="74" y="11" width={PAQ.vainillas.w - 74 - 25} height={PAQ.vainillas.h - 22} rx="8" style={`fill:var(--papel);${trazo}`} />
       {[0, 1, 2].map((i) => (
@@ -92,7 +90,7 @@ const altoDpi = 688 + barra.y + barra.alto;
 
     <symbol id="env-paq-tostadas" viewBox={`0 0 ${PAQ.tostadas.w} ${PAQ.tostadas.h}`}>
       <path d={to.contorno} style={`fill:var(--galletita);${trazo}`} />
-      <path d={to.rayas} style={estria} />
+      {to.rayas.map((e) => <path d={e.d} style={e.estilo} />)}
       <path d={to.sellos} style={`fill:none;${trazo}`} />
       <rect x="26" y="34" width={PAQ.tostadas.w - 52} height="74" rx="9" style={`fill:var(--papel);${trazo}`} />
       {[{ x: 38, y: 44 }, { x: 62, y: 52 }].map(({ x, y }) => (
@@ -103,17 +101,15 @@ const altoDpi = 688 + barra.y + barra.alto;
       ))}
     </symbol>
 
-    <symbol id="env-dpi" viewBox={`${caja.x} ${caja.y} ${caja.ancho} ${altoDpi}`}>
-      <rect x={barra.x} y={barra.y} width={barra.ancho} height={barra.alto} style="fill:var(--tinta)" />
-      <circle cx={punto.cx} cy={punto.cy} r={punto.r} style="fill:var(--verde)" />
-      <path d={dpi} style="fill:var(--tinta)" />
+    <!-- Wordmark: el punto y las letras toman --wm-punto y --wm-tinta -->
+    <symbol id="wm-dpi" viewBox={`${caja.x} ${caja.y} ${caja.ancho} ${altoDpi}`}>
+      <rect x={barra.x} y={barra.y} width={barra.ancho} height={barra.alto} style="fill:var(--wm-tinta,var(--tinta))" />
+      <circle cx={punto.cx} cy={punto.cy} r={punto.r} style="fill:var(--wm-punto,var(--verde))" />
+      <path d={dpi} style="fill:var(--wm-tinta,var(--tinta))" />
     </symbol>
-    <symbol id="env-dpi-bajada" viewBox={`${caja.x} ${caja.y} ${caja.ancho} ${caja.alto}`}>
-      <rect x={barra.x} y={barra.y} width={barra.ancho} height={barra.alto} style="fill:var(--tinta)" />
-      <circle cx={punto.cx} cy={punto.cy} r={punto.r} style="fill:var(--verde)" />
-      <path d={dpi} style="fill:var(--tinta)" />
-      <path d={bajada} style="fill:var(--tinta)" />
+    <symbol id="wm-completo" viewBox={`${caja.x} ${caja.y} ${caja.ancho} ${caja.alto}`}>
+      <use href="#wm-dpi" x={caja.x} y={caja.y} width={caja.ancho} height={altoDpi} />
+      <path d={bajada} style="fill:var(--wm-tinta,var(--tinta))" />
     </symbol>
   </defs>
 </svg>
-

@@ -1,0 +1,58 @@
+---
+// Escenas de uso, para comercios (tomadas de la dirección A, dibujadas en el estilo de los sobres):
+// - cafe: el pocillo visto de arriba con un sobre de azúcar, uno de edulcorante DPI y una almohadilla de mayonesa.
+// - pancho: el pancho en su bandejita con la mayonesa y el ketchup al lado.
+// Van sobre fondo tinta (la sección de comercios). Decorativas: el texto de al lado dice lo mismo.
+import Envase from './Envase.astro';
+
+interface Props {
+  tipo: 'cafe' | 'pancho';
+  class?: string;
+}
+const { tipo, class: clase } = Astro.props;
+const linea = 'stroke:var(--tinta);stroke-width:2;vector-effect:non-scaling-stroke;stroke-linejoin:round';
+---
+<div class:list={['escena', `escena--${tipo}`, clase]} aria-hidden="true">
+  {tipo === 'cafe' ? (
+    <>
+      <svg class="escena__base" viewBox="0 0 240 200">
+        <circle cx="110" cy="100" r="92" style="fill:var(--blanco);stroke:var(--papel);stroke-width:2" />
+        <rect x="150" y="86" width="64" height="28" rx="14" style={`fill:var(--blanco);${linea}`} />
+        <circle cx="110" cy="100" r="60" style={`fill:var(--blanco);${linea}`} />
+        <circle cx="110" cy="100" r="47" style={`fill:var(--env-cafe);${linea}`} />
+        <ellipse cx="96" cy="88" rx="16" ry="11" style="fill:var(--galletita);opacity:.6" />
+      </svg>
+      <Envase producto="azucar" class="escena__a" />
+      <Envase producto="edulcorante" class="escena__b" />
+      <Envase producto="mayonesa" class="escena__c" />
+    </>
+  ) : (
+    <>
+      <svg class="escena__base" viewBox="0 0 260 200">
+        <path d="M22 70L216 44L238 140L44 166Z" style="fill:var(--papel);stroke:var(--papel);stroke-width:2" />
+        <path d="M40 78L204 56L222 132L58 154Z" style={`fill:var(--blanco);${linea}`} />
+        <g transform="rotate(-8 131 105)">
+          <rect x="44" y="78" width="174" height="56" rx="28" style={`fill:var(--env-pan);${linea}`} />
+          <rect x="34" y="92" width="194" height="28" rx="14" style={`fill:var(--env-salchicha);${linea}`} />
+          <path d="M52 106l12-8 12 16 12-16 12 16 12-16 12 16 12-16 12 16 12-16 12 16 12-16 12 16 10-10" style="fill:none;stroke:var(--tinta);stroke-width:9;stroke-linecap:round;stroke-linejoin:round" />
+          <path d="M52 106l12-8 12 16 12-16 12 16 12-16 12 16 12-16 12 16 12-16 12 16 12-16 12 16 10-10" style="fill:none;stroke:var(--mayonesa);stroke-width:5;stroke-linecap:round;stroke-linejoin:round" />
+        </g>
+      </svg>
+      <Envase producto="mayonesa" class="escena__a" />
+      <Envase producto="ketchup" class="escena__b" />
+    </>
+  )}
+</div>
+
+<style>
+  .escena { position: relative; width: min(88%, 420px); aspect-ratio: 5 / 3.6; }
+  .escena__base { position: absolute; left: 0; top: 0; width: 66%; height: auto; }
+  .escena :global(.envase) { position: absolute; }
+  .escena--cafe :global(.escena__a) { width: 38%; right: 2%; top: 2%; transform: rotate(-9deg); }
+  .escena--cafe :global(.escena__b) { width: 38%; right: 10%; top: 38%; transform: rotate(7deg); }
+  .escena--cafe :global(.escena__c) { width: 11%; right: 0; bottom: 0; transform: rotate(18deg); }
+
+  .escena--pancho .escena__base { width: 82%; top: 8%; }
+  .escena--pancho :global(.escena__a) { width: 12%; right: 6%; top: 0; transform: rotate(14deg); }
+  .escena--pancho :global(.escena__b) { width: 12%; right: 0; bottom: 2%; transform: rotate(-10deg); }
+</style>

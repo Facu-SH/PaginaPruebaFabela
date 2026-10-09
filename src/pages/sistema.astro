@@ -1,0 +1,394 @@
+---
+// /sistema/: el sistema de diseño a la vista (noindex). Tokens y todos los componentes con sus
+// variantes y estados. Las reglas de uso están en docs/diseno.md.
+import Sitio from '../layouts/Sitio.astro';
+import { categorias, empresa } from '../data';
+import { colorCategoria } from '../lib/color';
+import { contraste, paleta } from '../lib/paleta';
+import ArmaTuConsulta from '../components/ArmaTuConsulta.astro';
+import BandejaClinica from '../components/BandejaClinica.astro';
+import BloqueDato from '../components/BloqueDato.astro';
+import Boton from '../components/Boton.astro';
+import BotonWhatsApp from '../components/BotonWhatsApp.astro';
+import CajaCategorias from '../components/CajaCategorias.astro';
+import Envase from '../components/Envase.astro';
+import EscenaUso from '../components/EscenaUso.astro';
+import FilaProducto from '../components/FilaProducto.astro';
+import FotoOEnvase from '../components/FotoOEnvase.astro';
+import HojaDeRuta from '../components/HojaDeRuta.astro';
+import ListaPreciosCTA from '../components/ListaPreciosCTA.astro';
+import Migas from '../components/Migas.astro';
+import SelectorZona from '../components/SelectorZona.astro';
+import TableroAtencion from '../components/TableroAtencion.astro';
+import TarjetaProducto from '../components/TarjetaProducto.astro';
+import Wordmark from '../components/Wordmark.astro';
+
+// Momentos de prueba (hora de Buenos Aires = UTC−3).
+const ABIERTO = '2026-10-06T12:30:00Z'; // martes 9:30
+const CERRADO = '2026-10-06T21:00:00Z'; // martes 18:00
+const FINDE = '2026-10-10T14:00:00Z'; // sábado 11:00
+
+const tinta = paleta.tinta;
+const papel = paleta.papel;
+const fmt = (n: number) => n.toFixed(1).replace('.', ',');
+const nivel = (n: number) => (n >= 7 ? 'AAA' : n >= 4.5 ? 'AA' : n >= 3 ? 'AA grande' : 'no texto');
+const usoCategoria = Object.fromEntries(
+  categorias.map((c) => [colorCategoria[c.slug].fondo, { cat: c.nombre, texto: colorCategoria[c.slug].texto }]),
+);
+const grupos = [
+  { titulo: 'Neutros', tokens: ['tinta', 'tinta-suave', 'papel', 'papel-hondo', 'blanco'] },
+  { titulo: 'Dueños de categoría', tokens: ['mayonesa', 'verde', 'frutilla', 'manteca', 'galletita'] },
+  { titulo: 'Solo dentro de las ilustraciones', tokens: Object.keys(paleta).filter((t) => t.startsWith('env-')) },
+];
+const escala = [
+  { token: 't-titulo-1', uso: 'h1' },
+  { token: 't-titulo-2', uso: 'h2' },
+  { token: 't-titulo-3', uso: 'h3' },
+  { token: 't-texto-grande', uso: 'bajadas, datos' },
+  { token: 't-texto', uso: 'texto corrido' },
+  { token: 't-chico', uso: 'letra chica' },
+];
+const espacios = ['e-1', 'e-2', 'e-3', 'e-4', 'e-5', 'e-6', 'e-7', 'e-8', 'e-9'];
+const indice = [
+  ['color', 'Color'],
+  ['tipografia', 'Tipografía'],
+  ['espacio', 'Espacio, radios y dentado'],
+  ['marca', 'Wordmark y botones'],
+  ['atencion', 'Tablero de atención'],
+  ['envases', 'Envases y fotos'],
+  ['productos', 'Productos'],
+  ['datos', 'Datos y lista de precios'],
+  ['entregas', 'Entregas'],
+  ['consulta', 'Armá tu consulta'],
+  ['publicos', 'Clínicas y comercios'],
+];
+---
+<Sitio
+  title={`Sistema de diseño · ${empresa.nombreComercial}`}
+  description="Tokens y componentes del sitio de DPI: color, tipografía, espaciado y piezas con sus variantes."
+  noindex
+>
+  <header class="contenedor sis-cabeza">
+    <Migas items={[{ nombre: 'Sistema de diseño' }]} />
+    <h1>Sistema de diseño</h1>
+    <p class="t-grande t-lectura">
+      Color de sobre: cada categoría es dueña del color de su envase, una sola tipografía argentina en tres anchos y los
+      envases dibujados como materia. Reglas de uso en <code>docs/diseno.md</code>.
+    </p>
+    <nav aria-label="Secciones del sistema" class="sis-indice">
+      <ul role="list">{indice.map(([id, t]) => <li><a href={`#${id}`}>{t}</a></li>)}</ul>
+    </nav>
+  </header>
+
+  <!-- Color -->
+  <section class="contenedor sis-seccion" id="color" aria-labelledby="color-t">
+    <h2 id="color-t">Color</h2>
+    <p class="t-lectura">
+      Una categoría = un color de bloque. Los colores de envase (ketchup, mostaza, durazno…) solo viven dentro de los
+      dibujos. Lo que no es de una categoría va en papel o en tinta. Contraste WCAG calculado de <code>tokens.css</code>.
+    </p>
+    {grupos.map((g) => (
+      <div class="sis-grupo">
+        <h3>{g.titulo}</h3>
+        <ul class="sis-colores" role="list">
+          {g.tokens.map((t) => {
+            const h = paleta[t];
+            const cT = contraste(h, tinta);
+            const cP = contraste(h, papel);
+            const uso = usoCategoria[t];
+            const textoEncima = uso ? uso.texto : cT >= cP ? 'tinta' : 'papel';
+            return (
+              <li class="sis-color">
+                <span class="sis-color__muestra" style={`background:var(--${t});color:var(--${textoEncima})`}>Aa</span>
+                <span class="sis-color__nombre">--{t}</span>
+                <span class="sis-color__hex">{h}</span>
+                {uso && <span class="sis-color__uso">{uso.cat}</span>}
+                <span class="sis-color__c">con tinta {fmt(cT)}:1 · {nivel(cT)}</span>
+                <span class="sis-color__c">con papel {fmt(cP)}:1 · {nivel(cP)}</span>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    ))}
+  </section>
+
+  <!-- Tipografía -->
+  <section class="contenedor sis-seccion" id="tipografia" aria-labelledby="tipo-t">
+    <h2 id="tipo-t">Tipografía</h2>
+    <p class="t-lectura">Archivo (Omnibus-Type, Buenos Aires), variable en peso y ancho: un solo archivo latin de 90 KB.</p>
+    <div class="sis-voces">
+      <div><p class="t-rotulo">Expandida negra · 125 % · 900</p><p class="t-display sis-voz-display">Mayonesa en sobre</p></div>
+      <div><p class="t-rotulo">Rótulo · 125 % · 700 · versalitas espaciadas</p><p class="t-rotulo sis-voz-rotulo">Edulcorante · Florida · desde 2001</p></div>
+      <div><p class="t-rotulo">Texto · 100 % · 400–700</p><p class="sis-voz-texto">En Capital no hay pedido mínimo: si pedís hoy, en general lo tenés mañana.</p></div>
+      <div><p class="t-rotulo">Condensada · 68 % · 700 · letra chica</p><p class="t-condensada sis-voz-cond">Azúcar, edulcorante, mermelada, manteca, queso crema y tostadas</p></div>
+    </div>
+    <h3>Escala fluida (390 → 1440 px)</h3>
+    <ul class="sis-escala" role="list">
+      {escala.map((e) => (
+        <li>
+          <span class="sis-escala__token">--{e.token}<br /><span>{e.uso}</span></span>
+          <span class:list={['sis-escala__muestra', { 't-display': e.token.startsWith('t-titulo') }]} style={`font-size:var(--${e.token})`}>Porciones individuales</span>
+        </li>
+      ))}
+      <li>
+        <span class="sis-escala__token">--t-gigante<br /><span>la hora, un dato solo</span></span>
+        <span class="sis-escala__muestra t-display cifras" style="font-size:var(--t-gigante)">5:00</span>
+      </li>
+    </ul>
+  </section>
+
+  <!-- Espacio -->
+  <section class="contenedor sis-seccion" id="espacio" aria-labelledby="espacio-t">
+    <h2 id="espacio-t">Espacio, radios y dentado</h2>
+    <ul class="sis-espacios" role="list">
+      {espacios.map((e) => <li><span class="sis-espacios__barra" style={`width:var(--${e})`}></span><code>--{e}</code></li>)}
+      <li><span class="sis-espacios__barra" style="width:var(--e-seccion)"></span><code>--e-seccion</code> (arriba y abajo de cada bloque)</li>
+    </ul>
+    <div class="sis-radios">
+      <div style="border-radius:var(--r-recto)"><code>--r-recto</code> bloques y botones</div>
+      <div style="border-radius:var(--r-envase)"><code>--r-envase</code> bandeja, potes</div>
+      <div style="border-radius:var(--r-dorso)"><code>--r-dorso</code> el marco del pie</div>
+      <div style="border-radius:var(--r-pastilla)"><code>--r-pastilla</code> opciones</div>
+    </div>
+    <h3>El crimpado del sobre</h3>
+    <p class="t-lectura">Tres utilidades en <code>base.css</code>. Solo en botones, fichas oscuras y dos filos entre bloques.</p>
+    <div class="sis-dentados">
+      <div class="dentado-lados sis-dentado">.dentado-lados</div>
+      <div class="dentado-arriba-abajo sis-dentado">.dentado-arriba-abajo</div>
+      <div><div class="sis-dentado sis-dentado--filo">bloque</div><div class="filo" style="--filo: var(--tinta)"></div><p><code>.filo</code> (y <code>.filo--arriba</code>)</p></div>
+    </div>
+  </section>
+
+  <!-- Marca y botones -->
+  <section class="contenedor sis-seccion" id="marca" aria-labelledby="marca-t">
+    <h2 id="marca-t">Wordmark y botones</h2>
+    <div class="sis-wordmarks">
+      <Wordmark class="sis-wm" />
+      <Wordmark class="sis-wm" colorPunto="var(--mayonesa)" />
+      <Wordmark class="sis-wm" colorPunto="var(--frutilla)" />
+      <div class="fondo-tinta sis-wm-oscuro"><Wordmark class="sis-wm" colorTinta="var(--papel)" /></div>
+      <Wordmark class="sis-wm sis-wm--chico" bajada={false} />
+    </div>
+    <p class="t-lectura">
+      El punto toma el color de la página (<code>colorPagina</code> en el layout). Archivos sueltos: <code>/logo-dpi.svg</code> y
+      <code>/favicon.svg</code>.
+    </p>
+
+    <h3>Botones: el sobre es la forma de las acciones de contacto</h3>
+    <div class="sis-fila">
+      <BotonWhatsApp variante="principal" />
+      <BotonWhatsApp contexto="clinica">Consulta para clínicas</BotonWhatsApp>
+      <BotonWhatsApp variante="compacto" />
+      <Boton href={`mailto:${empresa.email}`}>Escribinos por mail</Boton>
+    </div>
+    <div class="sis-fila fondo-tinta sis-oscuro">
+      <BotonWhatsApp variante="principal" tono="papel">Dejale tu mensaje a {empresa.whatsapp.atiende}</BotonWhatsApp>
+      <BotonWhatsApp contexto="comercio" tono="papel">Consulta para comercios</BotonWhatsApp>
+      <BotonWhatsApp variante="compacto" tono="papel" />
+    </div>
+    <p class="t-lectura">
+      La navegación interna nunca usa el sobre: va con <a class="link-flecha" href="#marca">un link con flecha</a>. El botón
+      flotante (celular) aparece cuando ningún botón principal está a la vista: bajá en esta página con el celular para verlo.
+    </p>
+  </section>
+
+  <!-- Tablero -->
+  <section class="sis-seccion" id="atencion" aria-labelledby="atencion-t">
+    <div class="contenedor">
+      <h2 id="atencion-t">Tablero de atención</h2>
+      <p class="t-lectura">
+        Una sola aparición destacada por página; la compacta, como mucho una vez más (ya está en el pie). Acá se fuerza la hora
+        con la prop <code>fecha</code>. Sin JS se ve el horario (el último, sin fecha, muestra eso hasta que corre el script).
+      </p>
+      <h3>Abierto · martes 9:30</h3>
+    </div>
+    <TableroAtencion fecha={ABIERTO} id="t-abierto" />
+    <div class="contenedor"><h3>Cerrado · martes 18:00</h3></div>
+    <TableroAtencion fecha={CERRADO} id="t-cerrado" />
+    <div class="contenedor"><h3>Fin de semana · sábado 11:00, sin botón</h3></div>
+    <TableroAtencion fecha={FINDE} id="t-finde" boton={false} />
+    <div class="contenedor"><h3>En vivo (sin fecha)</h3></div>
+    <TableroAtencion id="t-vivo" boton={false} />
+    <div class="contenedor sis-fila">
+      <TableroAtencion variante="compacta" fecha={ABIERTO} />
+      <TableroAtencion variante="compacta" fecha={CERRADO} />
+    </div>
+  </section>
+
+  <!-- Envases -->
+  <section class="contenedor sis-seccion" id="envases" aria-labelledby="envases-t">
+    <h2 id="envases-t">Envases y fotos</h2>
+    <p class="t-lectura">
+      Cuatro formatos, dibujados una vez (sprite de <code>&lt;symbol&gt;</code>) y reusados. Trazo de tinta de 2 px a cualquier
+      escala; nada de sombras ni degradés. Solo el sobre DPI lleva logo.
+    </p>
+    <div class="sis-envases">
+      {['mayonesa', 'ketchup', 'mostaza', 'salsa-golf'].map((p) => <Envase producto={p} class="sis-env-alm" />)}
+      <Envase producto="azucar" class="sis-env-sob" />
+      <Envase producto="edulcorante" class="sis-env-sob" />
+      <Envase producto="edulcorante" detalle class="sis-env-sob sis-env-sob--grande" />
+    </div>
+    <div class="sis-envases">
+      {['frutilla', 'durazno', 'ciruela', 'frutos rojos'].map((s) => <Envase producto="mermeladas" sabor={s} class="sis-env-pote" />)}
+      <Envase producto="mermelada-surtida" etiqueta="Surtida" class="sis-env-pote" />
+      <Envase producto="manteca" class="sis-env-pote" />
+      <Envase producto="queso-crema" class="sis-env-pote" />
+    </div>
+    <div class="sis-envases">
+      {['galletitas', 'vainillas', 'tostadas'].map((p) => <Envase producto={p} class="sis-env-paq" />)}
+    </div>
+    <h3>Foto o envase</h3>
+    <div class="sis-foto">
+      <div class="sis-foto__muestra"><FotoOEnvase producto="vainillas" /></div>
+      <p class="t-lectura">
+        <code>&lt;FotoOEnvase producto="vainillas" /&gt;</code>: si existe <code>src/assets/productos/vainillas.jpg</code> (o
+        .png, .webp, .avif) muestra la foto en AVIF/WebP con tamaños responsivos; si no, el dibujo. Dejar el archivo con el
+        nombre del slug alcanza.
+      </p>
+    </div>
+  </section>
+
+  <!-- Productos -->
+  <section class="sis-seccion" id="productos" aria-labelledby="productos-t">
+    <div class="contenedor">
+      <h2 id="productos-t">Productos</h2>
+      <h3>Caja de categorías · completa (para /productos/)</h3>
+      <CajaCategorias variante="completa" />
+      <h3 class="sis-sep">Tarjetas de producto · una grande y varias normales (para cada categoría)</h3>
+      <div class="sis-productos">
+        <TarjetaProducto producto="mayonesa" tamano="grande" class="sis-productos__grande" />
+        <TarjetaProducto producto="ketchup" />
+        <TarjetaProducto producto="mermeladas" />
+        <TarjetaProducto producto="vainillas" />
+      </div>
+      <h3 class="sis-sep">Fila de "lo que más sale"</h3>
+    </div>
+    <FilaProducto producto="edulcorante" />
+  </section>
+
+  <!-- Datos -->
+  <section class="sis-seccion" id="datos" aria-labelledby="datos-t">
+    <div class="contenedor">
+      <h2 id="datos-t">Datos y lista de precios</h2>
+      <div class="sis-datos">
+        <BloqueDato dato="5:00" aclaracion={`${empresa.whatsapp.atiende} contesta el WhatsApp desde esa hora, de lunes a viernes.`} tamano="grande" />
+        <BloqueDato rotulo="En el rubro" dato={`Desde ${empresa.desde}`} aclaracion="Solo porciones individuales." />
+        <div class="fondo-tinta sis-oscuro"><BloqueDato dato="Sin mínimo" aclaracion="En Capital Federal, aunque sea poco." /></div>
+      </div>
+      <h3 class="sis-sep">Lista de precios · en línea</h3>
+      <ListaPreciosCTA variante="en-linea" id="lista-linea" />
+      <h3 class="sis-sep">Lista de precios · bloque (final de página)</h3>
+    </div>
+    <ListaPreciosCTA id="lista-bloque" />
+  </section>
+
+  <!-- Entregas -->
+  <section class="contenedor sis-seccion" id="entregas" aria-labelledby="entregas-t">
+    <h2 id="entregas-t">Entregas</h2>
+    <h3>Selector de zona · martes 9:30</h3>
+    <div class="sis-selector"><SelectorZona fecha={ABIERTO} id="sis-zona" /></div>
+    <h3 class="sis-sep">Hoja de ruta · martes</h3>
+    <HojaDeRuta fecha={ABIERTO} />
+  </section>
+
+  <!-- Consulta -->
+  <section class="contenedor sis-seccion" id="consulta" aria-labelledby="sis-consulta-titulo">
+    <ArmaTuConsulta id="sis-consulta" />
+  </section>
+
+  <!-- Públicos -->
+  <section class="contenedor sis-seccion" id="publicos" aria-labelledby="publicos-t">
+    <h2 id="publicos-t">Clínicas y comercios</h2>
+    <h3>Bandeja · grande (para /clinicas/)</h3>
+    <BandejaClinica nivel={4} />
+    <h3 class="sis-sep">Bandeja · compacta (home)</h3>
+    <div class="sis-bandeja-compacta"><BandejaClinica variante="compacta" nivel={4} /></div>
+    <h3 class="sis-sep">Escenas de uso (sobre tinta, para /comercios/)</h3>
+    <div class="fondo-tinta sis-oscuro sis-escenas">
+      <EscenaUso tipo="cafe" />
+      <EscenaUso tipo="pancho" />
+    </div>
+  </section>
+</Sitio>
+
+<style>
+  .sis-cabeza { display: grid; gap: var(--e-4); padding-block: var(--e-5) var(--e-7); }
+  .sis-indice ul { display: flex; flex-wrap: wrap; gap: 0 var(--e-4); padding: 0; list-style: none; }
+  .sis-indice a { display: inline-flex; align-items: center; min-height: 2.75rem; font-weight: 700; }
+  .sis-seccion { padding-block: var(--e-7); border-top: var(--borde); display: grid; gap: var(--e-5); }
+  .sis-seccion > .contenedor { display: grid; gap: var(--e-5); }
+  .sis-sep { margin-top: var(--e-6); }
+  code { font-family: ui-monospace, monospace; font-size: 0.875em; background: var(--papel-hondo); padding: 0.05em 0.3em; border-radius: 3px; }
+  .fondo-tinta code { background: transparent; }
+
+  .sis-grupo { display: grid; gap: var(--e-3); }
+  .sis-colores { display: grid; grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr)); gap: var(--e-4); padding: 0; list-style: none; }
+  .sis-color { display: grid; gap: 0.15rem; font-size: 0.875rem; }
+  .sis-color__muestra {
+    display: grid;
+    place-items: center;
+    height: 5rem;
+    margin-bottom: var(--e-2);
+    border: var(--borde);
+    font-stretch: var(--ancho-expandida);
+    font-weight: 900;
+    font-size: 1.75rem;
+  }
+  .sis-color__nombre { font-weight: 800; }
+  .sis-color__hex { font-family: ui-monospace, monospace; }
+  .sis-color__uso { font-weight: 600; }
+  .sis-color__c { color: var(--tinta-suave); }
+
+  .sis-voces { display: grid; gap: var(--e-5); }
+  .sis-voces > div { display: grid; gap: var(--e-2); padding-top: var(--e-3); border-top: 1px solid var(--tinta); }
+  .sis-voz-display { font-size: var(--t-titulo-2); }
+  .sis-voz-rotulo { font-size: 1rem; }
+  .sis-voz-texto { font-size: var(--t-texto-grande); max-width: 30em; }
+  .sis-voz-cond { font-size: 1.25rem; }
+  .sis-escala { display: grid; gap: var(--e-4); padding: 0; list-style: none; }
+  .sis-escala li { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--e-4); align-items: baseline; border-top: 1px solid color-mix(in srgb, var(--tinta) 30%, transparent); padding-top: var(--e-3); }
+  .sis-escala__token { font-family: ui-monospace, monospace; font-size: 0.8125rem; }
+  .sis-escala__token span { font-family: var(--fuente); color: var(--tinta-suave); }
+  .sis-escala__muestra { line-height: 1; overflow-wrap: anywhere; }
+
+  .sis-espacios { display: grid; gap: var(--e-2); padding: 0; list-style: none; }
+  .sis-espacios li { display: flex; align-items: center; gap: var(--e-3); font-size: 0.875rem; }
+  .sis-espacios__barra { height: 1rem; background: var(--tinta); flex: none; }
+  .sis-radios { display: grid; grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); gap: var(--e-4); }
+  .sis-radios > div { display: grid; place-items: center; text-align: center; min-height: 6rem; padding: var(--e-3); border: var(--borde); font-size: 0.875rem; }
+  .sis-dentados { display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: var(--e-5); align-items: start; }
+  .sis-dentado { --diente: 12px; display: grid; place-items: center; min-height: 5rem; padding: var(--e-4); background: var(--tinta); color: var(--papel); font-weight: 700; }
+  .sis-dentado--filo { min-height: 3rem; }
+
+  .sis-wordmarks { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-6); }
+  .sis-wordmarks :global(.sis-wm) { width: 11rem; }
+  .sis-wordmarks :global(.sis-wm--chico) { width: 5rem; }
+  .sis-wm-oscuro { padding: var(--e-4); }
+  .sis-fila { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-4); }
+  .sis-oscuro { padding: var(--e-5); }
+
+  .sis-envases { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--e-4); }
+  .sis-envases :global(.sis-env-alm) { width: 3.5rem; }
+  .sis-envases :global(.sis-env-sob) { width: 8rem; }
+  .sis-envases :global(.sis-env-sob--grande) { width: 16rem; }
+  .sis-envases :global(.sis-env-pote) { width: 5.5rem; }
+  .sis-envases :global(.sis-env-paq) { width: 10rem; }
+  .sis-foto { display: grid; gap: var(--e-4); align-items: center; }
+  .sis-foto__muestra { display: grid; place-items: center; width: min(100%, 18rem); aspect-ratio: 4 / 3; padding: var(--e-5); background: var(--galletita); }
+
+  .sis-productos { display: grid; gap: 10px; }
+  .sis-datos { display: grid; gap: var(--e-6); align-items: start; }
+  .sis-selector { max-width: 40rem; }
+  .sis-bandeja-compacta { max-width: 46rem; }
+  .sis-escenas { display: flex; flex-wrap: wrap; gap: var(--e-6); }
+  .sis-escenas > :global(*) { flex: 1 1 18rem; }
+
+  @media (min-width: 900px) {
+    .sis-escala li { grid-template-columns: 9rem minmax(0, 1fr); }
+    .sis-foto { grid-template-columns: 18rem minmax(0, 1fr); }
+    .sis-productos { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .sis-productos :global(.sis-productos__grande) { grid-column: 1 / -1; }
+    .sis-datos { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+</style>

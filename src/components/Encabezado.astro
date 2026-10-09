@@ -17,7 +17,7 @@ const { whatsapp = { contexto: 'general' as ContextoWhatsApp } } = Astro.props;
 const actual = Astro.url.pathname;
 const items = secciones.map((s) => {
   const href = url(s.ruta);
-  const estado = actual === href ? 'page' : actual.startsWith(href) ? 'true' : undefined;
+  const estado: 'page' | 'true' | undefined = actual === href ? 'page' : actual.startsWith(href) ? 'true' : undefined;
   return { ...s, href, estado };
 });
 ---
@@ -78,23 +78,24 @@ const items = secciones.map((s) => {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--e-4);
+    gap: var(--e-3);
     min-height: 4.5rem;
     padding-block: var(--e-3);
   }
   .encabezado__marca { display: block; flex: none; border-radius: var(--r-recto); }
-  .encabezado__marca :global(.encabezado__wordmark) { width: 7.25rem; }
+  .encabezado__marca :global(.encabezado__wordmark) { width: clamp(5.75rem, 28.5vw, 7.25rem); }
   .encabezado__nav { display: none; }
-  .encabezado__acciones { display: flex; align-items: center; gap: var(--e-2); }
+  .encabezado__acciones { display: flex; align-items: center; gap: 6px; }
+  .encabezado__acciones :global(.boton__cuerpo) { padding-inline: 0.85rem; }
 
   /* Menú del celular */
   .menu__boton {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 4.75rem;
+    min-width: 4.25rem;
     min-height: 2.75rem;
-    padding: 0.4rem 0.8rem;
+    padding: 0.4rem 0.7rem;
     border: var(--trazo) solid var(--tinta);
     border-radius: var(--r-recto);
     font-stretch: var(--ancho-boton);
@@ -142,6 +143,7 @@ const items = secciones.map((s) => {
   @media (min-width: 1100px) {
     .encabezado__fila { min-height: 5.75rem; gap: var(--e-6); }
     .encabezado__marca :global(.encabezado__wordmark) { width: 9.5rem; }
+    .encabezado__acciones :global(.boton__cuerpo) { padding-inline: 1.05rem; }
     .encabezado__nav { display: block; margin-right: auto; }
     .encabezado__nav ul { display: flex; flex-wrap: wrap; gap: 0.25rem; padding: 0; list-style: none; }
     .encabezado__nav a {

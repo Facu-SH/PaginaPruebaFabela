@@ -1,0 +1,97 @@
+---
+// "Una porción para cada comida": la bandeja de una clínica con cuatro compartimentos
+// (desayuno, almuerzo, merienda y cena) y los envases de cada comida, desde comidasClinica.
+// - grande: para /clinicas/ (envases más grandes y la lista legible).
+// - compacta: para la home.
+import { comidasClinica } from '../data';
+import { enumerar, mayuscula, nombreProducto } from '../lib/textos';
+import Envase from './Envase.astro';
+
+interface Props {
+  variante?: 'grande' | 'compacta';
+  /** Nivel del título de cada comida. */
+  nivel?: 3 | 4;
+  class?: string;
+}
+const { variante = 'grande', nivel = 3, class: clase } = Astro.props;
+const Titulo = `h${nivel}` as 'h3' | 'h4';
+---
+<figure class:list={['bandeja', `bandeja--${variante}`, clase]}>
+  <ol class="bandeja__comidas" role="list">
+    {comidasClinica.map((c) => (
+      <li class="bandeja__comp">
+        <Titulo class="bandeja__comida">{c.comida}</Titulo>
+        <div class="bandeja__envases" aria-hidden="true">
+          {c.productos.map((slug) => <Envase producto={slug} trazo={1.5} />)}
+        </div>
+        <p class="bandeja__lista">{mayuscula(enumerar(c.productos.map(nombreProducto)))}</p>
+      </li>
+    ))}
+  </ol>
+  {Astro.slots.has('default') && <figcaption class="bandeja__pie"><slot /></figcaption>}
+</figure>
+
+<style>
+  .bandeja { width: 100%; margin: 0; container-type: inline-size; }
+  .bandeja__comidas {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    padding: 10px;
+    list-style: none;
+    background: var(--env-aluminio);
+    border: var(--borde);
+    border-radius: 22px;
+  }
+  .bandeja__comp {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 0.85rem 0.8rem 0.9rem;
+    background: var(--papel);
+    border: var(--borde);
+    border-radius: var(--r-envase);
+  }
+  .bandeja__comida {
+    font-size: 1rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+  .bandeja__envases { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 6px; min-height: 64px; }
+  .bandeja__envases :global(.envase--almohadilla) { width: 20px; }
+  .bandeja__envases :global(.envase--sobre-papel) { width: 40px; }
+  .bandeja__envases :global(.envase--pote) { width: 30px; }
+  .bandeja__envases :global(.envase--paquete) { width: 46px; }
+  .bandeja__envases :global(.envase--vainillas) { width: 58px; }
+  .bandeja__lista {
+    margin-top: auto;
+    font-stretch: 75%;
+    font-weight: 600;
+    font-size: 0.875rem;
+    line-height: 1.3;
+  }
+  .bandeja__pie { margin-top: var(--e-3); font-size: 0.9375rem; }
+
+  /* Grande: para la página de clínicas */
+  .bandeja--grande .bandeja__comidas { grid-template-columns: minmax(0, 1fr); padding: 12px; gap: 12px; border-radius: 28px; }
+  .bandeja--grande .bandeja__comp { padding: 1.1rem 1.1rem 1.2rem; border-radius: 18px; gap: 0.9rem; }
+  .bandeja--grande .bandeja__comida { font-size: clamp(1.375rem, 1.1rem + 1vw, 2rem); letter-spacing: 0; }
+  .bandeja--grande .bandeja__envases { gap: 10px; min-height: 96px; }
+  .bandeja--grande .bandeja__envases :global(.envase--almohadilla) { width: 34px; }
+  .bandeja--grande .bandeja__envases :global(.envase--sobre-papel) { width: 74px; }
+  .bandeja--grande .bandeja__envases :global(.envase--pote) { width: 54px; }
+  .bandeja--grande .bandeja__envases :global(.envase--paquete) { width: 84px; }
+  .bandeja--grande .bandeja__envases :global(.envase--vainillas) { width: 104px; }
+  .bandeja--grande .bandeja__lista { font-stretch: 85%; font-size: 1.0625rem; }
+
+  /* Columnas según el ancho de la bandeja (no de la pantalla): sirve en una columna angosta o a todo el ancho */
+  @container (min-width: 520px) {
+    .bandeja--grande .bandeja__comidas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @container (min-width: 1000px) {
+    .bandeja--grande .bandeja__comidas { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+  @container (min-width: 620px) {
+    .bandeja--compacta .bandeja__comidas { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+</style>

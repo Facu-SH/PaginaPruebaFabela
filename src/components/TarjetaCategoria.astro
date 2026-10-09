@@ -1,0 +1,193 @@
+---
+// Un compartimento de la caja: la categoría en su color, sus envases dibujados y sus productos
+// con la marca. Todo el compartimento es un link a /productos/<slug>/.
+// No se usa suelto en grillas iguales: se arma dentro de CajaCategorias (tamaños distintos).
+// - compacta (home): nombre, envases y productos.
+// - completa (/productos/): suma la bajada y "viaja en frío".
+import { empresa, marcas, productosPorCategoria, type CategoriaSlug, type Producto } from '../data';
+import { colorCategoria } from '../lib/color';
+import { categoria as cat, enumerar } from '../lib/textos';
+import { url } from '../lib/url';
+import Envase from './Envase.astro';
+
+interface Props {
+  categoria: CategoriaSlug;
+  variante?: 'compacta' | 'completa';
+  /** Destino del link (por defecto /productos/<slug>/). */
+  href?: string;
+  nivel?: 2 | 3;
+  class?: string;
+}
+const { categoria: slug, variante = 'compacta', href, nivel = 3, class: clase } = Astro.props;
+const c = cat(slug);
+const color = colorCategoria[slug];
+const prods = productosPorCategoria(slug);
+const Titulo = `h${nivel}` as 'h2' | 'h3';
+const destino = href ?? url(`/productos/${slug}/`);
+const propia = marcas.find((m) => m.propia)?.nombre ?? empresa.nombreComercial;
+
+// Productos seguidos de la misma marca van en una línea ("Mayonesa, ketchup… · Natura").
+const nombreLargo = (p: Producto) => (p.variantes && variante === 'completa' ? `${p.nombre}: ${enumerar(p.variantes)}` : p.nombre);
+const grupos: { marca?: string; items: Producto[] }[] = [];
+for (const p of prods) {
+  const ultimo = grupos[grupos.length - 1];
+  if (ultimo && p.marca && ultimo.marca === p.marca && !p.variantes && !ultimo.items[0].variantes) ultimo.items.push(p);
+  else grupos.push({ marca: p.marca, items: [p] });
+}
+const lineas = grupos.map((g) => ({
+  marca: g.marca ? (g.marca === propia ? `${propia} · propia` : g.marca) : undefined,
+  nombres: g.items.length === 1 ? nombreLargo(g.items[0]) : enumerar(g.items.map((p, i) => (i === 0 ? p.nombre : p.nombre.toLowerCase()))),
+}));
+
+// Envases a dibujar: los sabores si hay (mermeladas), si no uno por producto.
+const envases =
+  c.envase === 'pote' && prods.some((p) => p.variantes)
+    ? prods.flatMap((p) => (p.variantes ?? []).map((sabor) => ({ producto: p.slug, sabor })))
+    : prods.map((p) => ({ producto: p.slug, sabor: undefined }));
+const oscuro = color.texto === 'papel';
+---
+<article
+  class:list={['comp', `comp--${slug}`, `comp--${variante}`, clase]}
+  style={`--fondo:var(--${color.fondo});--texto:var(--${color.texto});${oscuro ? `--foco:var(--papel);--anillo:var(--${color.fondo});` : ''}`}
+>
+  <span class="comp__flecha" aria-hidden="true"></span>
+  <div class="comp__texto">
+    <Titulo class="comp__nombre"><a href={destino}>{c.nombre}</a></Titulo>
+    <p class="comp__bajada">{c.bajada}</p>
+  </div>
+
+  <div class:list={['comp__envases', `comp__envases--${c.envase}`]} aria-hidden="true">
+    {envases.map((e) => <Envase producto={e.producto} sabor={e.sabor} />)}
+  </div>
+
+  <ul class="comp__lista" role="list">
+    {lineas.map((l) => (
+      <li>
+        <span class="comp__producto">{l.nombres}</span>
+        {l.marca && <span class="comp__marca">{l.marca}</span>}
+      </li>
+    ))}
+  </ul>
+
+  <p class="comp__pie" aria-hidden="true">
+    {c.frio && <span class="comp__frio">Viaja en frío</span>}
+    <span class="link-flecha comp__ver">Ver {c.nombre.toLowerCase()}</span>
+  </p>
+</article>
+
+<style>
+  .comp {
+    container-type: inline-size;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--e-4);
+    padding: clamp(1.1rem, 2.4vw, 2.25rem);
+    background: var(--fondo);
+    color: var(--texto);
+  }
+  .comp:has(a:focus-visible) { outline: 3px solid var(--tinta); outline-offset: 3px; }
+  .comp__nombre { font-size: clamp(1.75rem, 10cqi, 4.25rem); }
+  .comp__nombre a { text-decoration: none; }
+  .comp__nombre a:focus-visible { outline: none; box-shadow: none; }
+  /* Todo el compartimento es el link */
+  .comp__nombre a::after { content: ''; position: absolute; inset: 0; z-index: 1; }
+  .comp:hover .comp__ver { text-decoration-thickness: 4px; }
+  .comp__bajada { margin-top: var(--e-3); max-width: 30em; }
+
+  .comp__envases {
+    display: flex;
+    align-items: flex-end;
+    gap: clamp(8px, 2.5cqi, 18px);
+    margin-block: auto;
+  }
+  .comp__envases > :global(svg) { flex: 1 1 0; min-width: 0; }
+  .comp__envases--sobre > :global(svg) { max-width: 92px; }
+  .comp__envases--sobre-papel > :global(svg) { max-width: 200px; }
+  .comp__envases--pote { flex-wrap: wrap; }
+  .comp__envases--pote > :global(svg) { flex: 0 1 calc(25% - 14px); max-width: 112px; }
+  .comp__envases--paquete { flex-wrap: wrap; align-items: center; }
+  .comp__envases--paquete > :global(svg) { flex: 0 1 auto; width: calc(50% - 10px); }
+  .comp__envases--paquete > :global(.envase--vainillas) { order: 2; width: 100%; max-width: 300px; }
+
+  .comp__lista { padding: 0; list-style: none; border-top: var(--trazo) solid currentColor; }
+  .comp__lista li {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.1rem 1rem;
+    padding-block: 0.5rem;
+    border-bottom: 1px solid color-mix(in srgb, currentColor 40%, transparent);
+  }
+  .comp__producto { font-weight: 600; }
+  .comp__marca {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 700;
+    font-size: var(--t-rotulo);
+    letter-spacing: var(--tracking-rotulo);
+    text-transform: uppercase;
+  }
+  .comp__pie { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--e-2) var(--e-4); }
+  .comp__frio {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 800;
+    font-size: var(--t-rotulo);
+    letter-spacing: var(--tracking-rotulo);
+    text-transform: uppercase;
+    padding: 0.4rem 0.7rem;
+    border: var(--trazo) solid currentColor;
+  }
+
+  .comp__flecha { display: none; }
+
+  /* Compacta en el celular: una fila con el nombre y otra con envases y productos,
+     así la caja entra en poco alto. Todo el compartimento sigue siendo el link. */
+  @media (max-width: 719px) {
+    .comp--compacta {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      grid-template-areas: 'texto texto flecha' 'envases lista lista' 'pie pie pie';
+      gap: var(--e-3) var(--e-4);
+      padding-block: var(--e-4);
+    }
+    .comp--compacta .comp__texto { grid-area: texto; }
+    .comp--compacta .comp__bajada { display: none; }
+    .comp--compacta .comp__nombre { font-size: 1.625rem; }
+    .comp--compacta .comp__flecha {
+      grid-area: flecha;
+      display: block;
+      align-self: center;
+      width: 1.6rem;
+      height: 1rem;
+      background: currentColor;
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 21 13'%3E%3Cpath d='M0 6.5h18M13 1.5l5 5-5 5' fill='none' stroke='%23000' stroke-width='2.4'/%3E%3C/svg%3E") center / contain no-repeat;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 21 13'%3E%3Cpath d='M0 6.5h18M13 1.5l5 5-5 5' fill='none' stroke='%23000' stroke-width='2.4'/%3E%3C/svg%3E") center / contain no-repeat;
+    }
+    .comp--compacta .comp__envases {
+      grid-area: envases;
+      width: 6.5rem;
+      margin: 0;
+      gap: 4px;
+      flex-wrap: wrap;
+      align-content: center;
+      align-self: center;
+    }
+    .comp--compacta .comp__envases > :global(svg) { flex: 0 0 auto; }
+    .comp--compacta .comp__envases--sobre > :global(svg) { width: 22px; }
+    .comp--compacta .comp__envases--sobre-papel > :global(svg) { width: 100%; max-width: none; }
+    .comp--compacta .comp__envases--sobre-papel > :global(svg + svg) { margin-top: -6px; }
+    .comp--compacta .comp__envases--pote > :global(svg) { width: calc(50% - 2px); max-width: none; }
+    .comp--compacta .comp__envases--paquete > :global(svg) { width: calc(50% - 2px); }
+    .comp--compacta .comp__envases--paquete > :global(.envase--vainillas) { width: 100%; }
+    .comp--compacta .comp__lista { grid-area: lista; align-self: center; border-top: 0; }
+    .comp--compacta .comp__lista li { padding-block: 0.35rem; font-size: 0.9375rem; }
+    .comp--compacta .comp__lista li:last-child { border-bottom: 0; }
+    .comp--compacta .comp__pie { grid-area: pie; }
+    .comp--compacta .comp__ver { display: none; }
+    .comp--compacta .comp__pie:not(:has(.comp__frio)) { display: none; }
+  }
+  @media (min-width: 720px) and (max-width: 1079px) {
+    .comp--compacta .comp__bajada { display: none; }
+  }
+</style>

@@ -6,7 +6,7 @@
 // Sin JS muestra el horario (textoHorario). Con `fecha` se fuerza un momento (para /sistema/ y pruebas).
 // El script (src/scripts/atencion.ts) actualiza cada 20 s y al volver a la pestaña.
 import { horario } from '../data';
-import { horaCorta } from '../lib/horario';
+import { horaCorta, nombreDia } from '../lib/horario';
 import { textosAtencion, textosSinHora, ventanaAtencion } from '../lib/atencion';
 import BotonWhatsApp from './BotonWhatsApp.astro';
 
@@ -27,13 +27,14 @@ const estado = t.abierto === null ? undefined : String(t.abierto);
 const datos = { 'data-tablero': variante, ...(fechaFija ? { 'data-fecha': fechaFija.toISOString() } : {}), ...(estado ? { 'data-abierto': estado } : {}) };
 
 const { izq, ancho } = ventanaAtencion();
+const rangoDias = horario.dias.length > 1 ? `${nombreDia(horario.dias[0]).slice(0, 3)} a ${nombreDia(horario.dias[horario.dias.length - 1]).slice(0, 3)}` : nombreDia(horario.dias[0]);
 const h = (hhmm: string) => Number(hhmm.split(':')[0]);
 const marcas = [0, h(horario.abre), 12, h(horario.cierra), 24].map((n) => ({
   n,
   pos: (n / 24) * 100,
   clave: n === h(horario.abre) || n === h(horario.cierra),
 }));
-const rango = `${horaCorta(horario.abre)} a ${horaCorta(horario.cierra)} h`;
+const rango = `${rangoDias} de ${horaCorta(horario.abre)} a ${horaCorta(horario.cierra)}\u00a0h`;
 ---
 {variante === 'compacta' ? (
   <p class:list={['compacta', clase]} {...datos}>
@@ -43,7 +44,7 @@ const rango = `${horaCorta(horario.abre)} a ${horaCorta(horario.cierra)} h`;
 ) : (
   <section class:list={['tablero fondo-tinta', clase]} aria-labelledby={`${id}-titulo`} {...datos}>
     <div class="contenedor tablero__grilla">
-      <h2 id={`${id}-titulo`} class="t-rotulo tablero__rotulo">Atención por WhatsApp · hora de Buenos Aires</h2>
+      <h2 id={`${id}-titulo`} class="t-rotulo tablero__rotulo">Atención por WhatsApp <span class="tablero__rango">{rango}</span></h2>
 
       <div class="tablero__reloj">
         <p class="tablero__rotulo-hora" data-t-rotulo-hora>{t.rotuloHora}</p>
@@ -72,9 +73,7 @@ const rango = `${horaCorta(horario.abre)} a ${horaCorta(horario.cierra)} h`;
       <div class="franja" aria-hidden="true">
         <div class="franja__regla">
           <span class="franja__noche" style={`left:0;width:${izq}%`}></span>
-          <span class="franja__atencion" style={`left:${izq}%;width:${ancho}%`}>
-            <span><span class="franja__dias">lun a vie · </span>{rango}</span>
-          </span>
+          <span class="franja__atencion" style={`left:${izq}%;width:${ancho}%`}></span>
           <span class="franja__noche" style={`left:${izq + ancho}%;right:0`}></span>
           <span class="franja__ahora" data-t-ahora hidden={t.posicion === null} style={t.posicion !== null ? `left:${t.posicion}%` : undefined}>
             <span>ahora</span>
@@ -109,6 +108,9 @@ const rango = `${horaCorta(horario.abre)} a ${horaCorta(horario.cierra)} h`;
     border-radius: 50%;
     border: 2px solid currentColor;
   }
+  /* Sin JS no se sabe la hora: no hay punto de estado */
+  [data-tablero]:not([data-abierto]) .compacta__punto,
+  [data-tablero]:not([data-abierto]) .tablero__punto { display: none; }
   [data-abierto='true'] .compacta__punto,
   [data-abierto='true'] .tablero__punto {
     background: var(--verde);
@@ -124,6 +126,7 @@ const rango = `${horaCorta(horario.abre)} a ${horaCorta(horario.cierra)} h`;
     gap: var(--e-5);
   }
   .tablero__rotulo { grid-area: rotulo; color: color-mix(in srgb, var(--papel) 82%, var(--tinta)); }
+  .tablero__rango { display: block; margin-top: 0.3em; }
   .tablero__reloj { grid-area: reloj; }
   .tablero__rotulo-hora { font-weight: 600; font-size: 0.9375rem; }
   .tablero__hora {
@@ -176,27 +179,9 @@ const rango = `${horaCorta(horario.abre)} a ${horaCorta(horario.cierra)} h`;
     position: absolute;
     top: 0;
     bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
     background: var(--verde);
-    color: var(--tinta);
     border-inline: var(--trazo) solid var(--papel);
   }
-  .franja__atencion > span {
-    position: relative;
-    z-index: 1;
-    padding-inline: 0.35em;
-    background: var(--verde);
-    font-stretch: var(--ancho-expandida);
-    font-weight: 800;
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-  .franja__dias { display: none; }
   .franja__ahora {
     position: absolute;
     z-index: 2;
@@ -236,11 +221,9 @@ const rango = `${horaCorta(horario.abre)} a ${horaCorta(horario.cierra)} h`;
   .franja__horas li:last-child { transform: translateX(-100%); }
   .franja__horas li.es-clave { color: var(--papel); font-weight: 800; }
 
-  @media (min-width: 560px) {
-    .franja__dias { display: inline; }
-  }
-
   @media (min-width: 900px) {
+    .tablero__rango { display: inline; margin: 0; }
+    .tablero__rango::before { content: '· '; }
     .tablero__grilla {
       grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
       grid-template-areas:

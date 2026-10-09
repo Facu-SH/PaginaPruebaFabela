@@ -88,21 +88,22 @@ a:hover { text-decoration-thickness: 4px; }
 
 /* ---------- Link con flecha (navegación interna: nunca abre WhatsApp) ---------- */
 .link-flecha {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.45em;
   font-weight: 700;
   font-stretch: var(--ancho-boton);
   text-decoration: underline;
   text-decoration-thickness: 2px;
   text-underline-offset: 0.22em;
-  padding-block: 0.6rem; /* objetivo táctil de 44 px */
+  padding-block: 0.6rem; /* objetivo táctil de 44 px (no mueve el texto: es inline) */
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 .link-flecha::after {
   content: '';
-  flex: none;
+  display: inline-block;
   width: 1.05em;
   height: 0.62em;
+  margin-left: 0.4em;
+  vertical-align: 0.02em;
   background: currentColor;
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 21 13'%3E%3Cpath d='M0 6.5h18M13 1.5l5 5-5 5' fill='none' stroke='%23000' stroke-width='2.4'/%3E%3C/svg%3E") center / contain no-repeat;
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 21 13'%3E%3Cpath d='M0 6.5h18M13 1.5l5 5-5 5' fill='none' stroke='%23000' stroke-width='2.4'/%3E%3C/svg%3E") center / contain no-repeat;

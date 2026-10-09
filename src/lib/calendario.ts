@@ -77,7 +77,7 @@ export function proximoReparto(z: ZonaEntrega, ahora = new Date()) {
 
 /** Texto de la fecha estimada para una zona, o null si es a coordinar. */
 export function fechaEstimada(z: ZonaEntrega, ahora = new Date()) {
-  if (z.dias === 'habiles') return { rotulo: 'Si pedís ahora', texto: `en general, llega el ${fechaConDia(llegadaHabiles(ahora))}` };
+  if (z.dias === 'habiles') return { rotulo: 'Si pedís ahora, llegaría el', texto: fechaConDia(llegadaHabiles(ahora)) };
   const prox = proximoReparto(z, ahora);
   return prox ? { rotulo: 'Próximo reparto', texto: fechaConDia(prox) } : null;
 }

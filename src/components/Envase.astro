@@ -59,7 +59,7 @@ const caja = {
 const tamAlm = Math.min(16, 100 / (etiqueta.length * 0.72));
 const tamPote = Math.min(12.5, 80 / (etiqueta.length * 0.74));
 const tel = `Tel. ${telefonoCorto()}`;
-const a11y = titulo ? { role: 'img', 'aria-label': titulo } : { 'aria-hidden': 'true' };
+const a11y = titulo ? { role: 'img' as const, 'aria-label': titulo } : { 'aria-hidden': 'true' as const };
 ---
 <svg
   class:list={['envase', `envase--${formato}`, formato === 'paquete' && `envase--${tipoPaquete}`, clase]}
@@ -82,7 +82,7 @@ const a11y = titulo ? { role: 'img', 'aria-label': titulo } : { 'aria-hidden': '
       {esDPI ? (
         <>
           <use href="#env-sob-curva" />
-          <use href={detalle ? '#env-dpi-bajada' : '#env-dpi'} x="50" y={detalle ? 15 : 17} width="64" height={detalle ? 25.3 : 19} />
+          <use href={detalle ? '#wm-completo' : '#wm-dpi'} x="50" y={detalle ? 15 : 17} width="64" height={detalle ? 25.3 : 19} style="--wm-punto:var(--verde);--wm-tinta:var(--tinta)" />
           <text x="70" y={detalle ? 56 : 58} text-anchor="middle" font-size={detalle ? 7.9 : 8.4}
             style="fill:var(--tinta);font-stretch:125%;font-weight:600;letter-spacing:.2em">{etiqueta}</text>
           <text x="70" y={detalle ? 70 : 72} text-anchor="middle" font-size={detalle ? 5.6 : 5.8} style="fill:var(--tinta);font-weight:500">{tel}</text>

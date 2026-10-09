@@ -1,0 +1,85 @@
+---
+// Un producto en su compartimento: la foto (o el envase dibujado) sobre el color de su categoría
+// y abajo la cenefa con nombre, marca, sabores, nota y "Preguntá el precio".
+// Para las páginas de categoría. Alterná tamaños (un 'grande' y varios 'normal'): nunca una grilla
+// de tarjetas iguales.
+import { productoPorSlug } from '../data';
+import { colorCategoria } from '../lib/color';
+import { categoriaDe, enumerar, mayuscula, nombreConMarca } from '../lib/textos';
+import BotonWhatsApp from './BotonWhatsApp.astro';
+import FotoOEnvase from './FotoOEnvase.astro';
+
+interface Props {
+  producto: string;
+  tamano?: 'grande' | 'normal';
+  nivel?: 2 | 3;
+  class?: string;
+}
+const { producto: slug, tamano = 'normal', nivel = 3, class: clase } = Astro.props;
+const p = productoPorSlug(slug)!;
+const c = categoriaDe(p);
+const color = colorCategoria[c.slug];
+const Titulo = `h${nivel}` as 'h2' | 'h3';
+const sabores = c.envase === 'pote' && p.variantes ? p.variantes : undefined;
+const detalles = [p.gramaje, p.unidadesPorCaja ? `${p.unidadesPorCaja} unidades por caja` : undefined].filter(Boolean);
+const ancho = tamano === 'grande' ? 720 : 420;
+---
+<article class:list={['producto', `producto--${tamano}`, `producto--${c.envase}`, clase]} style={`--fondo:var(--${color.fondo})`}>
+  <div class:list={['producto__figura', { 'producto__figura--sabores': sabores }]}>
+    {sabores
+      ? sabores.map((s) => <FotoOEnvase producto={slug} sabor={s} soloDibujo />)
+      : <FotoOEnvase producto={slug} ancho={ancho} sizes={tamano === 'grande' ? '(min-width: 1080px) 720px, 90vw' : '(min-width: 1080px) 420px, 80vw'} />}
+  </div>
+  <div class="producto__cenefa fondo-tinta">
+    <div class="producto__cabeza">
+      <Titulo class="producto__nombre">{p.nombre}</Titulo>
+      {p.marca && <p class="producto__marca">{p.marca}</p>}
+    </div>
+    {p.variantes && <p class="producto__variantes">{mayuscula(enumerar(p.variantes))}</p>}
+    {p.nota && <p class="producto__nota">{p.nota}</p>}
+    {detalles.length > 0 && <p class="producto__nota">{detalles.join(' · ')}</p>}
+    <BotonWhatsApp variante="compacto" contexto="producto" vars={{ producto: nombreConMarca(p).toLowerCase() }} tono="papel">
+      Preguntá el precio
+    </BotonWhatsApp>
+  </div>
+</article>
+
+<style>
+  .producto { display: flex; flex-direction: column; min-width: 0; }
+  .producto__figura {
+    display: grid;
+    place-items: center;
+    padding: clamp(1.5rem, 4vw, 3rem);
+    min-height: 12rem;
+    background: var(--fondo);
+  }
+  .producto__figura > :global(*) { width: 100%; }
+  .producto--sobre .producto__figura > :global(.envase) { width: auto; height: clamp(9rem, 18vw, 13rem); }
+  .producto--sobre-papel .producto__figura > :global(.envase) { max-width: 15rem; }
+  .producto--pote .producto__figura > :global(.envase) { max-width: 9rem; }
+  .producto--paquete .producto__figura > :global(.envase) { max-width: 15rem; }
+  .producto__figura--sabores { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--e-4); justify-items: center; }
+  .producto__figura--sabores > :global(.envase) { max-width: 6.5rem; }
+
+  .producto__cenefa { display: grid; gap: var(--e-2); padding: var(--e-4) var(--e-5) var(--e-5); flex: 1; align-content: start; }
+  .producto__cabeza { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0.2rem 1rem; }
+  .producto__nombre { font-size: 1.5rem; line-height: 1.05; }
+  .producto__marca {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 700;
+    font-size: var(--t-rotulo);
+    letter-spacing: var(--tracking-rotulo);
+    text-transform: uppercase;
+  }
+  .producto__variantes { font-weight: 600; }
+  .producto__nota { font-size: 0.9375rem; }
+  .producto__cenefa > :global(.boton) { justify-self: start; margin-top: var(--e-2); }
+
+  @media (min-width: 900px) {
+    .producto--grande { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+    .producto--grande .producto__figura { min-height: 22rem; }
+    .producto--grande .producto__cenefa { align-content: end; padding: var(--e-6); }
+    .producto--grande .producto__nombre { font-size: clamp(2rem, 1rem + 2.5vw, 3.25rem); }
+    .producto--grande .producto__figura--sabores { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+</style>

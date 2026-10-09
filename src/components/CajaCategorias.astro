@@ -1,0 +1,94 @@
+---
+// Productos: la caja con divisiones. Cada categoría es un compartimento de su color, de distinto
+// tamaño según su peso (aderezos ocupa todo el ancho: la mayonesa es lo que más sale).
+// El último compartimento queda vacío a propósito: ahí va "Si no lo ves, preguntanos",
+// la única vez que aparece la frase en la página (no la repitas en otro bloque).
+import { categorias, empresa } from '../data';
+import BotonWhatsApp from './BotonWhatsApp.astro';
+import TarjetaCategoria from './TarjetaCategoria.astro';
+
+interface Props {
+  variante?: 'compacta' | 'completa';
+  /** Muestra el compartimento vacío ("si no lo ves, preguntanos"). */
+  vacio?: boolean;
+  nivel?: 2 | 3;
+  class?: string;
+}
+const { variante = 'compacta', vacio = true, nivel = 3, class: clase } = Astro.props;
+const atiende = empresa.whatsapp.atiende;
+---
+<div class:list={['caja', `caja--${variante}`, clase]}>
+  {categorias.map((c) => <TarjetaCategoria categoria={c.slug} variante={variante} nivel={nivel} class={`caja__${c.slug}`} />)}
+  {vacio && (
+    <aside class="caja__vacio" aria-label="Otros productos">
+      <p class="caja__vacio-titulo">Si no lo ves, preguntanos.</p>
+      <p class="caja__vacio-texto">
+        Acá están los que más se piden, pero trabajamos más productos en porción individual. {atiende} te dice si lo tenemos.
+      </p>
+      <BotonWhatsApp contexto="general">Preguntale a {atiende}</BotonWhatsApp>
+    </aside>
+  )}
+</div>
+
+<style>
+  .caja { display: grid; gap: 10px; }
+  .caja__vacio {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--e-4);
+    padding: clamp(1.25rem, 2.4vw, 2.25rem);
+    border: var(--trazo-grueso) solid var(--tinta);
+  }
+  .caja__vacio-titulo {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 900;
+    font-size: clamp(1.75rem, 1.1rem + 2.6vw, 3.5rem);
+    line-height: var(--interlineado-display);
+    letter-spacing: var(--tracking-display);
+    max-width: 9em;
+  }
+  .caja__vacio-texto { max-width: 30em; }
+
+  @media (min-width: 720px) {
+    .caja { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .caja :global(.caja__aderezos), .caja__vacio { grid-column: 1 / -1; }
+  }
+
+  @media (min-width: 1080px) {
+    .caja { grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 12px; }
+    /* Fila 1: aderezos a todo el ancho */
+    .caja :global(.caja__aderezos) {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      grid-template-rows: auto 1fr auto;
+      grid-template-areas: 'texto envases' 'lista envases' 'pie envases';
+      column-gap: clamp(2rem, 4vw, 4rem);
+    }
+    .caja :global(.caja__aderezos .comp__texto) { grid-area: texto; }
+    .caja :global(.caja__aderezos .comp__envases) { grid-area: envases; margin: 0; align-self: end; justify-content: flex-end; gap: 18px; }
+    .caja :global(.caja__aderezos .comp__envases > svg) { max-width: 140px; }
+    .caja :global(.caja__aderezos .comp__lista) { grid-area: lista; align-self: end; margin-top: var(--e-5); }
+    .caja :global(.caja__aderezos .comp__pie) { grid-area: pie; }
+    /* Fila 2 */
+    .caja :global(.caja__endulzantes) { grid-column: 1 / span 4; }
+    .caja :global(.caja__mermeladas) { grid-column: 5 / span 5; }
+    .caja :global(.caja__lacteos) { grid-column: 10 / span 3; }
+    .caja :global(.caja__lacteos .comp__envases--pote > svg) { flex-basis: calc(50% - 10px); max-width: 104px; }
+    /* Fila 3: galletitas y el compartimento vacío */
+    .caja :global(.caja__galletitas-y-tostadas) {
+      grid-column: 1 / span 7;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      grid-template-rows: auto 1fr auto;
+      grid-template-areas: 'texto texto' 'envases lista' 'envases pie';
+      column-gap: clamp(1.5rem, 3vw, 3rem);
+    }
+    .caja :global(.caja__galletitas-y-tostadas .comp__texto) { grid-area: texto; }
+    .caja :global(.caja__galletitas-y-tostadas .comp__envases) { grid-area: envases; margin: 0; align-self: end; }
+    .caja :global(.caja__galletitas-y-tostadas .comp__lista) { grid-area: lista; align-self: end; }
+    .caja :global(.caja__galletitas-y-tostadas .comp__pie) { grid-area: pie; }
+    .caja__vacio { grid-column: 8 / span 5; justify-content: space-between; }
+  }
+</style>
