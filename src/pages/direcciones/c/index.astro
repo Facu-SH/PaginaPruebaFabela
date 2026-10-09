@@ -1,0 +1,86 @@
+---
+// Dirección visual C · "Despacho a las 5 AM".
+// Remito, hoja de ruta, planilla y ticket: la operación de madrugada como lenguaje visual.
+// El reloj "atendiendo ahora" y los días por zona son los protagonistas.
+import '@fontsource-variable/chivo-mono/wght.css';
+import '@fontsource-variable/encode-sans/wdth.css';
+import '../../../direcciones/c/estilos.css';
+
+import Base from '../../../layouts/Base.astro';
+import { empresa, entregas, horario, productoPorSlug, categorias } from '../../../data';
+import { horaCorta } from '../../../lib/horario';
+import Membrete from '../../../direcciones/c/componentes/Membrete.astro';
+import Tablero from '../../../direcciones/c/componentes/Tablero.astro';
+import MasPedidos from '../../../direcciones/c/componentes/MasPedidos.astro';
+import Remito from '../../../direcciones/c/componentes/Remito.astro';
+import Clientes from '../../../direcciones/c/componentes/Clientes.astro';
+import HojaDeRuta from '../../../direcciones/c/componentes/HojaDeRuta.astro';
+import Pie from '../../../direcciones/c/componentes/Pie.astro';
+import Flotante from '../../../direcciones/c/componentes/Flotante.astro';
+import { listaNatural, rangoDiasCorto } from '../../../direcciones/c/lib';
+
+const { localidad, partido } = empresa.direccion;
+const capital = entregas.find((z) => z.id === 'capital')!;
+const nombre = (slug: string) => productoPorSlug(slug)?.nombre.toLowerCase() ?? '';
+const mermeladas = categorias.find((c) => c.slug === 'mermeladas')?.nombre.toLowerCase() ?? '';
+const productosH1 = [nombre('mayonesa'), nombre('azucar'), nombre('edulcorante'), mermeladas];
+const abre = horaCorta(horario.abre);
+const primerDia = horario.dias[0];
+const ultimoDia = horario.dias.at(-1);
+
+const titulo = `${empresa.nombreComercial} · Porciones individuales desde las ${abre} de la mañana (dirección C)`;
+const descripcion = `${empresa.nombreComercial} distribuye porciones individuales a clínicas, bares y kioscos de ${capital.zona} y GBA, desde ${localidad}, ${partido}.`;
+---
+<Base title={titulo} description={descripcion} noindex themeColor="#FBF9F4">
+  <div class="dc sin-js" data-estado="desconocido" id="inicio">
+    <script is:inline>document.querySelector('.dc').classList.replace('sin-js', 'con-js');</script>
+    <a class="dc-saltar" href="#contenido">Saltar al contenido</a>
+
+    <Membrete />
+
+    <main id="contenido">
+      <section class="dc-hoja dc-hoja--original dc-portada" aria-labelledby="dc-h1">
+        <p class="dc-copia" aria-hidden="true">Original · para el cliente</p>
+        <div class="dc-portada__titulo">
+          <p class="dc-etiqueta dc-portada__ante">
+            Despacho {localidad}, {partido} · {rangoDiasCorto()} desde las {horaCorta(horario.abre, true)}
+          </p>
+          <h1 id="dc-h1" class="dc-h1">
+            {empresa.nombreComercial} distribuye porciones individuales —<span class="dc-dato">{listaNatural(productosH1)}</span>— a clínicas, bares y kioscos de <span class="dc-dato">{capital.zona}</span> y GBA, desde <span class="dc-dato">{localidad}</span>.
+          </h1>
+        </div>
+        <Tablero />
+        <div class="dc-portada__texto">
+          <p class="dc-portada__lead">
+            De {primerDia} a {ultimoDia} arrancamos a las {abre} de la mañana: el bar o la clínica que abre temprano ya tiene a quién escribirle.
+            En {capital.zona}, {capital.pedidoMinimo} y {capital.plazo}.
+          </p>
+          <dl class="dc-portada__datos">
+            <div><dt>En el rubro</dt><dd>desde {empresa.desde}</dd></div>
+            {empresa.clientesPublicables && <div><dt>Clientes</dt><dd>más de {empresa.clientesPublicables}</dd></div>}
+            <div><dt>Mínimo en {capital.zona.split(' ')[0]}</dt><dd>{capital.pedidoMinimo}</dd></div>
+          </dl>
+        </div>
+      </section>
+
+      <div class="dc-perforado" aria-hidden="true"></div>
+
+      <section class="dc-hoja dc-hoja--original dc-productos" id="productos" aria-labelledby="dc-productos-h">
+        <MasPedidos />
+        <Remito />
+      </section>
+
+      <Clientes />
+      <HojaDeRuta />
+    </main>
+
+    <Pie />
+    <Flotante />
+  </div>
+</Base>
+
+<script>
+  import '../../../direcciones/c/cliente/estado';
+  import '../../../direcciones/c/cliente/consulta';
+  import '../../../direcciones/c/cliente/zonas';
+</script>

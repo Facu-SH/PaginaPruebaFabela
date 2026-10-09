@@ -1,0 +1,143 @@
+---
+// Entregas como hoja de ruta: zonas × días hábiles, con la columna de hoy marcada (JS).
+// Selector "¿Qué día llegamos a tu zona?": con JS muestra un rótulo de envío por zona
+// (día, mínimo, próxima fecha y WhatsApp con la zona escrita). Sin JS se ven todos los rótulos.
+import { empresa, entregas, horario, pagos } from '../../../data';
+import { nombreDia, textoHorario } from '../../../lib/horario';
+import { waLink } from '../../../lib/whatsapp';
+import { capitalizar, diaCorto, diasDeReparto, diasDeZona, listaNatural, textoDiasZona } from '../lib';
+
+const dias = diasDeReparto();
+const atiende = empresa.whatsapp.atiende;
+const { calle, localidad, partido } = empresa.direccion;
+const capital = entregas.find((z) => z.id === 'capital');
+const fijas = entregas.filter((z) => Array.isArray(z.dias) && z.dias.length > 0);
+---
+<section class="dc-hoja dc-hoja--amarilla dc-ruta" id="entregas" aria-labelledby="dc-ruta-h">
+  <p class="dc-copia" aria-hidden="true">Triplicado · reparto</p>
+
+  <div class="dc-ruta__cabecera">
+    <p class="dc-etiqueta">Hoja de ruta · sale de {localidad}, {partido}</p>
+    <h2 class="dc-h2" id="dc-ruta-h">¿Qué día llegamos a tu zona?</h2>
+    <p>
+      {capital && <>En {capital.zona}, {capital.plazo}, {capital.pedidoMinimo}. </>}
+      {fijas.length > 0 && <>A {listaNatural(fijas.map((z) => z.zona))} vamos un día fijo por semana; </>}
+      al resto, lo coordinamos por WhatsApp.
+    </p>
+  </div>
+
+  <div class="dc-ruta__cuerpo">
+    <div class="dc-selector" data-dc-selector>
+      <fieldset class="dc-selector__zonas dc-solo-js">
+        <legend>Elegí tu zona</legend>
+        {entregas.map((z, i) => (
+          <label>
+            <input type="radio" name="dc-zona" value={z.id} checked={i === 0} data-dc-zona-radio />
+            <span>{z.zona}</span>
+          </label>
+        ))}
+      </fieldset>
+
+      <ul class="dc-selector__rotulos">
+        {entregas.map((z) => (
+          <li class="dc-rotulo-envio" data-dc-zona-rotulo={z.id}>
+            <p class="dc-rotulo-envio__para">Destino</p>
+            <h3 class="dc-rotulo-envio__zona">{z.zona}</h3>
+            {z.detalle && <p class="dc-rotulo-envio__detalle">{z.detalle}</p>}
+            <dl>
+              <div><dt>Reparto</dt><dd>{capitalizar(textoDiasZona(z))}</dd></div>
+              {z.plazo && <div><dt>Plazo</dt><dd>{capitalizar(z.plazo)}</dd></div>}
+              <div><dt>Pedido mínimo</dt><dd>{capitalizar(z.pedidoMinimo)}</dd></div>
+              <div class="dc-rotulo-envio__proximo" data-dc-proximo-fila hidden>
+                <dt data-dc-proximo-titulo>Próximo reparto</dt><dd data-dc-proximo></dd>
+              </div>
+            </dl>
+            {z.dias === 'consultar' ? (
+              <>
+                <label class="dc-rotulo-envio__localidad dc-solo-js">
+                  <span>¿Dónde estás?</span>
+                  <input type="text" autocomplete="address-level2" data-dc-localidad />
+                </label>
+                <a class="dc-boton" href={waLink('general')} data-dc-zona-link={z.id}>
+                  <span>Preguntale a {atiende} si llegamos</span>
+                  <span class="dc-boton__flecha" aria-hidden="true">→</span>
+                </a>
+              </>
+            ) : (
+              <a class="dc-boton" href={waLink('zona', { zona: z.zona })}>
+                <span>Escribile a {atiende} con tu zona</span>
+                <span class="dc-boton__flecha" aria-hidden="true">→</span>
+              </a>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <div class="dc-ruta__planilla">
+      <table class="dc-ruta__tabla">
+        <caption>Días de reparto por zona, de {dias.length > 1 ? `${diaCorto(dias[0]).toLowerCase()} a ${diaCorto(dias.at(-1)!).toLowerCase()}` : ''}</caption>
+        <thead>
+          <tr>
+            <th scope="col" class="dc-ruta__esquina">Zona</th>
+            {dias.map((d) => (
+              <th scope="col" data-dc-dia={d}>
+                <abbr title={nombreDia(d)}>{diaCorto(d)}</abbr>
+                <span class="dc-ruta__hoy" aria-hidden="true">hoy</span>
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {entregas.map((z) => {
+            const dz = diasDeZona(z);
+            return (
+              <tr>
+                <th scope="row">
+                  {z.zona}
+                  {z.detalle && <span>{z.detalle}</span>}
+                </th>
+                {z.dias === 'consultar' ? (
+                  <td colspan={dias.length} class="dc-ruta__coordinar">a coordinar por WhatsApp</td>
+                ) : (
+                  dias.map((d) => (
+                    <td data-dc-dia={d}>
+                      {dz.includes(d) ? (
+                        <>
+                          <svg class="dc-ruta__marca" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M5 5.5C9 9.6 14.2 15.4 19.4 19.2M18.6 4.6C14.4 9.1 9.6 14.6 4.8 19.6" />
+                          </svg>
+                          <span class="visually-hidden">reparto</span>
+                        </>
+                      ) : (
+                        <span class="visually-hidden">sin reparto</span>
+                      )}
+                    </td>
+                  ))
+                )}
+              </tr>
+            );
+          })}
+          {horario.retiroEnDeposito && (
+            <tr class="dc-ruta__retiro">
+              <th scope="row">
+                Retiro en depósito
+                <span>{calle}, {localidad}</span>
+              </th>
+              {dias.map((d) => (
+                <td data-dc-dia={d}>
+                  <span class="dc-ruta__horario">{horario.abre.replace(/^0/, '')}<br />{horario.cierra}</span>
+                </td>
+              ))}
+            </tr>
+          )}
+        </tbody>
+      </table>
+      <p class="dc-ruta__pago">
+        <span class="dc-etiqueta">Condiciones</span>
+        {listaNatural(pagos.facturacion, 'o')} · {listaNatural(pagos.medios, 'o')} · instituciones: {pagos.instituciones}.
+        Retiro en {calle}, {textoHorario().toLowerCase().replace(/ h$/, '\u00a0h')}: avisale antes a {atiende} y te lo dejamos preparado.
+      </p>
+    </div>
+  </div>
+</section>
