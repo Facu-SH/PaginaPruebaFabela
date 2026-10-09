@@ -1,0 +1,98 @@
+---
+// /clinicas/ · "Cómo trabajamos con clínicas e instituciones": la ficha que pide un área de compras,
+// renglón por renglón (facturación, pago, entrega, pedido y el mix completo). Ordenada como un
+// formulario impreso: rótulo, dato grande y aclaración. Todo sale de src/data/.
+import { categorias, entregas, pagos } from '../../data';
+import { diaDeReparto, enumerar, mayuscula, zonaCorta } from '../../lib/textos';
+import { url } from '../../lib/url';
+
+interface Props {
+  class?: string;
+}
+const { class: clase } = Astro.props;
+
+const capital = entregas.find((z) => z.dias === 'habiles') ?? entregas[0];
+const conDia = entregas.filter((z) => Array.isArray(z.dias));
+const [facturaA, ...otrasFacturas] = pagos.facturacion;
+const otrosMedios = pagos.medios.filter((m) => m !== 'cheque');
+
+const renglones = [
+  {
+    rotulo: 'Facturación',
+    dato: facturaA,
+    aclaracion: `La que necesita tu área de compras.${otrasFacturas.length ? ` También facturamos a ${enumerar(otrasFacturas.map((f) => f.toLowerCase()))}.` : ''}`,
+  },
+  {
+    rotulo: 'Pago',
+    dato: mayuscula(pagos.instituciones),
+    aclaracion: `Para clínicas e instituciones. Si te queda más cómodo, también ${enumerar(otrosMedios, 'o')}.`,
+  },
+  {
+    rotulo: 'Entrega',
+    dato: mayuscula(capital.plazo ?? ''),
+    aclaracion: `En ${capital.zona}${capital.detalle ? ` (${capital.detalle})` : ''}. ${conDia.map((z, i) => `${i === 0 ? 'A' : 'a'} ${zonaCorta(z)} vamos ${diaDeReparto(z).frase}`).join(' y ')}.`,
+    link: { href: '/entregas/', texto: 'Zonas y días de reparto' },
+  },
+  {
+    rotulo: 'Pedido',
+    dato: 'Regular, por WhatsApp o mail',
+    aclaracion: 'Como hacen las instituciones que ya nos compran: escriben «Hola, buen día» y dejan el pedido. Sin formularios ni usuarios.',
+  },
+  {
+    rotulo: 'Proveedor',
+    dato: `${categorias.length} familias en un mismo pedido`,
+    aclaracion: `${categorias.map((c) => c.nombre).join(' · ')}. Si necesitás algo que no ves en la web, preguntanos.`,
+    link: { href: '/productos/', texto: 'Todos los productos' },
+  },
+];
+---
+<dl class:list={['ficha-inst', clase]}>
+  {renglones.map((r) => (
+    <div class="ficha-inst__renglon">
+      <dt class="t-rotulo ficha-inst__rotulo">{r.rotulo}</dt>
+      <dd class="ficha-inst__dato">{r.dato}</dd>
+      <dd class="ficha-inst__aclaracion">
+        {r.aclaracion}
+        {r.link && (
+          <>
+            {' '}<a class="link-flecha" href={url(r.link.href)}>{r.link.texto}</a>
+          </>
+        )}
+      </dd>
+    </div>
+  ))}
+</dl>
+
+<style>
+  .ficha-inst {
+    border-top: var(--trazo-grueso) solid var(--tinta);
+    border-bottom: var(--trazo-grueso) solid var(--tinta);
+  }
+  .ficha-inst__renglon {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--e-2);
+    padding-block: var(--e-5);
+  }
+  .ficha-inst__renglon + .ficha-inst__renglon { border-top: var(--borde); }
+  .ficha-inst__rotulo { color: var(--tinta-suave); }
+  .ficha-inst__dato {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 900;
+    font-size: clamp(1.625rem, 1.1rem + 2vw, 2.75rem);
+    line-height: 1;
+    letter-spacing: var(--tracking-display);
+    text-wrap: balance;
+  }
+  .ficha-inst__aclaracion { max-width: 34em; }
+  .ficha-inst__aclaracion .link-flecha { white-space: nowrap; }
+
+  @media (min-width: 900px) {
+    .ficha-inst__renglon {
+      grid-template-columns: minmax(9rem, 2fr) minmax(0, 6fr) minmax(0, 5fr);
+      gap: var(--e-6);
+      align-items: baseline;
+      padding-block: var(--e-6);
+    }
+  }
+</style>

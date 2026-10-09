@@ -1,0 +1,44 @@
+---
+// /comercios/ · un puñado de sobres tirados sobre el mostrador: el pedido típico de un kiosco o un bar
+// (pedidoTipicoComercio: edulcorante y mayonesa, a veces azúcar o mermelada), más un ketchup.
+// Desordenado a propósito: es la contracara de la bandeja ordenada de /clinicas/.
+// Va sobre fondo tinta. Decorativo: el texto de al lado dice lo mismo.
+import { pedidoTipicoComercio } from '../../data';
+import Envase from '../Envase.astro';
+
+interface Props {
+  class?: string;
+}
+const { class: clase } = Astro.props;
+
+// Lo que más pide un comercio va más veces en el puñado.
+const [primero, segundo, tercero, cuarto] = pedidoTipicoComercio.map((x) => x.producto);
+
+// x, y: esquina superior izquierda (% del ancho y del alto de la caja); w: ancho (% del ancho); r: giro.
+const piezas: { producto: string; sabor?: string; x: number; y: number; w: number; r: number }[] = [
+  { producto: primero, x: 2, y: 10, w: 42, r: -11 },
+  { producto: tercero, x: 47, y: 2, w: 38, r: 9 },
+  { producto: primero, x: 24, y: 44, w: 40, r: 4 },
+  { producto: cuarto, sabor: 'durazno', x: 4, y: 64, w: 17, r: -8 },
+  { producto: primero, x: 60, y: 44, w: 38, r: -7 },
+  { producto: segundo, x: 85, y: 6, w: 11, r: 18 },
+  { producto: segundo, x: 22, y: 60, w: 11, r: -24 },
+  { producto: segundo, x: 50, y: 66, w: 11, r: 72 },
+  { producto: 'ketchup', x: 76, y: 74, w: 11, r: -62 },
+  { producto: segundo, x: 4, y: 26, w: 11, r: 8 },
+];
+---
+<div class:list={['punado', clase]} aria-hidden="true">
+  {piezas.map((p) => (
+    <Envase
+      producto={p.producto}
+      sabor={p.sabor}
+      style={`left:${p.x}%;top:${p.y}%;width:${p.w}%;transform:rotate(${p.r}deg)`}
+    />
+  ))}
+</div>
+
+<style>
+  .punado { position: relative; width: 100%; aspect-ratio: 1 / 0.86; }
+  .punado :global(.envase) { position: absolute; }
+</style>

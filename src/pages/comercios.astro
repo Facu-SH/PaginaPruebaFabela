@@ -1,0 +1,146 @@
+---
+// /comercios/: kioscos, bares, almacenes, confiterías y puestos de comida.
+// Ritmo de mostrador, corto y rápido: la cabecera oscura con el puñado de sobres, el cartel de
+// "qué sale con cada cosa que vendés" (la pieza protagonista), sin mínimo en Capital y el precio.
+import Sitio from '../layouts/Sitio.astro';
+import { empresa, entregas, horario, pagos, pedidoTipicoComercio } from '../data';
+import { horaCorta, textoHorario } from '../lib/horario';
+import { enumerar, mayuscula, nombreProducto, zonaCorta, zonasConReparto } from '../lib/textos';
+import { mailtoLink } from '../lib/whatsapp';
+import BotonWhatsApp from '../components/BotonWhatsApp.astro';
+import Migas from '../components/Migas.astro';
+import Mostrador from '../components/publicos/Mostrador.astro';
+import PunadoSobres from '../components/publicos/PunadoSobres.astro';
+import SinMinimo from '../components/publicos/SinMinimo.astro';
+
+const atiende = empresa.whatsapp.atiende;
+const abre = horaCorta(horario.abre);
+const capital = entregas.find((z) => z.dias === 'habiles') ?? entregas[0];
+const zonas = enumerar(zonasConReparto().map(zonaCorta));
+const pedido = pedidoTipicoComercio.map((x) => nombreProducto(x.producto));
+const [usoA, usoB] = pedidoTipicoComercio;
+const aVeces = pedidoTipicoComercio.filter((x) => x.uso === 'a veces').map((x) => nombreProducto(x.producto));
+const medios = pagos.medios.filter((m) => m !== 'cheque');
+const horarioTexto = textoHorario().replace(/^./, (l) => l.toLowerCase());
+
+const oracion =
+  `${empresa.nombreComercial} vende ${enumerar(pedido)} en porciones individuales a kioscos, bares, almacenes, ` +
+  `confiterías y puestos de comida de ${zonas}, desde ${empresa.direccion.localidad}.`;
+
+const title = `Edulcorante y mayonesa en sobre para kioscos y bares · ${empresa.nombreComercial}`;
+const description =
+  `${empresa.nombreComercial} vende ${enumerar(pedido)} en sobre y porción individual a kioscos, bares, almacenes y ` +
+  `confiterías. ${mayuscula(capital.pedidoMinimo)} en ${capital.zona} y entrega ${capital.plazo}. La lista de precios, por WhatsApp.`;
+---
+<Sitio title={title} description={description} colorPagina="dpi" whatsapp={{ contexto: 'comercio' }}>
+  <!-- Cabecera -->
+  <section class="cabecera fondo-tinta" aria-labelledby="comercios-titulo">
+    <div class="contenedor cabecera__grilla">
+      <div class="cabecera__migas"><Migas items={[{ nombre: 'Comercios' }]} /></div>
+      <div class="cabecera__titulo">
+        <p class="t-rotulo">Kioscos · bares · almacenes · confiterías · puestos de comida</p>
+        <h1 id="comercios-titulo">Edulcorante y mayonesa en sobre para kioscos y bares</h1>
+      </div>
+      <div class="cabecera__texto">
+        <p class="cabecera__oracion">{oracion}</p>
+        <p class="cabecera__dato">{mayuscula(capital.pedidoMinimo)} en {capital.zona}: {capital.plazo}.</p>
+        <BotonWhatsApp variante="principal" contexto="comercio" tono="papel" />
+      </div>
+      <div class="cabecera__punado"><PunadoSobres /></div>
+    </div>
+  </section>
+
+  <!-- Pieza protagonista: el cartel del mostrador -->
+  <section class="vendes" aria-labelledby="vendes-titulo">
+    <div class="contenedor">
+      <div class="vendes__cabeza">
+        <p class="t-rotulo">Para el mostrador</p>
+        <h2 id="vendes-titulo">Qué sale con cada cosa que vendés</h2>
+        <p class="t-lectura">
+          {mayuscula(nombreProducto(usoA.producto))} para {usoA.uso} y {nombreProducto(usoB.producto)} para {usoB.uso}: es el
+          pedido típico de un kiosco o un bar.{aVeces.length > 0 && <> A veces se suma {enumerar(aVeces, 'o')}.</>}
+        </p>
+      </div>
+      <Mostrador />
+    </div>
+  </section>
+
+  <!-- Sin mínimo -->
+  <SinMinimo />
+
+  <!-- El precio -->
+  <section class="precio" aria-labelledby="precio-titulo">
+    <div class="contenedor precio__grilla">
+      <div class="precio__cabeza">
+        <h2 id="precio-titulo" class="precio__titulo">¿Cuánto sale? Te pasamos la lista por WhatsApp</h2>
+      </div>
+      <div class="precio__texto">
+        <p class="t-grande">
+          No la publicamos porque cambia seguido: {atiende} te manda la vigente, de {horarioTexto}. Si abrís temprano, a
+          las {abre} ya está del otro lado.
+        </p>
+        <p>Pagás en {enumerar(medios, 'o')}, con {enumerar(pagos.facturacion.map((f, i) => (i === 0 ? f : `como ${f.toLowerCase()}`)), 'o')}.</p>
+        <BotonWhatsApp variante="principal" contexto="lista">Pedí la lista por WhatsApp</BotonWhatsApp>
+        <a class="precio__mail" href={mailtoLink('lista')}>O por mail a <span>{empresa.email}</span></a>
+      </div>
+    </div>
+  </section>
+</Sitio>
+
+<style>
+  /* ---------- Cabecera ---------- */
+  .cabecera { padding-bottom: clamp(2rem, 1rem + 4vw, 5rem); overflow: clip; }
+  .cabecera__grilla { display: grid; gap: var(--e-5); }
+  .cabecera__migas { margin-top: var(--e-2); }
+  .cabecera__titulo { display: grid; gap: var(--e-4); }
+  .cabecera__titulo h1 { max-width: 11em; text-wrap: balance; }
+  .cabecera__texto { display: flex; flex-direction: column; align-items: flex-start; gap: var(--e-4); }
+  .cabecera__oracion { max-width: 36em; font-size: 1.0625rem; line-height: 1.5; }
+  .cabecera__dato {
+    color: var(--verde);
+    font-stretch: 118%;
+    font-weight: 800;
+    font-size: clamp(1.25rem, 1rem + 1.2vw, 1.9rem);
+    line-height: 1.12;
+    letter-spacing: -0.01em;
+    max-width: 19em;
+    margin-block: var(--e-2) var(--e-3);
+  }
+  .cabecera__punado { width: min(100%, 34rem); justify-self: center; margin-top: var(--e-4); }
+
+  /* ---------- Qué sale con cada cosa ---------- */
+  .vendes { padding-top: var(--e-seccion); padding-bottom: clamp(2.5rem, 1.5rem + 4vw, 5.5rem); }
+  .vendes__cabeza { display: grid; gap: var(--e-4); margin-bottom: clamp(1.75rem, 1.2rem + 2vw, 3rem); }
+  .vendes__cabeza h2 { max-width: 10em; }
+
+  /* ---------- Precio ---------- */
+  .precio { padding-block: var(--e-seccion); }
+  .precio__grilla { display: grid; gap: var(--e-5); }
+  .precio__titulo { font-size: clamp(2rem, 1rem + 3.6vw, 4.25rem); max-width: 11em; }
+  .precio__texto { display: flex; flex-direction: column; align-items: flex-start; gap: var(--e-4); max-width: 34em; }
+  .precio__texto :global(.boton) { margin-top: var(--e-2); }
+  .precio__mail {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0 0.3em;
+    align-items: center;
+    min-height: 2.75rem;
+    font-weight: 700;
+  }
+  .precio__mail span { overflow-wrap: anywhere; }
+
+  @media (min-width: 1080px) {
+    .cabecera__grilla { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: var(--e-7); row-gap: var(--e-5); align-items: start; }
+    .cabecera__migas, .cabecera__titulo { grid-column: 1 / -1; }
+    .cabecera__titulo h1 { max-width: 15em; }
+    .cabecera__texto { gap: var(--e-5); }
+    .cabecera__oracion { font-size: var(--t-texto-grande); line-height: 1.42; }
+    .cabecera__dato { max-width: 26em; }
+    .cabecera__punado { margin-top: 0; width: min(100%, 36rem); }
+
+    .vendes__cabeza { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); align-items: end; column-gap: var(--e-7); }
+    .vendes__cabeza .t-rotulo { grid-column: 1 / -1; }
+
+    .precio__grilla { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); column-gap: var(--e-7); align-items: start; }
+  }
+</style>

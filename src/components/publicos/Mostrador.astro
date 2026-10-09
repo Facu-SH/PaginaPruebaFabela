@@ -1,0 +1,140 @@
+---
+// /comercios/ · "Qué sale con cada cosa que vendés": el cartel del mostrador. Cada renglón es lo
+// que vende un kiosco o un bar (el café, el pancho, la tostada), una línea de puntos como en un
+// cartel de precios y, donde iría el precio, lo que sale con eso. El café y el pancho llevan su
+// escena (EscenaUso) en grande, sobre tinta; la tostada, los potecitos. Desde pedidoTipicoComercio.
+import { pedidoTipicoComercio, productoPorSlug, type Producto } from '../../data';
+import { mayuscula } from '../../lib/textos';
+import { conMarcas } from './textos';
+import Envase from '../Envase.astro';
+import EscenaUso from '../EscenaUso.astro';
+
+interface Props {
+  nivel?: 3 | 4;
+  class?: string;
+}
+const { nivel = 3, class: clase } = Astro.props;
+const Titulo = `h${nivel}` as 'h3' | 'h4';
+
+const uso = (slug: string) => pedidoTipicoComercio.find((x) => x.producto === slug)?.uso;
+const prod = (slugs: string[]) => slugs.map((s) => productoPorSlug(s)).filter((p): p is Producto => Boolean(p));
+const mayusculaInicial = (s?: string) => (s ? mayuscula(s) : '');
+
+const renglones = [
+  {
+    escena: 'cafe' as const,
+    que: mayusculaInicial(uso('edulcorante')), // "El café"
+    tambien: 'y el té',
+    lleva: prod(['edulcorante', 'azucar']),
+    pie: 'Un sobre de cada uno en el plato del pocillo.',
+  },
+  {
+    escena: 'pancho' as const,
+    que: mayusculaInicial(uso('mayonesa')), // "El pancho"
+    tambien: 'y la hamburguesa',
+    lleva: prod(['mayonesa', 'ketchup', 'mostaza']),
+    pie: 'El aderezo que se regala con el pancho.',
+  },
+  {
+    escena: undefined,
+    que: 'La tostada',
+    tambien: 'a veces',
+    lleva: prod(['mermeladas']),
+    pie: undefined,
+  },
+];
+const mermelada = productoPorSlug('mermeladas');
+---
+<ol class:list={['mostrador', clase]} role="list">
+  {renglones.map((r, i) => (
+    <li class:list={['renglon', { 'renglon--escena': r.escena, 'renglon--chico': !r.escena, 'renglon--par': i % 2 === 1 }]}>
+      <div class="renglon__texto">
+        <div class="renglon__linea">
+          <Titulo class="renglon__que">{r.que}</Titulo>
+          <span class="renglon__puntos" aria-hidden="true"></span>
+        </div>
+        <p class="renglon__tambien">{r.tambien}</p>
+        <p class="renglon__lleva">
+          <span class="t-rotulo renglon__rotulo">Sale con</span>
+          <span class="renglon__productos">{conMarcas(r.lleva)}</span>
+        </p>
+        {r.pie && <p class="renglon__pie">{r.pie}</p>}
+      </div>
+      {r.escena ? (
+        <div class="renglon__escena fondo-tinta">
+          <EscenaUso tipo={r.escena} />
+        </div>
+      ) : (
+        <div class="renglon__potes" aria-hidden="true">
+          {(mermelada?.variantes ?? []).map((s) => <Envase producto="mermeladas" sabor={s} />)}
+        </div>
+      )}
+    </li>
+  ))}
+</ol>
+
+<style>
+  .mostrador { display: grid; gap: 0; padding: 0; list-style: none; border-top: var(--trazo-grueso) solid var(--tinta); }
+  .renglon {
+    display: grid;
+    gap: var(--e-5);
+    padding-block: var(--e-6);
+    border-bottom: var(--borde);
+  }
+  .renglon__texto { display: flex; flex-direction: column; gap: var(--e-2); min-width: 0; }
+
+  /* El renglón del cartel: el nombre y la línea de puntos hasta "el precio" */
+  .renglon__linea { display: flex; align-items: baseline; gap: var(--e-3); }
+  .renglon__que {
+    flex: none;
+    font-size: clamp(2.75rem, 1.5rem + 5vw, 5.75rem);
+    line-height: 0.9;
+  }
+  .renglon__puntos {
+    flex: 1;
+    min-width: 2rem;
+    height: 0;
+    border-bottom: 5px dotted var(--tinta);
+    transform: translateY(-0.2em);
+  }
+  .renglon__tambien {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 800;
+    font-size: var(--t-texto-grande);
+    line-height: 1.1;
+  }
+  .renglon__lleva { display: grid; gap: var(--e-1); margin-top: var(--e-3); }
+  .renglon__rotulo { color: var(--tinta-suave); }
+  .renglon__productos {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 900;
+    font-size: var(--t-titulo-3);
+    line-height: 1.05;
+    letter-spacing: var(--tracking-display);
+    text-wrap: balance;
+  }
+  .renglon__pie { font-size: 0.9375rem; color: var(--tinta-suave); margin-top: var(--e-2); }
+
+  /* La escena, en grande sobre tinta: el mostrador */
+  .renglon__escena {
+    display: grid;
+    place-items: center;
+    margin-inline: calc(var(--gutter) * -1);
+    padding: clamp(1.5rem, 1rem + 3vw, 3rem) var(--gutter);
+  }
+  .renglon__escena :global(.escena) { width: min(100%, 560px); }
+  /* En el renglón del café, solo lo del café: sin la almohadilla de mayonesa de la escena */
+  .renglon__escena :global(.escena--cafe .escena__c) { display: none; }
+
+  /* La tostada: un renglón corto, con los potecitos donde iría el precio */
+  .renglon--chico .renglon__que { font-size: clamp(2rem, 1.3rem + 3vw, 3.75rem); }
+  .renglon__potes { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+  .renglon__potes :global(.envase) { width: clamp(58px, 6vw, 92px); }
+
+  @media (min-width: 900px) {
+    .renglon--escena { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); align-items: center; gap: clamp(2rem, 4vw, 4rem); }
+    .renglon--par .renglon__texto { order: 2; }
+    .renglon__escena { margin-inline: 0; align-self: stretch; }
+    .renglon--chico { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); align-items: center; gap: clamp(2rem, 4vw, 4rem); }
+  }
+</style>
