@@ -5,13 +5,15 @@
 # el dominio real (dpi-arg.com.ar), que se publica aparte en Cloudflare Pages o Netlify.
 #
 # Para activarla, una sola vez: GitHub → Settings → Pages → Build and deployment → Source: "GitHub Actions".
-# Se corre sola con cada push a main, o a mano desde la pestaña Actions → "Vista previa" → Run workflow.
+# Se corre sola con cada push a main o a la rama de trabajo, o a mano desde Actions → "Vista previa" → Run workflow.
+# Ojo: con Source en "Deploy from a branch", GitHub corre Jekyll sobre el código fuente y falla con los
+# archivos .astro ("Invalid YAML front matter"). El sitio se compila con Astro: Source tiene que ser "GitHub Actions".
 
 name: Vista previa
 
 on:
   push:
-    branches: [main]
+    branches: [main, claude/epic-bohr-yl0qtj]
   workflow_dispatch:
 
 permissions:
