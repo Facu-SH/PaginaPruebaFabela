@@ -104,7 +104,7 @@ Archivo: `src/data/productos.ts`
 
 - `slug`: el nombre corto, en minúsculas, sin tildes ni espacios (es también el nombre de su foto: `miel.jpg`).
 - `categoria`: una de `aderezos`, `endulzantes`, `mermeladas`, `lacteos`, `galletitas-y-tostadas`.
-- Opcionales: `masVendido: true` (aparece en "lo que más sale"), `nota: 'Viene creciendo'`, `variantes: ['frutilla', 'durazno']` (sabores), `gramaje: '10 g'`, `unidadesPorCaja: 200`.
+- Opcionales: `masVendido: true` (aparece en "lo que más sale"), `nota: 'El más vendido'` (se ve en la tarjeta del producto: que sirva para el cliente), `variantes: ['frutilla', 'durazno']` (sabores), `gramaje: '10 g'`, `unidadesPorCaja: 200`.
 
 Si sumás un producto, conviene contarle a quien mantiene el sitio: algunos textos de la página de su categoría ("para qué se usa") se escriben a mano en `src/components/productos/textos.ts`.
 

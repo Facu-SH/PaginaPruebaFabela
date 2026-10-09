@@ -117,6 +117,22 @@ La validación contra schema.org (tipos y propiedades del vocabulario oficial `s
 - **`/sistema/`**: la violación moderada `landmark-unique` (ver arriba). Es interna y noindex.
 - **Productos sin precio en el catálogo (JSON-LD)**: es una decisión del negocio (la lista no se publica). Para schema.org es válido; la prueba de resultados enriquecidos de Google puede marcar "fragmentos de producto" con advertencias por no tener `offers.price` ni reseñas. No es un error del sitio y no afecta la indexación.
 - **FAQPage**: desde 2023 Google muestra las preguntas desplegadas solo para sitios de gobierno y salud; el marcado igual le sirve a Bing y a los buscadores de IA.
-- **`geo` y código postal**: no están en los datos, así que no se publican (pendiente #7). Cuando se carguen en `src/data/empresa.ts`, aparecen solos en el JSON-LD.
-- **El número de WhatsApp es de prueba** (pendiente #1): ya figura en los datos para Google y en `llms.txt`; cambia con una línea.
+- **`geo` y código postal**: no están en los datos, así que no se publican (ver `docs/pendientes.md`). Cuando se carguen en `src/data/empresa.ts`, aparecen solos en el JSON-LD.
+- **El número de WhatsApp es de prueba** (ver `docs/pendientes.md`, "Urgente"): ya figura en los datos para Google y en `llms.txt`; cambia con una línea.
 - **Medición en el hosting real**: repetir Lighthouse (PageSpeed Insights) cuando el sitio esté en el dominio.
+
+## Fase 5 (pulido final): nueva medición
+
+Después del pulido (cambios de composición, textos, tamaños de títulos, pie más compacto) se repitió la medición con el mismo procedimiento:
+
+| Página | Performance | Accesibilidad | Buenas prácticas | SEO | LCP | CLS |
+|---|---|---|---|---|---|---|
+| `/` | 99 | 100 | 100 | 100 | 1.8 s | 0 |
+| `/productos/aderezos/` | 99 | 100 | 100 | 100 | 1.8 s | 0 |
+| `/entregas/` | 99 | 100 | 100 | 100 | 1.8 s | 0 |
+| `/clinicas/` (cambió la cabecera en el escritorio) | 100 | 100 | 100 | 100 | 1.7 s | 0 |
+| `/contacto/` | 100 | 100 | 100 | 100 | 1.8 s | 0.019 |
+
+- **axe** (15 páginas, 390 y 1440 px): 0 violaciones serias o críticas; sigue solo la moderada de `/sistema/`.
+- **Flotante y pie**: el aire de abajo del pie bajó de 7rem a 5,5rem (el pie es más corto). Con la página bajada hasta el final, el último renglón del pie termina en y = 756 px y el flotante empieza en y = 778 px: no tapa nada.
+- **`npm run revisar`**: 0 errores, 0 advertencias.

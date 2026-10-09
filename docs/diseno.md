@@ -27,7 +27,7 @@ Todo se ve en **`/sistema/`** (noindex): tokens, contrastes y cada componente co
 
 **Carga:** `src/components/Fuente.astro` declara a mano un `@font-face` con **solo el subset latin** (`archivo-latin-wdth-normal.woff2`, 90 KB) importado con `?url`, `font-display: swap` y `<link rel="preload">`. `dist/` tiene un único archivo de fuente. No hay itálicas: no se usan. Ojo: la flecha "→" no está en el subset latin; por eso las flechas son SVG (botones) o una máscara CSS (`.link-flecha`).
 
-**Escala fluida** (390 → 1440 px), en `tokens.css`: `--t-titulo-1` 36→92 px, `--t-titulo-2` 36→84, `--t-titulo-3` 22→32, `--t-texto-grande` 19→24, `--t-texto` 17→19, `--t-chico` 13, `--t-rotulo` 12, `--t-gigante` 68→168 (la hora).
+**Escala fluida** (390 → 1440 px), en `tokens.css`: `--t-titulo-1` 36→92 px, `--t-titulo-2` 33→75 (el `h2` de sección, en todo el sitio), `--t-titulo-2-chico` 27→51 (el `h2` secundario: "¿Cuándo llega?", la lista de una familia, "Más porciones individuales", los temas de preguntas), `--t-titulo-3` 22→32, `--t-texto-grande` 19→24, `--t-texto` 17→19, `--t-chico` 13, `--t-rotulo` 12, `--t-gigante` 68→168 (la hora).
 
 ## Paleta
 
@@ -61,11 +61,12 @@ Los hex viven **solo** en `src/styles/tokens.css`; `src/lib/paleta.ts` los lee d
 - **El sobre crimpado (`Boton`) es solo para acciones de contacto** (WhatsApp, mail). La navegación interna va con `.link-flecha`: así nadie confunde "ir a otra página" con "abrir WhatsApp".
 - El **dentado** se usa en tres lugares: botones, fichas oscuras (`.dentado-arriba-abajo`) y como filo entre dos bloques (`.filo`, `.filo--arriba`). En ningún otro.
 - No hay sombras difusas ni degradés: el relieve es el trazo de tinta de 2 px.
-- No hay grillas de tarjetas iguales: la caja tiene compartimentos de distinto tamaño; en una categoría, alterná una `TarjetaProducto` grande y varias normales.
+- No hay grillas de tarjetas iguales: la caja tiene compartimentos de distinto tamaño; en una categoría va el producto principal grande (`FichaProducto`) y los demás juntos en un solo compartimento (`FichaGrupo`), nunca tarjetas iguales apiladas.
 
 **Atención y WhatsApp**
 - **Tablero de atención:** una sola aparición destacada por página (la home lo tiene bajo la portada; `/contacto/` y `/lista/` son buenos lugares). La versión compacta ya está en el pie: no la sumes en otro lado.
-- **Botón principal** (`BotonWhatsApp variante="principal"`): uno por pantalla, el de la acción de la página. Mientras alguno está a la vista, el **flotante** del celular se esconde; cuando no, aparece abajo a la derecha. No hace falta hacer nada: el layout lo incluye.
+- **Botón principal** (`BotonWhatsApp variante="principal"`): uno por pantalla, el de la acción de la página. Mientras alguno está a la vista **o el WhatsApp del encabezado está a la vista** (la primera pantalla de cualquier página), el **flotante** del celular se esconde; cuando no, aparece abajo a la derecha. Así nunca tapa la primera pantalla. No hace falta hacer nada: el layout lo incluye.
+- **Tamaños de `h2`**: el de sección usa el tamaño por defecto (`--t-titulo-2`); los secundarios, `--t-titulo-2-chico`. No inventes un `clamp()` por sección: si un título no entra, achicá su `max-width` o pasalo a secundario.
 - El número de WhatsApp **no se muestra nunca** (los botones dicen a quién le escribís). El fijo sí: "Tel.: 4730-4423".
 - "Si no lo ves, preguntanos" va **una vez por página** (el compartimento vacío de `CajaCategorias`). "Consultá disponibilidad", como mucho una.
 
@@ -107,6 +108,8 @@ Clases globales útiles (`base.css`): `.contenedor`, `.t-display`, `.t-rotulo`, 
 | `FotoOEnvase` | Foto si existe, si no el dibujo | `producto`, `sabor`, `alt`, `sizes`, `ancho`, `soloDibujo` |
 | `CajaCategorias` + `TarjetaCategoria` | La caja con compartimentos, cada uno link a su categoría | `variante` (compacta/completa), `vacio`, `nivel` |
 | `TarjetaProducto` | Un producto en su color con la cenefa | `producto`, `tamano` (grande/normal) |
+| `FichaProducto` | El producto principal de una familia (o uno suelto) con su "para qué se usa" | `producto`, `disposicion` (grande/vertical/horizontal) |
+| `FichaGrupo` | Los demás productos de una familia en **un** compartimento: los envases en fila con su nombre, una cenefa con la marca y un "Preguntá el precio", y un solo "para qué se usa" | `productos` (slugs), `invertida` |
 | `FilaProducto` | La fila de envases repetidos de "lo que más sale" | `producto`, `cantidad`, `dato` |
 | `BloqueDato` | Un dato grande y su aclaración | `dato`, `aclaracion`, `rotulo`, `tamano` |
 | `ListaPreciosCTA` | Pedir la lista por WhatsApp o mail | `variante` (bloque/en-linea), `titulo`, `id` |
