@@ -1,0 +1,89 @@
+---
+// /comercios/ · "Sin mínimo en Capital": el dato que más le importa a un comercio, en el tamaño de
+// la hora del tablero, y debajo cómo funciona en cada zona con reparto por día (Morón, Zona Norte)
+// y en las demás. Bloque verde (la voz de DPI, el día de reparto). Todo sale de src/data/entregas.
+import { entregas } from '../../data';
+import { diaDeReparto, mayuscula } from '../../lib/textos';
+import { url } from '../../lib/url';
+
+interface Props {
+  id?: string;
+}
+const { id = 'minimo' } = Astro.props;
+const capital = entregas.find((z) => z.dias === 'habiles') ?? entregas[0];
+const resto = entregas.filter((z) => z !== capital);
+---
+<div class="filo filo--arriba" aria-hidden="true" style="--filo: var(--verde)"></div>
+<section class="minimo" aria-labelledby={`${id}-titulo`}>
+  <div class="contenedor minimo__grilla">
+    <div class="minimo__cabeza">
+      <p class="t-rotulo">Pedido mínimo y entregas</p>
+      <h2 id={`${id}-titulo`} class="minimo__titulo">
+        <span class="minimo__gigante">{mayuscula(capital.pedidoMinimo)}</span>{' '}
+        <span class="minimo__zona">en {capital.zona}</span>
+      </h2>
+      <p class="minimo__plazo">
+        Pedí lo que necesites, aunque sea poco{capital.plazo ? `: lo tenés ${capital.plazo.replace(/,\s*/, ' ')}` : ''}.
+        {capital.detalle && <> Vale para toda {capital.zona} ({capital.detalle}).</>}
+      </p>
+    </div>
+
+    <dl class="minimo__zonas">
+      {resto.map((z) => (
+        <div class="minimo__fila">
+          <dt class="minimo__nombre">{z.zona}</dt>
+          <dd class="minimo__dia">{z.dias === 'consultar' ? 'A coordinar' : `Vamos ${diaDeReparto(z).frase}`}</dd>
+          <dd class="minimo__condicion">{mayuscula(z.pedidoMinimo)}.</dd>
+        </div>
+      ))}
+    </dl>
+    <p class="minimo__link"><a class="link-flecha" href={url('/entregas/')}>Días de reparto, retiro en el depósito y formas de pago</a></p>
+  </div>
+</section>
+
+<style>
+  .minimo { background: var(--verde); padding-block: var(--e-seccion); }
+  .minimo__grilla { display: grid; gap: var(--e-6); }
+  .minimo__cabeza { display: grid; gap: var(--e-4); }
+  .minimo__titulo { display: grid; gap: var(--e-3); }
+  .minimo__gigante {
+    font-size: var(--t-gigante);
+    line-height: 0.84;
+    letter-spacing: -0.035em;
+  }
+  .minimo__zona { font-size: var(--t-titulo-3); line-height: 1.05; letter-spacing: var(--tracking-display); }
+  .minimo__plazo { max-width: 30em; font-size: var(--t-texto-grande); line-height: 1.35; font-weight: 500; }
+
+  .minimo__zonas { border-top: var(--trazo-grueso) solid var(--tinta); }
+  .minimo__fila {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.15rem;
+    padding-block: var(--e-4);
+    border-bottom: var(--borde);
+  }
+  .minimo__nombre {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 700;
+    font-size: var(--t-rotulo);
+    letter-spacing: var(--tracking-rotulo);
+    text-transform: uppercase;
+  }
+  .minimo__dia {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 900;
+    font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.25rem);
+    line-height: 1.05;
+    letter-spacing: var(--tracking-display);
+  }
+  .minimo__condicion { font-weight: 600; }
+
+  @media (min-width: 900px) {
+    .minimo__fila { grid-template-columns: minmax(8rem, 2fr) minmax(0, 4fr) minmax(0, 4fr); align-items: baseline; gap: var(--e-5); }
+  }
+  @media (min-width: 1080px) {
+    .minimo__grilla { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: var(--e-7); align-items: end; }
+    .minimo__link { grid-column: 2; }
+    .minimo__fila { grid-template-columns: minmax(0, 1fr); gap: 0.15rem; }
+  }
+</style>

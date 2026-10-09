@@ -1,0 +1,170 @@
+---
+// /clinicas/: porciones individuales para clínicas, geriátricos e instituciones.
+// Ritmo institucional y ordenado: la cabecera, el día de bandejas (la pieza protagonista),
+// la ficha para el área de compras y, al final, la atención desde las 5 con el botón de WhatsApp.
+import Sitio from '../layouts/Sitio.astro';
+import { comidasClinica, empresa, entregas, horario, pagos } from '../data';
+import { horaCorta, textoHorario } from '../lib/horario';
+import { enumerar, nombreProducto, telefonoCorto, zonaCorta, zonasConReparto } from '../lib/textos';
+import { mailtoLink, telLink } from '../lib/whatsapp';
+import BotonWhatsApp from '../components/BotonWhatsApp.astro';
+import Migas from '../components/Migas.astro';
+import DiaDeBandejas from '../components/publicos/DiaDeBandejas.astro';
+import FichaInstitucion from '../components/publicos/FichaInstitucion.astro';
+
+const atiende = empresa.whatsapp.atiende;
+const abre = horaCorta(horario.abre, true);
+const capital = entregas.find((z) => z.dias === 'habiles') ?? entregas[0];
+const zonas = enumerar(zonasConReparto().map(zonaCorta));
+const [facturaA] = pagos.facturacion;
+
+// "el desayuno", "la merienda", "el almuerzo y la cena"
+const conArticulo = (comida: string) => `${/a$/.test(comida) ? 'la' : 'el'} ${comida.toLowerCase()}`;
+const desayuno = comidasClinica[0];
+const principal = comidasClinica.find((c) => c.productos.some((p) => p === 'mayonesa')) ?? comidasClinica[1];
+const conAderezos = comidasClinica.filter((c) => c.productos.join() === principal.productos.join()).map((c) => conArticulo(c.comida));
+const distintos = new Set(comidasClinica.flatMap((c) => c.productos)).size;
+
+const oracion =
+  `${empresa.nombreComercial} abastece a clínicas, geriátricos e instituciones de ${zonas} con porciones individuales ` +
+  `para cada comida: ${enumerar(desayuno.productos.map(nombreProducto))} para ${conArticulo(desayuno.comida)}; ` +
+  `${enumerar(principal.productos.map(nombreProducto))} para ${enumerar(conAderezos)}.`;
+
+const title = `Porciones individuales para clínicas y geriátricos · ${empresa.nombreComercial}`;
+const description =
+  `${empresa.nombreComercial} abastece a clínicas, geriátricos e instituciones de ${zonas} con azúcar, edulcorante, ` +
+  `mermeladas, manteca, tostadas y aderezos en porción individual. ${facturaA}, ${pagos.instituciones} y, en ${capital.zona}, ` +
+  `entrega ${capital.plazo}.`;
+const horarioTexto = textoHorario().replace(/^./, (l) => l.toLowerCase());
+---
+<Sitio title={title} description={description} colorPagina="dpi" whatsapp={{ contexto: 'clinica' }}>
+  <!-- Cabecera -->
+  <section class="cabecera" aria-labelledby="clinicas-titulo">
+    <div class="contenedor cabecera__grilla">
+      <div class="cabecera__migas"><Migas items={[{ nombre: 'Clínicas' }]} /></div>
+      <div class="cabecera__titulo">
+        <p class="t-rotulo">{zonas} · desde {empresa.desde}</p>
+        <h1 id="clinicas-titulo">Porciones individuales para clínicas y geriátricos</h1>
+      </div>
+      <p class="cabecera__oracion">{oracion}</p>
+      <div class="cabecera__accion">
+        <BotonWhatsApp variante="principal" contexto="clinica" />
+        <p class="cabecera__nota t-condensada">
+          {facturaA} · {pagos.instituciones} · te contesta {atiende} desde las {abre}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pieza protagonista: el día de bandejas -->
+  <section class="dia" aria-labelledby="dia-titulo">
+    <div class="contenedor">
+      <div class="dia__cabeza">
+        <h2 id="dia-titulo">Una porción para cada comida</h2>
+        <p class="t-lectura t-grande">
+          Desayuno, almuerzo, merienda y cena: las cuatro bandejas salen del mismo pedido. Son {distintos} productos
+          distintos, cada uno en su porción cerrada.
+        </p>
+      </div>
+      <DiaDeBandejas />
+    </div>
+  </section>
+
+  <!-- Cómo trabajamos: la ficha para compras -->
+  <section class="trabajo" aria-labelledby="trabajo-titulo">
+    <div class="contenedor">
+      <div class="trabajo__cabeza">
+        <p class="t-rotulo">Para el área de compras</p>
+        <h2 id="trabajo-titulo">Cómo trabajamos con clínicas e instituciones</h2>
+        <p class="t-lectura">
+          Desde {empresa.desde} les vendemos a instituciones que compran con regularidad y no pueden quedarse sin nada.
+          Esto es lo que suelen preguntar antes del primer pedido.
+        </p>
+      </div>
+      <FichaInstitucion />
+    </div>
+  </section>
+
+  <!-- Desde las 5, y el contacto -->
+  <div class="filo filo--arriba" aria-hidden="true" style="--filo: var(--verde)"></div>
+  <section class="temprano" aria-labelledby="temprano-titulo">
+    <div class="contenedor temprano__grilla">
+      <p class="temprano__hora cifras" aria-hidden="true">{abre}</p>
+      <div class="temprano__texto">
+        <h2 id="temprano-titulo" class="temprano__titulo">Atención desde las 5 de la mañana</h2>
+        <p class="t-lectura">
+          La cocina de una clínica arranca temprano. {atiende} contesta el WhatsApp de {horarioTexto}: si al armar el
+          desayuno ves que se termina el edulcorante, ya lo podés pedir. En {capital.zona}, {capital.plazo}.
+        </p>
+        <BotonWhatsApp variante="principal" contexto="clinica">Pedile precios a {atiende} por WhatsApp</BotonWhatsApp>
+        <p class="temprano__otros">
+          <a href={mailtoLink('Consulta de clínica o institución')}>O por mail a <span>{empresa.email}</span></a>
+          <a href={telLink()}>Tel.: {telefonoCorto()}</a>
+        </p>
+      </div>
+    </div>
+  </section>
+</Sitio>
+
+<style>
+  /* ---------- Cabecera ---------- */
+  .cabecera {
+    background: var(--papel-hondo);
+    padding-bottom: clamp(2rem, 1.2rem + 3vw, 4.5rem);
+    border-bottom: var(--borde);
+  }
+  .cabecera__grilla { display: grid; gap: var(--e-4); }
+  .cabecera__migas { margin-top: var(--e-2); }
+  .cabecera__titulo { display: grid; gap: var(--e-4); }
+  .cabecera__titulo h1 { max-width: 12em; text-wrap: balance; }
+  .cabecera__oracion { max-width: 40em; font-size: 1.0625rem; line-height: 1.5; margin-top: var(--e-2); }
+  .cabecera__accion { display: flex; flex-direction: column; align-items: flex-start; gap: var(--e-3); margin-top: var(--e-3); }
+  .cabecera__nota { font-size: 1rem; font-weight: 700; max-width: 26em; }
+
+  /* ---------- Día de bandejas ---------- */
+  .dia { padding-block: var(--e-seccion); }
+  .dia__cabeza { display: grid; gap: var(--e-4); margin-bottom: clamp(2rem, 1.5rem + 2vw, 3.5rem); }
+  .dia__cabeza h2 { max-width: 10em; font-size: clamp(2.25rem, 1rem + 4vw, 4.75rem); }
+
+  /* ---------- Cómo trabajamos ---------- */
+  .trabajo { padding-block: var(--e-seccion); border-top: var(--borde); }
+  .trabajo__cabeza { display: grid; gap: var(--e-4); margin-bottom: clamp(1.75rem, 1.2rem + 2vw, 3rem); }
+  .trabajo__cabeza h2 { max-width: 11em; font-size: clamp(2rem, 1rem + 3.6vw, 4.25rem); }
+
+  /* ---------- Desde las 5 ---------- */
+  .temprano { background: var(--verde); padding-block: var(--e-seccion); }
+  .temprano__grilla { display: grid; gap: var(--e-5); }
+  .temprano__hora {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 900;
+    font-size: var(--t-gigante);
+    line-height: 0.82;
+    letter-spacing: -0.04em;
+  }
+  .temprano__texto { display: flex; flex-direction: column; align-items: flex-start; gap: var(--e-5); }
+  .temprano__titulo { font-size: var(--t-titulo-3); line-height: 1.05; max-width: 14em; }
+  .temprano__otros { display: flex; flex-wrap: wrap; gap: 0 var(--e-5); }
+  .temprano__otros a {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0 0.3em;
+    align-items: center;
+    min-height: 2.75rem;
+    font-weight: 700;
+  }
+  .temprano__otros span { overflow-wrap: anywhere; }
+
+  @media (min-width: 1080px) {
+    .cabecera__grilla { grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--e-6); row-gap: var(--e-5); }
+    .cabecera__migas { grid-column: 1 / -1; }
+    .cabecera__titulo { grid-column: 1 / span 7; grid-row: 2 / span 2; align-self: start; }
+    .cabecera__titulo h1 { max-width: 9em; }
+    .cabecera__oracion { grid-column: 8 / span 5; grid-row: 2; margin-top: calc(var(--e-5) + 0.75rem); font-size: var(--t-texto-grande); line-height: 1.42; }
+    .cabecera__accion { grid-column: 8 / span 5; grid-row: 3; margin-top: 0; }
+
+    .dia__cabeza { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); align-items: end; column-gap: var(--e-7); }
+
+    .temprano__grilla { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); column-gap: var(--e-7); align-items: start; }
+    .temprano__hora { font-size: clamp(9rem, 4rem + 11vw, 15rem); }
+  }
+</style>

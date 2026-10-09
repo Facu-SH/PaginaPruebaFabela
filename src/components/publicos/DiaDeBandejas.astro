@@ -1,0 +1,197 @@
+---
+// /clinicas/ · "Una porción para cada comida": el día de una cocina de clínica en cuatro bandejas
+// (desayuno, almuerzo, merienda y cena), desde comidasClinica. Cada bandeja es de aluminio, con la
+// taza (desayuno, merienda) o el plato con su tapa (almuerzo, cena) y las porciones dibujadas al lado.
+// Debajo, lo que lleva cada una con su marca y el color de su familia. El dibujo es decorativo:
+// la lista dice lo mismo.
+import { comidasClinica, productoPorSlug, type Producto } from '../../data';
+import { colorCategoria } from '../../lib/color';
+import Envase from '../Envase.astro';
+import { conMarcas } from './textos';
+
+interface Props {
+  nivel?: 3 | 4;
+  class?: string;
+}
+const { nivel = 3, class: clase } = Astro.props;
+const Titulo = `h${nivel}` as 'h3' | 'h4';
+
+const comidas = comidasClinica.map((c, i) => {
+  const items = c.productos.map((slug) => productoPorSlug(slug)).filter((p): p is Producto => Boolean(p));
+  // Las comidas con aderezos son las de plato (almuerzo, cena); las otras, de taza.
+  const conPlato = items.some((p) => p.categoria === 'aderezos');
+  // Si una comida lleva exactamente lo mismo que otra anterior, se dice.
+  const igual = comidasClinica.slice(0, i).find((o) => o.productos.join() === c.productos.join());
+  return {
+    nombre: c.comida,
+    items,
+    recipiente: conPlato ? 'plato' : 'taza',
+    // La taza del desayuno es café; la de la merienda, té.
+    bebida: i === 0 ? 'cafe' : 'te',
+    igualA: igual?.comida,
+    pocas: items.length <= 4,
+    indice: i,
+  };
+});
+
+// Para variar los potecitos de una bandeja a otra (frutilla en el desayuno, durazno en la merienda…).
+const saborPara = (p: Producto, i: number) => (p.variantes ? p.variantes[i % p.variantes.length] : undefined);
+const tinta = 'stroke:var(--tinta);stroke-width:2;vector-effect:non-scaling-stroke';
+---
+<ol class:list={['dia', clase]} role="list">
+  {comidas.map((c) => (
+    <li class:list={['comida', `comida--${c.recipiente}`, { 'comida--pocas': c.pocas }]}>
+      <div class="comida__cabeza">
+        <Titulo class="comida__nombre">{c.nombre}</Titulo>
+        <p class="comida__cuenta t-rotulo">
+          {c.igualA ? `Igual que el ${c.igualA.toLowerCase()}` : `${c.items.length} porciones`}
+        </p>
+      </div>
+
+      <div class="comida__bandeja" aria-hidden="true">
+        <div class="comida__superficie">
+          {c.recipiente === 'taza' ? (
+            <svg class="comida__recipiente" viewBox="0 0 124 100" focusable="false">
+              <circle cx="50" cy="50" r="47" style={`fill:var(--blanco);${tinta}`} />
+              <rect x="86" y="41" width="34" height="18" rx="9" style={`fill:var(--blanco);${tinta}`} />
+              <circle cx="50" cy="50" r="33" style={`fill:var(--blanco);${tinta}`} />
+              <circle cx="50" cy="50" r="25" style={`fill:var(${c.bebida === 'cafe' ? '--env-cafe' : '--env-mostaza'});${tinta}`} />
+              {c.bebida === 'cafe' && <ellipse cx="43" cy="43" rx="10" ry="7" style="fill:var(--galletita);opacity:.65" />}
+              {c.bebida === 'te' && <path d="M50 17V6" style="fill:none;stroke:var(--tinta);stroke-width:1.5;vector-effect:non-scaling-stroke" />}
+              {c.bebida === 'te' && <rect x="44" y="0" width="12" height="9" rx="1.5" style={`fill:var(--papel);${tinta}`} />}
+            </svg>
+          ) : (
+            <svg class="comida__recipiente" viewBox="0 0 100 100" focusable="false">
+              <circle cx="50" cy="50" r="47" style={`fill:var(--blanco);${tinta}`} />
+              <circle cx="50" cy="50" r="38" style={`fill:var(--env-aluminio-dorso);${tinta}`} />
+              <path d="M28 40A24 24 0 0 1 44 25" style="fill:none;stroke:var(--blanco);stroke-width:4;stroke-linecap:round;opacity:.8" />
+              <circle cx="50" cy="50" r="8" style={`fill:var(--env-aluminio);${tinta}`} />
+            </svg>
+          )}
+          <div class="comida__porciones">
+            {c.items.map((p) => <Envase producto={p.slug} sabor={saborPara(p, c.indice)} trazo={1.5} />)}
+          </div>
+        </div>
+      </div>
+
+      {c.igualA ? (
+        <p class="comida__igual">{conMarcas(c.items)}, como en el {c.igualA.toLowerCase()}.</p>
+      ) : (
+        <ul class="comida__lista" role="list">
+          {c.items.map((p) => (
+            <li style={`--familia:var(--${colorCategoria[p.categoria].fondo})`}>
+              <span class="comida__producto">{p.nombre}</span>
+              {p.marca && <span class="comida__marca">{p.marca}</span>}
+            </li>
+          ))}
+        </ul>
+      )}
+    </li>
+  ))}
+</ol>
+
+<style>
+  .dia {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(2.5rem, 2rem + 2vw, 4rem) clamp(1.5rem, 3vw, 3rem);
+    padding: 0;
+    list-style: none;
+  }
+  .comida { container-type: inline-size; display: flex; flex-direction: column; gap: var(--e-4); min-width: 0; }
+
+  .comida__cabeza {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--e-3);
+    padding-top: var(--e-3);
+    border-top: var(--trazo-grueso) solid var(--tinta);
+  }
+  .comida__nombre { font-size: clamp(2rem, 1.3rem + 2.6vw, 3.5rem); line-height: 0.95; }
+  .comida__cuenta { flex: none; text-align: right; color: var(--tinta-suave); }
+
+  /* La bandeja: borde de aluminio y la superficie, con el trazo de tinta del sistema */
+  .comida__bandeja {
+    padding: clamp(7px, 2cqi, 12px);
+    background: var(--env-aluminio-dorso);
+    border: var(--borde);
+    border-radius: clamp(20px, 6cqi, 34px);
+  }
+  .comida__superficie {
+    display: grid;
+    grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+    align-items: center;
+    gap: clamp(10px, 4cqi, 28px);
+    min-height: clamp(150px, 46cqi, 280px);
+    padding: clamp(12px, 4cqi, 28px);
+    background: var(--env-aluminio);
+    border: var(--borde);
+    border-radius: clamp(14px, 4.4cqi, 24px);
+  }
+  .comida__recipiente { display: block; width: 100%; height: auto; overflow: visible; }
+
+  .comida__porciones {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    align-content: center;
+    gap: clamp(6px, 2cqi, 12px);
+  }
+  .comida__porciones :global(.envase) { flex: none; }
+  .comida__porciones :global(.envase--almohadilla) { width: clamp(24px, 8cqi, 46px); }
+  .comida__porciones :global(.envase--sobre-papel) { width: clamp(54px, 19cqi, 112px); }
+  .comida__porciones :global(.envase--pote) { width: clamp(38px, 12.5cqi, 74px); }
+  .comida__porciones :global(.envase--galletitas) { width: clamp(64px, 21cqi, 122px); }
+  .comida__porciones :global(.envase--vainillas) { width: clamp(78px, 26cqi, 150px); }
+  .comida__porciones :global(.envase--tostadas) { width: clamp(54px, 18cqi, 104px); }
+  /* Pocas porciones (almuerzo, cena): más grandes, así la bandeja no queda vacía */
+  .comida--pocas .comida__porciones {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    justify-items: center;
+    gap: clamp(6px, 2.4cqi, 16px);
+  }
+  .comida--pocas .comida__porciones :global(.envase--almohadilla) { width: min(100%, 58px); }
+
+  /* Lo que lleva: nombre, marca y el color de la familia */
+  .comida__lista {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 var(--e-4);
+    padding: 0;
+    list-style: none;
+  }
+  .comida__lista li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 0.5em;
+    padding-block: 0.45rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--tinta) 22%, transparent);
+  }
+  .comida__lista li::before {
+    content: '';
+    flex: none;
+    align-self: center;
+    width: 0.7rem;
+    height: 0.7rem;
+    background: var(--familia);
+    border: 1.5px solid var(--tinta);
+  }
+  .comida__producto { font-weight: 700; font-size: 1rem; line-height: 1.25; }
+  .comida__igual { font-weight: 600; padding-block: 0.45rem; border-bottom: 1px solid color-mix(in srgb, var(--tinta) 22%, transparent); }
+  .comida__marca {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 700;
+    font-size: 0.6875rem;
+    letter-spacing: var(--tracking-rotulo);
+    text-transform: uppercase;
+    color: var(--tinta-suave);
+  }
+
+  @media (min-width: 900px) {
+    .dia { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .comida__lista { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+</style>
