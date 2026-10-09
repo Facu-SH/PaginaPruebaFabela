@@ -1,0 +1,126 @@
+---
+// Lista de precios: no es pública; se pide por WhatsApp o por mail. Con facturación y pagos.
+import { empresa, pagos, precios } from '../../../data';
+import { waLink, mailtoLink } from '../../../lib/whatsapp';
+import { capitalizar, listaConY } from '../lib/textos';
+---
+<section id="lista" class="lista a-caja" aria-labelledby="lista-titulo">
+  <div class="lista__sobre">
+    <div class="lista__marco">
+      <h2 id="lista-titulo">La lista de precios te la mandamos {precios.comoPedir}</h2>
+      <p class="a-bajada lista__bajada">
+        No la publicamos porque los precios se actualizan seguido: pedila y te mandamos la vigente.
+      </p>
+      <div class="lista__botones">
+        <a class="a-boton" href={waLink('lista')}>Pedí la lista por WhatsApp</a>
+        <a class="a-boton a-boton--linea" href={mailtoLink('lista')}>Pedila a {empresa.email}</a>
+      </div>
+
+      <dl class="lista__pagos">
+        <div>
+          <dt>Facturación</dt>
+          <dd>{listaConY(pagos.facturacion)}</dd>
+        </div>
+        <div>
+          <dt>Pagos</dt>
+          <dd>{capitalizar(listaConY(pagos.medios))}</dd>
+        </div>
+        <div>
+          <dt>Clínicas e instituciones</dt>
+          <dd>{capitalizar(pagos.instituciones)}</dd>
+        </div>
+      </dl>
+    </div>
+    <span class="a-estampa lista__estampa" aria-hidden="true">Se pide, no se publica</span>
+  </div>
+</section>
+
+<style>
+  .lista {
+    padding-block: clamp(3.5rem, 2rem + 5vw, 7rem);
+  }
+  /* Un sobre de papel madera con el marco impreso */
+  .lista__sobre {
+    position: relative;
+    padding: 0.6rem;
+    background: var(--kraft-claro);
+    border-radius: calc(var(--radio) + 6px);
+    box-shadow: 0 12px 26px rgb(28 34 48 / 0.12);
+  }
+  .lista__marco {
+    padding: 2rem 1.2rem 1.4rem;
+    border: var(--filete) solid var(--tinta);
+    border-radius: var(--radio);
+  }
+  .lista__marco h2 {
+    max-width: 14em;
+  }
+  .lista__bajada {
+    margin-top: 1rem;
+  }
+  .lista__botones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+  .lista__botones .a-boton {
+    flex: 1 1 16rem;
+  }
+  .lista__pagos {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+  .lista__pagos div {
+    padding-top: 0.6rem;
+    border-top: var(--filete) solid var(--tinta);
+  }
+  .lista__pagos dt {
+    font-family: var(--versalitas);
+    font-weight: 700;
+    font-size: 0.98rem;
+    letter-spacing: 0.04em;
+  }
+  .lista__pagos dd {
+    margin: 0.1rem 0 0;
+    font-size: 1.125rem;
+  }
+  .lista__estampa {
+    position: absolute;
+    top: -0.8rem;
+    right: 0.8rem;
+    transform: rotate(4deg);
+    font-size: 0.875rem;
+    background: var(--papel);
+  }
+  .lista__marco :global(.a-boton--linea) {
+    overflow-wrap: anywhere;
+  }
+
+  @media (min-width: 64rem) {
+    .lista__marco {
+      display: grid;
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      column-gap: 4rem;
+      padding: 3rem 3rem 2.6rem;
+    }
+    .lista__marco > :not(.lista__pagos) {
+      grid-column: 1;
+    }
+    .lista__pagos {
+      grid-column: 2;
+      grid-row: 1 / span 3;
+      align-self: center;
+      margin-top: 0;
+    }
+    .lista__botones .a-boton {
+      flex: 0 1 auto;
+    }
+    .lista__estampa {
+      top: -0.9rem;
+      right: 3rem;
+      font-size: 1rem;
+    }
+  }
+</style>

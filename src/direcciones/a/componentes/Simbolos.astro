@@ -1,0 +1,54 @@
+---
+// Sprite SVG de la dirección A: se define una vez y se reutiliza con <use>.
+// - Esfera tramada (fina y gruesa): la esfera del logo como sale impresa a una tinta en los sobres.
+// - Wordmark "DPI" (propuesta): esfera + DPI + línea + bajada en itálica.
+import { empresa } from '../../../data';
+import { tramaEsfera } from '../lib/trama';
+
+const fina = tramaEsfera(50, 6.2);
+const gruesa = tramaEsfera(50, 10);
+const serif = "'Alegreya Variable', Alegreya, Georgia, serif";
+// "Productos Individuales SRL" -> "Productos Individuales"
+const bajada = empresa.razonSocial.replace(/\s+S\.?R\.?L\.?$/i, '');
+const wordmarks = [
+  { id: 'a-dpi', esfera: '#a-esfera-gruesa' },
+  { id: 'a-dpi-fino', esfera: '#a-esfera-fina' },
+];
+---
+<svg class="a-sprite" width="0" height="0" aria-hidden="true" focusable="false">
+  <defs>
+    <clipPath id="a-clip-esfera"><circle cx="0" cy="0" r="50"></circle></clipPath>
+
+    <symbol id="a-esfera-fina" viewBox="-50 -50 100 100">
+      <g clip-path="url(#a-clip-esfera)" fill="currentColor">
+        {fina.map((p) => <circle cx={p.x} cy={p.y} r={p.r} />)}
+      </g>
+    </symbol>
+
+    <symbol id="a-esfera-gruesa" viewBox="-50 -50 100 100">
+      <g clip-path="url(#a-clip-esfera)" fill="currentColor">
+        {gruesa.map((p) => <circle cx={p.x} cy={p.y} r={p.r} />)}
+      </g>
+    </symbol>
+
+    <!-- Wordmark horizontal (trama gruesa para tamaños chicos, fina para grandes).
+         El viewBox está pensado para que la línea termine con la I. -->
+    {wordmarks.map((w) => (
+      <symbol id={w.id} viewBox="0 0 284 118">
+        <use href={w.esfera} x="0" y="2" width="100" height="100" />
+        <text x="103" y="84" fill="currentColor" font-family={serif} font-weight="900" font-size="92" letter-spacing="0.5">{empresa.nombreComercial}</text>
+        <rect x="6" y="94" width="276" height="3.6" fill="currentColor" />
+        <text x="282" y="114" text-anchor="end" fill="currentColor" font-family={serif} font-style="italic" font-weight="500" font-size="17.5">{bajada}</text>
+      </symbol>
+    ))}
+  </defs>
+</svg>
+
+<style>
+  .a-sprite {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+</style>

@@ -1,0 +1,220 @@
+---
+// Portada: la oración que responde qué es DPI, la ficha de atención (Diego, desde las 5)
+// y el sobre propio de DPI como objeto, con su dorso y el sello de las 5:00.
+import { empresa, categorias, horario } from '../../../data';
+import { textoHorario } from '../../../lib/horario';
+import { waLink, telLink } from '../../../lib/whatsapp';
+import { apertura, aperturaReloj, diasDeAtencion, franjaDe, listaConY, lugar, minuscula, nombreDe } from '../lib/textos';
+import Estado from './Estado.astro';
+import Envase from './Envase.astro';
+import SobreDorso from './SobreDorso.astro';
+import Sello from './Sello.astro';
+import IconoCharla from './IconoCharla.astro';
+
+const atiende = empresa.whatsapp.atiende;
+const mermeladas = minuscula(categorias.find((c) => c.slug === 'mermeladas')?.nombre ?? '');
+const queVende = `sobres de ${listaConY(
+  [nombreDe('mayonesa'), nombreDe('azucar'), nombreDe('edulcorante')].filter(Boolean),
+)}, ${listaConY([mermeladas, nombreDe('manteca'), nombreDe('galletitas'), nombreDe('tostadas')].filter(Boolean))}`;
+const clientes = empresa.clientesPublicables ? `a más de ${empresa.clientesPublicables} ` : 'a ';
+// Tira de envases para la primera pantalla del celular (un estante en miniatura).
+const tira = ['mayonesa', 'ketchup', 'mostaza', 'salsa-golf', 'edulcorante', 'mermeladas:frutilla', 'mermeladas:durazno', 'tostadas'];
+---
+<section class="portada a-caja" aria-labelledby="portada-titulo">
+  <div class="portada__texto">
+    <div class="portada__tira" aria-hidden="true">
+      {tira.map((clave) => (
+        <span class={`portada__tira-item portada__tira-item--${clave.split(':')[0]}`}>
+          <Envase clave={clave} registro />
+        </span>
+      ))}
+    </div>
+    <p class="a-ante portada__ante">{lugar()} · desde {empresa.desde}</p>
+    <h1 id="portada-titulo" class="portada__titulo">
+      <em>Porciones individuales</em> para el café, el pancho y la bandeja de la clínica.
+    </h1>
+    <p class="a-bajada portada__bajada">
+      <strong>{empresa.nombreComercial}</strong> ({empresa.razonSocial}) es una distribuidora de {`${lugar()}, `}que
+      desde {empresa.desde} reparte {queVende} en porción individual {clientes}clínicas, bares, kioscos y almacenes de
+      Capital y GBA.
+    </p>
+
+    <div class="ficha">
+      <Estado class="ficha__estado" />
+      <p class="ficha__frase">
+        Del otro lado del WhatsApp hay una persona: <strong>{atiende}</strong>. Arranca a {apertura()}.
+      </p>
+      <a class="a-boton ficha__boton" href={waLink('general')}>
+        <IconoCharla />
+        Escribile a {atiende} por WhatsApp
+      </a>
+      <p class="ficha__tel">
+        O llamá al <a class="a-link" href={telLink()}>{empresa.telefono}</a>. {textoHorario()}.
+      </p>
+    </div>
+  </div>
+
+  <div class="portada__objeto" aria-hidden="true">
+    <div class="portada__dorso"><SobreDorso /></div>
+    <div class="portada__frente"><Envase clave="edulcorante" /></div>
+    <div class="portada__sello">
+      <Sello
+        id="sello-portada"
+        arriba={diasDeAtencion()}
+        abajo={`te contesta ${atiende}`}
+        centro={aperturaReloj()}
+        centroChico={franjaDe(horario.abre)}
+      />
+    </div>
+  </div>
+</section>
+
+<style>
+  .portada {
+    display: grid;
+    gap: 2.5rem;
+    padding-top: clamp(1.6rem, 1rem + 3vw, 4rem);
+    padding-bottom: clamp(2.5rem, 1.5rem + 4vw, 5rem);
+  }
+  .portada__ante {
+    margin-bottom: 0.9rem;
+  }
+
+  /* Estante en miniatura: solo en el celular, donde el sobre grande queda más abajo */
+  .portada__tira {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 0.3rem;
+    margin-bottom: 1.4rem;
+    padding: 0 0.15rem 0.2rem;
+    border-bottom: 3px solid var(--tinta);
+  }
+  .portada__tira-item {
+    display: block;
+    filter: drop-shadow(0 3px 3px rgb(28 34 48 / 0.16));
+  }
+  .portada__tira-item--mayonesa,
+  .portada__tira-item--ketchup,
+  .portada__tira-item--mostaza,
+  .portada__tira-item--salsa-golf {
+    width: 1.45rem;
+  }
+  .portada__tira-item--edulcorante {
+    width: 3.5rem;
+  }
+  .portada__tira-item--mermeladas {
+    width: 2.35rem;
+  }
+  .portada__tira-item--tostadas {
+    width: 3.9rem;
+  }
+  .portada__titulo {
+    font-size: clamp(2.35rem, 1.2rem + 4.6vw, 5rem);
+    font-weight: 600;
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    max-width: 14em;
+  }
+  .portada__titulo em {
+    font-weight: 500;
+    color: var(--verde);
+  }
+  .portada__bajada {
+    margin-top: 1.25rem;
+  }
+
+  /* Ficha de atención: el marco redondeado del sobre, con el estado sobre el filete */
+  .ficha {
+    margin-top: 2.4rem;
+    padding: 0 1.1rem 1.15rem;
+    border: var(--filete) solid var(--tinta);
+    border-radius: var(--radio);
+    max-width: 34rem;
+  }
+  /* El estado va sobre el filete, como un legend: la primera línea cruza el borde
+     y, si el texto es largo (fuera de horario), sigue adentro del marco. */
+  .ficha :global(.ficha__estado) {
+    display: flex;
+    width: fit-content;
+    margin: -0.68em 0 0 -0.45rem;
+    padding: 0 0.45rem;
+    background: var(--papel);
+    font-size: 1rem;
+  }
+  .ficha__frase {
+    margin-top: 0.9rem;
+    font-size: 1.25rem;
+    line-height: 1.35;
+  }
+  .ficha .ficha__boton {
+    margin-top: 1rem;
+    width: 100%;
+  }
+  .ficha__tel {
+    margin-top: 0.85rem;
+    font-family: var(--sans);
+    font-size: 1rem;
+    color: var(--tinta-suave);
+  }
+  .ficha__tel a {
+    color: var(--tinta);
+    white-space: nowrap;
+  }
+
+  /* El objeto: sobre de edulcorante DPI, su dorso y el sello */
+  .portada__objeto {
+    position: relative;
+    aspect-ratio: 1 / 0.86;
+    width: 100%;
+    max-width: 34rem;
+    margin-inline: auto;
+  }
+  .portada__objeto > div {
+    position: absolute;
+  }
+  .portada__dorso {
+    width: 66%;
+    top: 0;
+    right: 1%;
+    transform: rotate(6deg);
+    filter: drop-shadow(0 10px 14px rgb(28 34 48 / 0.14));
+  }
+  .portada__frente {
+    width: 74%;
+    left: 0;
+    top: 31%;
+    transform: rotate(-5deg);
+    filter: drop-shadow(0 14px 18px rgb(28 34 48 / 0.18));
+  }
+  /* El sello pisa el borde del sobre, pero el "5:00" queda sobre el papel de fondo */
+  .portada__sello {
+    width: 34%;
+    right: -3%;
+    bottom: 1%;
+    transform: rotate(-13deg);
+  }
+
+  @media (min-width: 64rem) {
+    .portada__tira {
+      display: none;
+    }
+    .portada {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      align-items: center;
+      gap: 4rem;
+    }
+    .ficha {
+      padding: 0 1.6rem 1.4rem;
+    }
+    .ficha__frase {
+      margin-top: 1.1rem;
+    }
+    .ficha .ficha__boton {
+      width: auto;
+    }
+    .portada__objeto {
+      max-width: none;
+    }
+  }
+</style>
