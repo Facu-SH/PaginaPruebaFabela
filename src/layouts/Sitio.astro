@@ -8,7 +8,7 @@
 //   </Sitio>
 import '../styles/tokens.css';
 import '../styles/base.css';
-import type { ContextoWhatsApp } from '../data';
+import { empresa, type ContextoWhatsApp } from '../data';
 import { colorDePagina, type ColorPagina } from '../lib/color';
 import { hex } from '../lib/paleta';
 import Base from './Base.astro';
@@ -17,6 +17,10 @@ import EnvasesSprite from '../components/EnvasesSprite.astro';
 import Encabezado from '../components/Encabezado.astro';
 import Pie from '../components/Pie.astro';
 import WhatsAppFlotante from '../components/WhatsAppFlotante.astro';
+import JsonLd from '../components/JsonLd.astro';
+import { empresaJsonLd, sitioWebJsonLd } from '../lib/datos-estructurados';
+import { imagenCompartir, paginaPorRuta, paginas } from '../lib/paginas';
+import { rutaSinBase } from '../lib/url';
 
 interface Props {
   /** Título completo de la pestaña: "Qué es la página · DPI". */
@@ -26,20 +30,30 @@ interface Props {
   /** Color de la página: 'dpi' (verde) o la categoría (aderezos, mermeladas…). Pinta el punto del wordmark y los acentos. */
   colorPagina?: ColorPagina;
   noindex?: boolean;
-  /** Imagen OG (fase 4). */
+  /** Imagen para compartir. Por defecto, la de la página en src/lib/paginas.ts (public/og/<slug>.png);
+   *  las páginas que no están ahí (404, /sistema/) usan la del inicio. */
   imagenOG?: string;
   imagenOGAlt?: string;
   /** Mensaje del WhatsApp del encabezado y del flotante (por defecto, 'general'). */
   whatsapp?: { contexto: ContextoWhatsApp; vars?: Record<string, string> };
 }
-const { title, description, colorPagina = 'dpi', noindex = false, imagenOG, imagenOGAlt, whatsapp } = Astro.props;
+const { title, description, colorPagina = 'dpi', noindex = false, whatsapp } = Astro.props;
 const color = colorDePagina(colorPagina);
+const ruta = rutaSinBase(Astro.url.pathname);
+const pagina = paginaPorRuta(ruta);
+const compartir = imagenCompartir((pagina ?? paginas[0]).og);
+const imagenOG = Astro.props.imagenOG ?? compartir.ruta;
+const imagenOGAlt = Astro.props.imagenOGAlt ?? (Astro.props.imagenOG ? undefined : compartir.alt);
+// Datos estructurados de la empresa en todas las páginas; en el inicio, también el sitio web.
+const sitio = Astro.site ?? new URL(empresa.dominio);
+const jsonLd = ruta === '/' ? [empresaJsonLd(sitio), sitioWebJsonLd(sitio)] : [empresaJsonLd(sitio)];
 const estiloPagina = `--color-pagina:var(--${color.fondo});--texto-pagina:var(--${color.texto})`;
 ---
 <Base title={title} description={description} noindex={noindex} themeColor={hex(color.fondo)} imagenOG={imagenOG} imagenOGAlt={imagenOGAlt}>
   <Fragment slot="head">
     <Fuente />
     <script is:inline>document.documentElement.classList.add('js')</script>
+    <JsonLd datos={jsonLd} />
   </Fragment>
   <div class="sitio" style={estiloPagina} data-color-pagina={colorPagina}>
     <a class="saltar" href="#contenido">Saltar al contenido</a>
@@ -48,8 +62,9 @@ const estiloPagina = `--color-pagina:var(--${color.fondo});--texto-pagina:var(--
     <main id="contenido" tabindex="-1">
       <slot />
     </main>
-    <Pie />
-    <WhatsAppFlotante contexto={whatsapp?.contexto} vars={whatsapp?.vars} />
+    <Pie>
+      <WhatsAppFlotante contexto={whatsapp?.contexto} vars={whatsapp?.vars} />
+    </Pie>
   </div>
 </Base>
 

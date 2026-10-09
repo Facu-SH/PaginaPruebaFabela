@@ -1,0 +1,11 @@
+# Encabezados HTTP (Cloudflare Pages y Netlify).
+
+# Los textos para buscadores e IA, con los acentos bien leídos.
+/llms.txt
+  Content-Type: text/plain; charset=utf-8
+/robots.txt
+  Content-Type: text/plain; charset=utf-8
+
+# CSS, JS y la fuente: el nombre del archivo cambia cuando cambia el contenido, así que se guardan un año.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable

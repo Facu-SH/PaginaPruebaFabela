@@ -5,7 +5,7 @@
 import Sitio from '../layouts/Sitio.astro';
 import { categorias, empresa, entregas, productos } from '../data';
 import { textoHorario } from '../lib/horario';
-import { diaDeReparto, enumerar, mayuscula, nombreConMarca, telefonoCorto, zonaCorta } from '../lib/textos';
+import { descripcion, diaDeReparto, enumerar, mayuscula, nombreConMarca, telefonoCorto, zonaCorta } from '../lib/textos';
 import { url } from '../lib/url';
 import BotonWhatsApp from '../components/BotonWhatsApp.astro';
 import Envase from '../components/Envase.astro';
@@ -39,9 +39,12 @@ const frios = lacteos ? productos.filter((p) => p.categoria === lacteos.slug) : 
 const nombresFrios = enumerar(frios.map((p, i) => (i === 0 ? nombreConMarca(p) : nombreConMarca(p).replace(/^./, (l) => l.toLowerCase()))));
 
 const title = `Entregas en Capital y GBA: días, zonas y pedido mínimo · ${empresa.nombreComercial}`;
-const description = `Días de reparto de ${empresa.nombreComercial}: ${capital.zona} ${diaDeReparto(capital).frase}, ${capital.pedidoMinimo}; ${conDia
-  .map((z) => `${zonaCorta(z)} ${diaDeReparto(z).frase}`)
-  .join('; ')}. Retiro en ${localidad}, Factura A, efectivo, transferencia o cheque.`;
+const description = descripcion(
+  `Días de reparto de ${empresa.nombreComercial}: ${capital.zona} ${diaDeReparto(capital).frase}, ${capital.pedidoMinimo}; ${conDia
+    .map((z) => `${zonaCorta(z)} ${diaDeReparto(z).frase}`)
+    .join('; ')}.`,
+  [` Retiro en el depósito de ${localidad}.`, ` Retiro en ${localidad}.`],
+);
 ---
 <Sitio title={title} description={description} colorPagina="dpi" whatsapp={{ contexto: 'pedido' }}>
   <!-- Cabecera -->

@@ -76,10 +76,14 @@ const atiende = empresa.whatsapp.atiende;
     </div>
     <p class="pie__legal">© {anio} {empresa.razonSocial}. Precios a pedido: la lista no se publica.</p>
   </div>
+  <!-- El botón flotante de WhatsApp (lo pasa el layout): va dentro del pie para que esté en un landmark. -->
+  <slot />
 </footer>
 
 <style>
-  .pie { padding-block: var(--e-seccion) 7rem; }
+  /* Abajo, 7rem de aire: en el celular el botón flotante de WhatsApp (3,4rem + 12px, o el borde seguro
+     del iPhone) queda debajo del último renglón del pie y no tapa nada al llegar al final. */
+  .pie { padding-block: var(--e-seccion) max(7rem, calc(3.4rem + env(safe-area-inset-bottom, 0px) + var(--e-6))); }
   .pie__marco {
     display: grid;
     gap: var(--e-6);

@@ -5,7 +5,7 @@
 import Sitio from '../layouts/Sitio.astro';
 import { empresa, entregas, horario, marcas, masVendidos, pagos, pedidoTipicoComercio } from '../data';
 import { horaCorta } from '../lib/horario';
-import { enumerar, mayuscula, nombreConMarca, nombreProducto, resumenRepartos, zonasConReparto } from '../lib/textos';
+import { descripcion, enumerar, mayuscula, nombreConMarca, nombreProducto, resumenRepartos, zonasConReparto, zonasCortas } from '../lib/textos';
 import { url } from '../lib/url';
 import BandejaClinica from '../components/BandejaClinica.astro';
 import BloqueDato from '../components/BloqueDato.astro';
@@ -29,7 +29,10 @@ const ajenas = marcas.filter((m) => !m.propia).map((m) => m.nombre);
 const [usoA, usoB] = pedidoTipicoComercio;
 
 const title = `${empresa.nombreComercial} · Porciones individuales para clínicas y comercios`;
-const description = `${empresa.nombreComercial} (${empresa.razonSocial}) distribuye alimentos en porciones individuales desde ${localidad}, ${partido}, desde ${empresa.desde}: sobres de aderezos, azúcar y edulcorante, mermeladas, manteca y galletitas para clínicas, bares y kioscos de ${donde}.`;
+const description = descripcion(
+  `${empresa.nombreComercial}, distribuidora de ${localidad} desde ${empresa.desde}, reparte aderezos, azúcar, edulcorante y mermeladas en porción individual a clínicas, bares y kioscos`,
+  [` de ${zonasCortas()}.`, ' de Capital y GBA.', '.'],
+);
 ---
 <Sitio title={title} description={description}>
   <!-- Portada -->

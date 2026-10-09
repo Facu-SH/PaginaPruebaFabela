@@ -3,7 +3,7 @@
 // Lo que sí vive acá es cómo se cuenta cada cosa: los títulos, la primera oración de cada página
 // y "para qué y quién lo usa" de cada producto. Se puede editar libremente.
 import { categorias, empresa, entregas, marcas, productosPorCategoria, type CategoriaSlug, type Producto } from '../../data';
-import { enumerar, zonasConReparto } from '../../lib/textos';
+import { descripcion, enumerar, zonasConReparto, zonasCortas } from '../../lib/textos';
 
 const DPI = empresa.nombreComercial;
 /** Nombre de la línea propia ("DPI"). */
@@ -78,7 +78,8 @@ export interface TextosCategoria {
 export function textosCategoria(slug: CategoriaSlug): TextosCategoria {
   const prods = productosPorCategoria(slug);
   const zonas = zonasTexto();
-  const desde = `${DPI} reparte desde ${empresa.direccion.localidad} a ${zonas}.`;
+  // Lo que se agrega al final de la meta description si entra (ver descripcion() en src/lib/textos.ts).
+  const reparto = [` ${DPI} reparte a ${zonasCortas()}.`, ` ${DPI} reparte desde ${empresa.direccion.localidad}.`, ` ${DPI}, desde ${empresa.desde}.`];
   const lista = listaConMarca(prods);
   const sabores = (s: string) => enumerar(prods.find((p) => p.slug === s)?.variantes ?? []);
 
@@ -88,14 +89,14 @@ export function textosCategoria(slug: CategoriaSlug): TextosCategoria {
         title: `Sobres de mayonesa, ketchup y mostaza individuales · ${DPI}`,
         h1: 'Sobres de mayonesa, ketchup y mostaza individuales',
         oracion: `${DPI} reparte ${lista} en sobres individuales para el pancho, la hamburguesa y la bandeja del almuerzo de kioscos, bares, puestos de comida y clínicas de ${zonas}.`,
-        description: `Sobres individuales de ${lista} para kioscos, bares y clínicas. ${desde}`,
+        description: descripcion(`Sobres individuales de ${lista} para kioscos, bares y clínicas.`, reparto),
       };
     case 'endulzantes':
       return {
         title: `Azúcar y edulcorante en sobre para bares y oficinas · ${DPI}`,
         h1: 'Azúcar y edulcorante en sobre para bares y oficinas',
         oracion: `${DPI} vende ${lista} en sobres individuales para el café de bares, confiterías, oficinas y clínicas de ${zonas}.`,
-        description: `Sobres individuales de ${lista} para el café de bares, oficinas y clínicas. ${desde}`,
+        description: descripcion(`Sobres individuales de ${lista} para el café de bares, oficinas y clínicas.`, reparto),
       };
     case 'mermeladas': {
       const m = prods.find((p) => p.variantes);
@@ -105,7 +106,7 @@ export function textosCategoria(slug: CategoriaSlug): TextosCategoria {
         h1: 'Mermeladas en porción individual',
         h1Aclaracion: `Potecitos de ${sabores(m?.slug ?? '')}`,
         oracion: `${DPI} distribuye mermelada${m?.marca ? ` ${m.marca}` : ''} en potecitos individuales de ${sabores(m?.slug ?? '')}, y una caja surtida que arma con los ${enLetras(n)} sabores, para el desayuno de clínicas, geriátricos, bares y confiterías de ${zonas}.`,
-        description: `Potecitos individuales de mermelada${m?.marca ? ` ${m.marca}` : ''} (${sabores(m?.slug ?? '')}) y caja surtida para desayunos de clínicas y bares. ${desde}`,
+        description: descripcion(`Potecitos de mermelada${m?.marca ? ` ${m.marca}` : ''} (${sabores(m?.slug ?? '')}) y caja surtida para desayunos de clínicas y bares.`, reparto),
       };
     }
     case 'lacteos':
@@ -113,7 +114,7 @@ export function textosCategoria(slug: CategoriaSlug): TextosCategoria {
         title: `Manteca y queso crema en porción individual · ${DPI}`,
         h1: 'Manteca y queso crema en porción individual',
         oracion: `${DPI} reparte ${lista} en porciones individuales que viajan en frío, para el desayuno de clínicas, bares y confiterías de ${zonas}.`,
-        description: `Porciones individuales de ${lista}, que viajan en frío, para desayunos de clínicas, bares y confiterías. ${desde}`,
+        description: descripcion(`Porciones individuales de ${lista}, que viajan en frío, para desayunos de clínicas, bares y confiterías.`, reparto),
       };
     case 'galletitas-y-tostadas': {
       // "galletitas Abedul (dulces, de sándwich y sin sal), vainillas Mauri y tostadas"
@@ -126,7 +127,7 @@ export function textosCategoria(slug: CategoriaSlug): TextosCategoria {
         title: `Galletitas, vainillas y tostadas en paquetitos individuales · ${DPI}`,
         h1: 'Galletitas, vainillas y tostadas en paquetitos individuales',
         oracion: `${DPI} reparte ${conVariantes} en paquetitos individuales para el desayuno y la merienda de clínicas, geriátricos y bares de ${zonas}.`,
-        description: `Paquetitos individuales de ${conVariantes} para desayunos y meriendas de clínicas y bares. ${desde}`,
+        description: descripcion(`Paquetitos individuales de ${conVariantes} para desayunos y meriendas de clínicas y bares.`, reparto),
       };
     }
   }

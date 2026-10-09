@@ -5,7 +5,7 @@
 import Sitio from '../layouts/Sitio.astro';
 import { categorias, empresa, faq } from '../data';
 import { textoHorario } from '../lib/horario';
-import { resumenRepartos, telefonoCorto } from '../lib/textos';
+import { descripcion, resumenRepartos, telefonoCorto } from '../lib/textos';
 import { url } from '../lib/url';
 import { mailtoLink, telLink } from '../lib/whatsapp';
 import BotonWhatsApp from '../components/BotonWhatsApp.astro';
@@ -25,7 +25,10 @@ const instagram = empresa.instagram;
 const usuarioInstagram = instagram?.replace(/\/+$/, '').split('/').pop();
 
 const title = `Contacto: WhatsApp, teléfono y depósito en ${localidad} · ${empresa.nombreComercial}`;
-const description = `WhatsApp de ${empresa.nombreComercial} ${horarioFrase} (te contesta ${atiende}), teléfono ${tel}, mail ${empresa.email} y depósito en ${calle}, ${localidad}, ${partido}, con retiro en el mismo horario.`;
+const description = descripcion(`WhatsApp ${horarioFrase} (te contesta ${atiende}), teléfono ${tel}`, [
+  `, ${empresa.email} y depósito en ${calle}, ${localidad}.`,
+  ` y depósito en ${calle}, ${localidad}.`,
+]);
 ---
 <Sitio title={title} description={description} colorPagina="dpi" whatsapp={{ contexto: 'general' }}>
   <header class="cabeza">

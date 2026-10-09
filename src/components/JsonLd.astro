@@ -1,0 +1,11 @@
+---
+// Un bloque de datos estructurados (JSON-LD). Los datos los arma src/lib/datos-estructurados.ts.
+//   <JsonLd datos={empresaJsonLd(sitio)} />   ·   <JsonLd datos={[nodoA, nodoB]} />  (van en un @graph)
+import { aJsonLd } from '../lib/datos-estructurados';
+
+interface Props {
+  datos: Record<string, unknown> | Record<string, unknown>[];
+}
+const { datos } = Astro.props;
+---
+<script is:inline type="application/ld+json" set:html={aJsonLd(datos)} />

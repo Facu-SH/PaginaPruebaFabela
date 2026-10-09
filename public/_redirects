@@ -1,0 +1,20 @@
+# Redirecciones permanentes (301) de las direcciones del sitio viejo (WordPress) al sitio nuevo.
+# Formato de Cloudflare Pages y Netlify: origen  destino  código. Gana la primera regla que coincide.
+# Cada dirección vieja va con y sin la barra final, porque los buscadores guardaron las dos.
+
+/index.php/salsas/        /productos/aderezos/               301
+/index.php/salsas         /productos/aderezos/               301
+/index.php/condimentos/   /productos/                        301
+/index.php/condimentos    /productos/                        301
+/index.php/dulces/        /productos/mermeladas/             301
+/index.php/dulces         /productos/mermeladas/             301
+/index.php/galletitas/    /productos/galletitas-y-tostadas/  301
+/index.php/galletitas     /productos/galletitas-y-tostadas/  301
+/index.php/varios/        /productos/                        301
+/index.php/varios         /productos/                        301
+/index.php/contacto/      /contacto/                         301
+/index.php/contacto       /contacto/                         301
+
+# La portada vieja y cualquier otra página del WordPress (el sitio nuevo no tiene nada bajo /index.php).
+/index.php                /                                  301
+/index.php/*              /                                  301

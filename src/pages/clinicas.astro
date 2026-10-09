@@ -5,7 +5,7 @@
 import Sitio from '../layouts/Sitio.astro';
 import { comidasClinica, empresa, entregas, horario, pagos } from '../data';
 import { horaCorta, textoHorario } from '../lib/horario';
-import { enumerar, nombreProducto, telefonoCorto, zonaCorta, zonasConReparto } from '../lib/textos';
+import { descripcion, enumerar, nombreProducto, telefonoCorto, zonaCorta, zonasConReparto } from '../lib/textos';
 import { mailtoLink, telLink } from '../lib/whatsapp';
 import BotonWhatsApp from '../components/BotonWhatsApp.astro';
 import Migas from '../components/Migas.astro';
@@ -31,10 +31,10 @@ const oracion =
   `${enumerar(principal.productos.map(nombreProducto))} para ${enumerar(conAderezos)}.`;
 
 const title = `Porciones individuales para clínicas y geriátricos · ${empresa.nombreComercial}`;
-const description =
-  `${empresa.nombreComercial} abastece a clínicas, geriátricos e instituciones de ${zonas} con azúcar, edulcorante, ` +
-  `mermeladas, manteca, tostadas y aderezos en porción individual. ${facturaA}, ${pagos.instituciones} y, en ${capital.zona}, ` +
-  `entrega ${capital.plazo}.`;
+const description = descripcion(
+  `${empresa.nombreComercial} abastece a clínicas y geriátricos con azúcar, edulcorante, mermeladas, tostadas y aderezos en porción individual.`,
+  [` ${facturaA} y ${pagos.instituciones}.`, ` ${facturaA}.`],
+);
 const horarioTexto = textoHorario().replace(/^./, (l) => l.toLowerCase());
 ---
 <Sitio title={title} description={description} colorPagina="dpi" whatsapp={{ contexto: 'clinica' }}>

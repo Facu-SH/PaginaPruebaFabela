@@ -20,13 +20,13 @@ const atiende = empresa.whatsapp.atiende;
 <div class:list={['caja', `caja--${variante}`, clase]}>
   {categorias.map((c) => <TarjetaCategoria categoria={c.slug} variante={variante} nivel={nivel} class={`caja__${c.slug}`} />)}
   {vacio && (
-    <aside class="caja__vacio" aria-label="Otros productos">
+    <div class="caja__vacio">
       <p class="caja__vacio-titulo">Si no lo ves, preguntanos.</p>
       <p class="caja__vacio-texto">
         Acá están los que más se piden, pero trabajamos más productos en porción individual. {atiende} te dice si lo tenemos.
       </p>
       <BotonWhatsApp contexto="general">Preguntale a {atiende}</BotonWhatsApp>
-    </aside>
+    </div>
   )}
 </div>
 

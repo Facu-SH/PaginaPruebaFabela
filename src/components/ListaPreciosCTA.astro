@@ -35,7 +35,7 @@ const horarioTexto = textoHorario().toLowerCase();
     </section>
   </>
 ) : (
-  <aside class="lista-linea" aria-labelledby={`${id}-titulo`}>
+  <section class="lista-linea" aria-labelledby={`${id}-titulo`}>
     <h2 id={`${id}-titulo`} class="t-rotulo">Lista de precios</h2>
     <p class="lista-linea__texto">{titulo}</p>
     <p class="t-lectura">No la publicamos porque cambia seguido: te mandamos la vigente, {horarioTexto} por WhatsApp o cuando quieras por mail.</p>
@@ -43,7 +43,7 @@ const horarioTexto = textoHorario().toLowerCase();
       <BotonWhatsApp contexto="lista">Pedila por WhatsApp</BotonWhatsApp>
       <a class="lista__mail" href={mailtoLink('lista')}>O por mail a <span>{empresa.email}</span></a>
     </div>
-  </aside>
+  </section>
 )}
 
 <style>

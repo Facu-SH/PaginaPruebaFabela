@@ -18,11 +18,11 @@ const atiende = empresa.whatsapp.atiende;
     <h2 id="otras-titulo" class="otras__titulo">Más porciones individuales</h2>
     <div class="otras__caja">
       {otras.map((c, i) => <TarjetaCategoria categoria={c.slug} variante="compacta" nivel={3} class={`otras__comp otras__comp--${i + 1}`} />)}
-      <aside class="otras__vacio" aria-label="Otros productos">
+      <div class="otras__vacio">
         <p class="otras__vacio-titulo">Si no lo ves, preguntanos.</p>
         <p>Trabajamos más productos en porción individual que los que entran en esta caja. {atiende} te dice si lo tenemos.</p>
         <BotonWhatsApp contexto="general">Preguntale a {atiende}</BotonWhatsApp>
-      </aside>
+      </div>
     </div>
   </div>
 </section>

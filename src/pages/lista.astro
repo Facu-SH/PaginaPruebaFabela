@@ -7,8 +7,9 @@
 // Sin migas: es una sola pantalla y lo primero tiene que ser el botón.
 import Sitio from '../layouts/Sitio.astro';
 import { categorias, empresa, horario } from '../data';
-import { horaCorta, textoHorario } from '../lib/horario';
-import { enumerar, nombreProducto, telefonoCorto } from '../lib/textos';
+import { horaCorta } from '../lib/horario';
+import { descripcion, enumerar, nombreProducto, telefonoCorto } from '../lib/textos';
+import { horarioEnFrase } from '../components/info/textos';
 import { url } from '../lib/url';
 import { mailtoLink, telLink } from '../lib/whatsapp';
 import Boton from '../components/Boton.astro';
@@ -22,7 +23,9 @@ const capital = zonaDiaria();
 const localidad = empresa.direccion.localidad;
 const que = enumerar(['mayonesa', 'azucar', 'edulcorante'].map(nombreProducto).concat(categorias.find((c) => c.slug === 'mermeladas')?.nombre.toLowerCase() ?? []));
 const title = `Lista de precios y pedidos por WhatsApp · ${DPI}`;
-const description = `Pedidos y lista de precios de ${DPI}, distribuidora de porciones individuales de ${empresa.direccion.localidad}: por WhatsApp, ${textoHorario().toLowerCase()}, o por mail. En ${capital.zona}, ${capital.pedidoMinimo}.`;
+const description = descripcion(`Pedidos y lista de precios de ${DPI} por WhatsApp (te contesta ${atiende}, ${horarioEnFrase()}) o por mail.`, [
+  ` En ${capital.zona}, ${capital.pedidoMinimo}.`,
+]);
 ---
 <Sitio title={title} description={description} colorPagina="dpi" whatsapp={{ contexto: 'pedido' }}>
   <section class="qr" aria-labelledby="qr-titulo">

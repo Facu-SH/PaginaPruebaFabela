@@ -48,3 +48,15 @@ export const resumenRepartos = () =>
   zonasConReparto()
     .map((z, i) => (i === 0 ? `A ${z.zona} vamos ${diaDeReparto(z).frase}` : `a ${zonaCorta(z)}, ${diaDeReparto(z).frase}`))
     .join('; ') + '.';
+
+/** "Capital Federal, Morón y Zona Norte": las zonas con reparto propio, con su nombre corto. */
+export const zonasCortas = () => enumerar(zonasConReparto().map(zonaCorta));
+
+/**
+ * Meta description de largo razonable para buscadores (hasta 160 caracteres): `base` y, después,
+ * el primer agregado de la lista que todavía entre. Así, si cambia un dato (una marca, una zona),
+ * la descripción se acorta sola en lugar de quedar cortada por Google.
+ */
+export function descripcion(base: string, agregados: string[] = [], max = 160) {
+  return agregados.map((a) => base + a).find((d) => d.length <= max) ?? base;
+}

@@ -4,9 +4,11 @@
 // Pieza protagonista: la respuesta corta de cada pregunta, destacada en verde DPI.
 import Sitio from '../layouts/Sitio.astro';
 import { categorias, empresa, faq, type PreguntaFrecuente } from '../data';
-import { enumerar, zonasConReparto } from '../lib/textos';
+import { descripcion, enumerar, zonasConReparto, zonasCortas } from '../lib/textos';
 import BotonWhatsApp from '../components/BotonWhatsApp.astro';
+import JsonLd from '../components/JsonLd.astro';
 import Migas from '../components/Migas.astro';
+import { preguntasJsonLd } from '../lib/datos-estructurados';
 import Estante from '../components/info/Estante.astro';
 import GrupoPreguntas from '../components/info/GrupoPreguntas.astro';
 import Siguientes from '../components/info/Siguientes.astro';
@@ -35,10 +37,20 @@ const grupos = [
     return { ...g, inicio };
   });
 
+// FAQPage: el mismo texto de src/data/faq.ts que se ve en la página, en el mismo orden (por tema).
+const faqJsonLd = preguntasJsonLd(
+  grupos.flatMap((g) => g.preguntas),
+  new URL(Astro.url.pathname, Astro.site ?? empresa.dominio).href,
+);
+
 const title = `Preguntas frecuentes: pedido mínimo, entregas y Factura A · ${empresa.nombreComercial}`;
-const description = `Pedido mínimo, días de entrega en ${donde}, lista de precios, Factura A, retiro en ${localidad} y marcas: lo que más le preguntan a ${empresa.nombreComercial} clínicas, bares y kioscos.`;
+const description = descripcion(`Pedido mínimo, días de entrega en ${zonasCortas()}, Factura A, lista de precios y marcas: lo que más le preguntan a ${empresa.nombreComercial}`, [
+  ', con respuesta corta.',
+  '.',
+]);
 ---
 <Sitio title={title} description={description} colorPagina="dpi" whatsapp={{ contexto: 'general' }}>
+  <JsonLd datos={faqJsonLd} />
   <header class="cabeza">
     <div class="contenedor">
       <Migas items={[{ nombre: 'Preguntas frecuentes' }]} />

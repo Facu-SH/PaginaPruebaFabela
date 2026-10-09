@@ -5,7 +5,7 @@
 import Sitio from '../layouts/Sitio.astro';
 import { empresa, entregas, horario, pagos, pedidoTipicoComercio } from '../data';
 import { horaCorta, textoHorario } from '../lib/horario';
-import { enumerar, mayuscula, nombreProducto, zonaCorta, zonasConReparto } from '../lib/textos';
+import { descripcion, enumerar, mayuscula, nombreProducto, zonaCorta, zonasConReparto } from '../lib/textos';
 import { mailtoLink } from '../lib/whatsapp';
 import BotonWhatsApp from '../components/BotonWhatsApp.astro';
 import Migas from '../components/Migas.astro';
@@ -28,9 +28,10 @@ const oracion =
   `confiterías y puestos de comida de ${zonas}, desde ${empresa.direccion.localidad}.`;
 
 const title = `Edulcorante y mayonesa en sobre para kioscos y bares · ${empresa.nombreComercial}`;
-const description =
-  `${empresa.nombreComercial} vende ${enumerar(pedido)} en sobre y porción individual a kioscos, bares, almacenes y ` +
-  `confiterías. ${mayuscula(capital.pedidoMinimo)} en ${capital.zona} y entrega ${capital.plazo}. La lista de precios, por WhatsApp.`;
+const description = descripcion(`${mayuscula(enumerar(pedido))} en sobre para kioscos y bares.`, [
+  ` ${mayuscula(capital.pedidoMinimo)} en ${capital.zona} y entrega ${capital.plazo}.`,
+  ` ${mayuscula(capital.pedidoMinimo)} en ${capital.zona}.`,
+]);
 ---
 <Sitio title={title} description={description} colorPagina="dpi" whatsapp={{ contexto: 'comercio' }}>
   <!-- Cabecera -->

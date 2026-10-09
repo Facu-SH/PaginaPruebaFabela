@@ -1,25 +1,46 @@
 ---
-// <head> común: título, descripción, canonical, Open Graph, robots, theme-color y favicon.
+// <head> común: título, descripción, canonical, Open Graph, Twitter Card, robots, theme-color y favicon.
 // Las páginas usan Sitio.astro (que usa este layout); Base no tiene marca ni estilos.
 import '../styles/reset.css';
 import { empresa } from '../data';
+import { vistaPrevia } from '../lib/entorno';
+import { OG } from '../lib/paginas';
+import { url } from '../lib/url';
 
 interface Props {
   title: string;
   description?: string;
-  /** true para páginas que no deben aparecer en buscadores (por ejemplo /sistema/). */
+  /** true para páginas que no deben aparecer en buscadores (por ejemplo /sistema/ y la 404). */
   noindex?: boolean;
   themeColor?: string;
-  /** Imagen para compartir (Open Graph). Ruta del sitio ("/og/inicio.png") o URL absoluta. Se completa en la fase 4. */
+  /** Imagen para compartir (Open Graph). Ruta del sitio ("/og/inicio.png") o URL absoluta. */
   imagenOG?: string;
   /** Texto alternativo de la imagen OG. */
   imagenOGAlt?: string;
+  /** Medidas de la imagen OG (por defecto, las de public/og/: 1200 × 630). */
+  imagenOGAncho?: number;
+  imagenOGAlto?: number;
   tipoOG?: 'website' | 'article';
 }
-const { title, description, noindex = false, themeColor, imagenOG, imagenOGAlt, tipoOG = 'website' } = Astro.props;
+const {
+  title,
+  description,
+  noindex = false,
+  themeColor,
+  imagenOG,
+  imagenOGAlt,
+  imagenOGAncho = OG.ancho,
+  imagenOGAlto = OG.alto,
+  tipoOG = 'website',
+} = Astro.props;
 const sitio = Astro.site ?? new URL(empresa.dominio);
+// Astro.url.pathname ya incluye el base (en una vista previa en subcarpeta).
 const canonical = new URL(Astro.url.pathname, sitio).href;
-const og = imagenOG ? new URL(imagenOG, sitio).href : undefined;
+const og = imagenOG ? (/^https?:/.test(imagenOG) ? imagenOG : new URL(url(imagenOG), sitio).href) : undefined;
+// En una vista previa (VISTA_PREVIA=1) ninguna página se indexa: no compite con el dominio real.
+const sinIndexar = noindex || vistaPrevia;
+const nombreSitio = `${empresa.nombreComercial} · ${empresa.razonSocial}`;
+const tipoImagen = og && ({ png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp' } as Record<string, string>)[og.split('.').pop()!.toLowerCase()];
 ---
 <!doctype html>
 <html lang="es-AR">
@@ -28,19 +49,30 @@ const og = imagenOG ? new URL(imagenOG, sitio).href : undefined;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
-    <link rel="canonical" href={canonical} />
-    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    {!noindex && <link rel="canonical" href={canonical} />}
+    {sinIndexar && <meta name="robots" content="noindex, nofollow" />}
     {themeColor && <meta name="theme-color" content={themeColor} />}
     <meta property="og:type" content={tipoOG} />
     <meta property="og:locale" content="es_AR" />
-    <meta property="og:site_name" content={`${empresa.nombreComercial} · ${empresa.razonSocial}`} />
+    <meta property="og:site_name" content={nombreSitio} />
     <meta property="og:title" content={title} />
     {description && <meta property="og:description" content={description} />}
-    <meta property="og:url" content={canonical} />
-    {og && <meta property="og:image" content={og} />}
-    {og && imagenOGAlt && <meta property="og:image:alt" content={imagenOGAlt} />}
+    {!noindex && <meta property="og:url" content={canonical} />}
+    {og && (
+      <>
+        <meta property="og:image" content={og} />
+        {tipoImagen && <meta property="og:image:type" content={tipoImagen} />}
+        <meta property="og:image:width" content={String(imagenOGAncho)} />
+        <meta property="og:image:height" content={String(imagenOGAlto)} />
+        {imagenOGAlt && <meta property="og:image:alt" content={imagenOGAlt} />}
+      </>
+    )}
     <meta name="twitter:card" content={og ? 'summary_large_image' : 'summary'} />
-    <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}favicon.svg`} />
+    <meta name="twitter:title" content={title} />
+    {description && <meta name="twitter:description" content={description} />}
+    {og && <meta name="twitter:image" content={og} />}
+    {og && imagenOGAlt && <meta name="twitter:image:alt" content={imagenOGAlt} />}
+    <link rel="icon" type="image/svg+xml" href={url('/favicon.svg')} />
     <slot name="head" />
   </head>
   <body>

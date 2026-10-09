@@ -4,7 +4,7 @@
 // y el remito "Armá tu consulta", que arma el mensaje de WhatsApp con lo que marcaste.
 import Sitio from '../../layouts/Sitio.astro';
 import { categorias, empresa, productoPorSlug } from '../../data';
-import { enumerar, nombreProducto, resumenRepartos } from '../../lib/textos';
+import { descripcion, enumerar, nombreProducto, resumenRepartos } from '../../lib/textos';
 import { url } from '../../lib/url';
 import ArmaTuConsulta from '../../components/ArmaTuConsulta.astro';
 import CajaCategorias from '../../components/CajaCategorias.astro';
@@ -30,9 +30,12 @@ const que = [
 ];
 const oracion = `${DPI} distribuye ${enumerar(que)} en porción individual a clínicas, bares y kioscos de ${zonas}.`;
 
-const title = `Productos en porción individual: sobres, potecitos y paquetitos · ${DPI}`;
+const title = `Sobres, potecitos y paquetitos en porción individual · ${DPI}`;
 const marcaAderezos = productoPorSlug('mayonesa')?.marca;
-const description = `Mayonesa, ketchup y mostaza${marcaAderezos ? ` ${marcaAderezos}` : ''}, azúcar, edulcorante ${marcaPropia}, mermeladas, manteca, queso crema, galletitas y tostadas en porción individual para clínicas, bares y kioscos de ${zonas}.`;
+const description = descripcion(
+  `Mayonesa${marcaAderezos ? ` ${marcaAderezos}` : ''}, azúcar, edulcorante ${marcaPropia}, mermeladas, manteca, queso crema, galletitas y tostadas en porción individual`,
+  [' para clínicas, bares y kioscos.', '.'],
+);
 ---
 <Sitio title={title} description={description} colorPagina="dpi" whatsapp={{ contexto: 'lista' }}>
   <section class="cabeza" aria-labelledby="cabeza-titulo">
