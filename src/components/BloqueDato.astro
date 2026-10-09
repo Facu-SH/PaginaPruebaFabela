@@ -1,0 +1,44 @@
+---
+// Un dato grande y su aclaración: "5:00" · "Diego contesta el WhatsApp desde esa hora".
+// Toma el color del texto del bloque donde está (sirve sobre papel, tinta o un color de categoría).
+// Usalo para UN dato fuerte por bloque, no en filas de tres "estadísticas".
+interface Props {
+  /** El dato, corto: "Desde 2001", "Sin mínimo", "5:00". */
+  dato: string;
+  /** La aclaración, con el resto de la información. */
+  aclaracion: string;
+  /** Rótulo opcional arriba del dato. */
+  rotulo?: string;
+  tamano?: 'grande' | 'normal';
+  class?: string;
+}
+const { dato, aclaracion, rotulo, tamano = 'normal', class: clase } = Astro.props;
+---
+<div class:list={['dato', `dato--${tamano}`, clase]}>
+  {rotulo && <p class="t-rotulo dato__rotulo">{rotulo}</p>}
+  <p class="dato__valor">{dato}</p>
+  <p class="dato__aclaracion">{aclaracion}</p>
+</div>
+
+<style>
+  .dato {
+    display: grid;
+    gap: var(--e-2);
+    padding-top: var(--e-3);
+    border-top: var(--trazo-grueso) solid currentColor;
+    max-width: 26rem;
+  }
+  .dato__rotulo { margin-bottom: var(--e-1); }
+  .dato__valor {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 900;
+    font-size: clamp(2.25rem, 1.4rem + 3.4vw, 4rem);
+    line-height: 0.92;
+    letter-spacing: var(--tracking-display);
+    font-variant-numeric: tabular-nums;
+    text-wrap: balance;
+  }
+  .dato--grande .dato__valor { font-size: clamp(3.25rem, 1.8rem + 6vw, 7rem); }
+  .dato__aclaracion { font-weight: 500; line-height: 1.35; max-width: 22em; }
+  .dato--grande .dato__aclaracion { font-size: var(--t-texto-grande); }
+</style>

@@ -1,0 +1,176 @@
+/* DPI · estilos globales del sitio. Lo de cada componente va scopeado en su .astro.
+   Depende de reset.css y tokens.css (los importa el layout Sitio.astro). */
+
+html {
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: var(--fuente);
+  font-stretch: var(--ancho-normal);
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--e-4);
+}
+
+body {
+  font-size: var(--t-texto);
+  line-height: var(--interlineado-texto);
+  font-weight: 400;
+  background: var(--papel);
+  overflow-x: clip;
+  font-kerning: normal;
+}
+
+::selection { background: var(--mayonesa); color: var(--tinta); }
+
+/* ---------- Titulares: expandida negra ---------- */
+h1, h2, h3, h4 {
+  font-stretch: var(--ancho-expandida);
+  font-weight: 900;
+  line-height: var(--interlineado-display);
+  letter-spacing: var(--tracking-display);
+}
+h1 { font-size: var(--t-titulo-1); }
+h2 { font-size: var(--t-titulo-2); }
+h3 { font-size: var(--t-titulo-3); line-height: 1.05; }
+h4 { font-size: var(--t-texto-grande); line-height: 1.1; letter-spacing: 0; }
+
+strong, b { font-weight: 700; }
+
+/* ---------- Links ---------- */
+a {
+  color: inherit;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.22em;
+}
+a:hover { text-decoration-thickness: 4px; }
+
+/* ---------- Foco visible: contorno de 3 px y un anillo del color del fondo ---------- */
+:focus-visible {
+  outline: 3px solid var(--foco);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px var(--anillo);
+}
+
+/* Bloques oscuros o rojos: invierten el foco y el subrayado. */
+.fondo-tinta { background: var(--tinta); color: var(--papel); --foco: var(--papel); --anillo: var(--tinta); }
+.fondo-frutilla { background: var(--frutilla); color: var(--papel); --foco: var(--papel); --anillo: var(--frutilla); }
+
+/* ---------- Contenedor ---------- */
+.contenedor {
+  width: 100%;
+  max-width: var(--ancho-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* ---------- Voces tipográficas (para usar fuera de h1–h4) ---------- */
+.t-display {
+  font-stretch: var(--ancho-expandida);
+  font-weight: 900;
+  line-height: var(--interlineado-display);
+  letter-spacing: var(--tracking-display);
+}
+.t-rotulo {
+  font-stretch: var(--ancho-expandida);
+  font-weight: 700;
+  font-size: var(--t-rotulo);
+  line-height: 1.3;
+  letter-spacing: var(--tracking-rotulo);
+  text-transform: uppercase;
+}
+.t-condensada {
+  font-stretch: var(--ancho-condensada);
+  font-weight: 700;
+  line-height: 1.3;
+}
+.t-grande { font-size: var(--t-texto-grande); line-height: 1.35; }
+.t-lectura { max-width: var(--ancho-lectura); }
+.cifras { font-variant-numeric: tabular-nums; }
+
+/* ---------- Link con flecha (navegación interna: nunca abre WhatsApp) ---------- */
+.link-flecha {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.45em;
+  font-weight: 700;
+  font-stretch: var(--ancho-boton);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.22em;
+  padding-block: 0.6rem; /* objetivo táctil de 44 px */
+}
+.link-flecha::after {
+  content: '';
+  flex: none;
+  width: 1.05em;
+  height: 0.62em;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 21 13'%3E%3Cpath d='M0 6.5h18M13 1.5l5 5-5 5' fill='none' stroke='%23000' stroke-width='2.4'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 21 13'%3E%3Cpath d='M0 6.5h18M13 1.5l5 5-5 5' fill='none' stroke='%23000' stroke-width='2.4'/%3E%3C/svg%3E") center / contain no-repeat;
+  transition: transform var(--transicion);
+}
+.link-flecha:hover::after { transform: translateX(3px); }
+
+/* ---------- Dentado: el crimpado del sobre, como utilidad ----------
+   .dentado-lados        puntas crimpadas a izquierda y derecha (botones)
+   .dentado-arriba-abajo crimpado arriba y abajo (fichas, sobres oscuros)
+   .filo / .filo--arriba franja dentada entre dos bloques (color: --filo) */
+.dentado-lados {
+  -webkit-mask:
+    conic-gradient(from 225deg at right, #000 90deg, #0000 0) right / 51% var(--diente) repeat-y,
+    conic-gradient(from 45deg at left, #000 90deg, #0000 0) left / 51% var(--diente) repeat-y;
+  mask:
+    conic-gradient(from 225deg at right, #000 90deg, #0000 0) right / 51% var(--diente) repeat-y,
+    conic-gradient(from 45deg at left, #000 90deg, #0000 0) left / 51% var(--diente) repeat-y;
+}
+.dentado-arriba-abajo {
+  -webkit-mask:
+    conic-gradient(from 135deg at top, #000 90deg, #0000 0) top / var(--diente) calc(var(--diente) / 2) repeat-x,
+    conic-gradient(from -45deg at bottom, #000 90deg, #0000 0) bottom / var(--diente) calc(var(--diente) / 2) repeat-x,
+    linear-gradient(#000 0 0) center / 100% calc(100% - var(--diente) + 1px) no-repeat;
+  mask:
+    conic-gradient(from 135deg at top, #000 90deg, #0000 0) top / var(--diente) calc(var(--diente) / 2) repeat-x,
+    conic-gradient(from -45deg at bottom, #000 90deg, #0000 0) bottom / var(--diente) calc(var(--diente) / 2) repeat-x,
+    linear-gradient(#000 0 0) center / 100% calc(100% - var(--diente) + 1px) no-repeat;
+}
+.filo {
+  --diente: 14px;
+  display: block;
+  height: calc(var(--diente) / 2);
+  background: var(--filo, var(--verde));
+  /* dientes hacia abajo: el filo cuelga del bloque de arriba */
+  -webkit-mask: conic-gradient(from -45deg at bottom, #000 90deg, #0000 0) bottom / var(--diente) 100% repeat-x;
+  mask: conic-gradient(from -45deg at bottom, #000 90deg, #0000 0) bottom / var(--diente) 100% repeat-x;
+}
+.filo--arriba {
+  /* dientes hacia arriba: el filo se apoya sobre el bloque de abajo */
+  -webkit-mask: conic-gradient(from 135deg at top, #000 90deg, #0000 0) top / var(--diente) 100% repeat-x;
+  mask: conic-gradient(from 135deg at top, #000 90deg, #0000 0) top / var(--diente) 100% repeat-x;
+}
+
+/* ---------- Dibujos SVG (sin estilos scopeados: así no se marca cada trazo) ---------- */
+.sprite-envases { position: absolute; width: 0; height: 0; overflow: hidden; }
+.envase, .wordmark { display: block; height: auto; overflow: visible; }
+
+/* ---------- Con y sin JS ----------
+   El layout agrega la clase "js" a <html> antes de pintar. */
+html:not(.js) .solo-js { display: none !important; }
+html.js .sin-js { display: none !important; }
+
+/* ---------- Saltar al contenido ---------- */
+.saltar {
+  position: absolute;
+  left: var(--e-3);
+  top: -100px;
+  z-index: 50;
+  padding: var(--e-3) var(--e-4);
+  background: var(--tinta);
+  color: var(--papel);
+  font-weight: 700;
+  --foco: var(--tinta);
+}
+.saltar:focus { top: var(--e-3); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .link-flecha:hover::after { transform: none; }
+}

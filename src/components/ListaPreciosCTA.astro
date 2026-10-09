@@ -1,0 +1,85 @@
+---
+// La lista de precios no es pública: se pide por WhatsApp (waLink('lista')) o por mail (mailtoLink('lista')).
+// - bloque: franja verde DPI con filo dentado, para el final de una página. Su botón es principal.
+// - en-linea: recuadro sobre papel, para meter dentro de otra sección.
+import { empresa } from '../data';
+import { textoHorario } from '../lib/horario';
+import { mailtoLink } from '../lib/whatsapp';
+import BotonWhatsApp from './BotonWhatsApp.astro';
+
+interface Props {
+  variante?: 'bloque' | 'en-linea';
+  /** Título (por defecto: "La lista de precios te la manda Diego"). */
+  titulo?: string;
+  id?: string;
+}
+const atiende = empresa.whatsapp.atiende;
+const { variante = 'bloque', titulo = `La lista de precios te la manda ${atiende}`, id = 'lista' } = Astro.props;
+const horarioTexto = textoHorario().toLowerCase();
+---
+{variante === 'bloque' ? (
+  <>
+    <div class="filo filo--arriba" aria-hidden="true" style="--filo: var(--verde)"></div>
+    <section class="lista" id={id} aria-labelledby={`${id}-titulo`}>
+      <div class="contenedor lista__grilla">
+        <h2 id={`${id}-titulo`} class="lista__titulo">{titulo}</h2>
+        <div class="lista__accion">
+          <p class="t-lectura">
+            No está en la web porque cambia seguido: te mandamos la vigente. Pedila por WhatsApp ({horarioTexto}) o por mail,
+            a cualquier hora.
+          </p>
+          <BotonWhatsApp variante="principal" contexto="lista">Pedí la lista por WhatsApp</BotonWhatsApp>
+          <a class="lista__mail" href={mailtoLink('lista')}>O por mail a <span>{empresa.email}</span></a>
+        </div>
+      </div>
+    </section>
+  </>
+) : (
+  <aside class="lista-linea" aria-labelledby={`${id}-titulo`}>
+    <h2 id={`${id}-titulo`} class="t-rotulo">Lista de precios</h2>
+    <p class="lista-linea__texto">{titulo}</p>
+    <p class="t-lectura">No la publicamos porque cambia seguido: te mandamos la vigente, {horarioTexto} por WhatsApp o cuando quieras por mail.</p>
+    <div class="lista-linea__acciones">
+      <BotonWhatsApp contexto="lista">Pedila por WhatsApp</BotonWhatsApp>
+      <a class="lista__mail" href={mailtoLink('lista')}>O por mail a <span>{empresa.email}</span></a>
+    </div>
+  </aside>
+)}
+
+<style>
+  .lista { background: var(--verde); padding-block: var(--e-seccion); }
+  .lista__grilla { display: grid; gap: var(--e-6); }
+  .lista__titulo { max-width: 9em; }
+  .lista__accion { display: flex; flex-direction: column; align-items: flex-start; gap: var(--e-5); max-width: 32em; }
+  .lista__mail {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0 0.3em;
+    align-items: center;
+    min-height: 2.75rem;
+    font-weight: 700;
+    text-decoration: underline;
+  }
+  .lista__mail span { overflow-wrap: anywhere; }
+
+  .lista-linea {
+    display: grid;
+    gap: var(--e-3);
+    padding: var(--e-5);
+    border: var(--trazo-grueso) solid var(--tinta);
+    background: var(--papel);
+  }
+  .lista-linea__texto {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 900;
+    font-size: var(--t-titulo-3);
+    line-height: 1.05;
+    letter-spacing: var(--tracking-display);
+    max-width: 22em;
+  }
+  .lista-linea__acciones { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-3) var(--e-5); margin-top: var(--e-2); }
+
+  @media (min-width: 1080px) {
+    .lista__grilla { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--e-7); align-items: end; }
+  }
+</style>

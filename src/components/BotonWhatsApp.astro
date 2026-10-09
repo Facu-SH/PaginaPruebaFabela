@@ -1,0 +1,46 @@
+---
+// Botón de WhatsApp con el mensaje prellenado del contexto (src/data/mensajes.ts).
+// - principal: el botón grande de la página. Lleva data-wa-principal: mientras alguno está
+//   a la vista, el flotante del celular se esconde.
+// - secundario: dentro de una sección (clínicas, zona, lista…).
+// - compacto: el del encabezado.
+// Nunca muestra el número: el texto dice a quién le escribís.
+import type { ContextoWhatsApp } from '../data';
+import { empresa } from '../data';
+import { waLink } from '../lib/whatsapp';
+import Boton from './Boton.astro';
+
+interface Props {
+  variante?: 'principal' | 'secundario' | 'compacto';
+  /** Mensaje prellenado: general, lista, pedido, clinica, comercio, producto, zona, otraZona. */
+  contexto?: ContextoWhatsApp;
+  /** Variables del mensaje ({ producto }, { zona }). */
+  vars?: Record<string, string>;
+  /** Mensaje armado a mano (reemplaza al contexto). */
+  texto?: string;
+  tono?: 'tinta' | 'papel';
+  ancho?: boolean;
+  class?: string;
+  /** Atributos extra para scripts (por ejemplo data-tablero-boton). */
+  datos?: Record<string, string>;
+}
+const { variante = 'secundario', contexto = 'general', vars, texto, tono = 'tinta', ancho = false, class: clase, datos = {} } = Astro.props;
+const href = texto ? waLink({ texto }) : waLink(contexto, vars);
+const tamano = variante === 'principal' ? 'grande' : variante === 'compacto' ? 'chico' : 'normal';
+const porDefecto = variante === 'compacto' ? 'WhatsApp' : `Escribile a ${empresa.whatsapp.atiende} por WhatsApp`;
+const tieneSlot = Astro.slots.has('default');
+---
+<Boton
+  href={href}
+  tamano={tamano}
+  tono={tono}
+  ancho={ancho}
+  externo
+  class:list={['boton-wa', clase]}
+  data-wa={contexto}
+  {...(variante === 'principal' ? { 'data-wa-principal': '' } : {})}
+  {...datos}
+>
+  {tieneSlot ? <slot /> : porDefecto}
+  {variante === 'compacto' && <span class="visually-hidden">: escribile a {empresa.whatsapp.atiende}</span>}
+</Boton>

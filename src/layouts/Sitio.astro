@@ -1,0 +1,58 @@
+---
+// Layout de todas las páginas del sitio: fuente, tokens, encabezado, <main id="contenido">,
+// pie, botón flotante de WhatsApp y el sprite de envases.
+//
+//   <Sitio title="Sobres de mayonesa individuales · DPI" description="…" colorPagina="aderezos"
+//          whatsapp={{ contexto: 'producto', vars: { producto: 'aderezos' } }}>
+//     …contenido…
+//   </Sitio>
+import '../styles/tokens.css';
+import '../styles/base.css';
+import type { ContextoWhatsApp } from '../data';
+import { colorDePagina, type ColorPagina } from '../lib/color';
+import { hex } from '../lib/paleta';
+import Base from './Base.astro';
+import Fuente from '../components/Fuente.astro';
+import EnvasesSprite from '../components/EnvasesSprite.astro';
+import Encabezado from '../components/Encabezado.astro';
+import Pie from '../components/Pie.astro';
+import WhatsAppFlotante from '../components/WhatsAppFlotante.astro';
+
+interface Props {
+  /** Título completo de la pestaña: "Qué es la página · DPI". */
+  title: string;
+  /** Una o dos oraciones con datos concretos (qué, dónde, para quién). */
+  description: string;
+  /** Color de la página: 'dpi' (verde) o la categoría (aderezos, mermeladas…). Pinta el punto del wordmark y los acentos. */
+  colorPagina?: ColorPagina;
+  noindex?: boolean;
+  /** Imagen OG (fase 4). */
+  imagenOG?: string;
+  imagenOGAlt?: string;
+  /** Mensaje del WhatsApp del encabezado y del flotante (por defecto, 'general'). */
+  whatsapp?: { contexto: ContextoWhatsApp; vars?: Record<string, string> };
+}
+const { title, description, colorPagina = 'dpi', noindex = false, imagenOG, imagenOGAlt, whatsapp } = Astro.props;
+const color = colorDePagina(colorPagina);
+const estiloPagina = `--color-pagina:var(--${color.fondo});--texto-pagina:var(--${color.texto})`;
+---
+<Base title={title} description={description} noindex={noindex} themeColor={hex(color.fondo)} imagenOG={imagenOG} imagenOGAlt={imagenOGAlt}>
+  <Fragment slot="head">
+    <Fuente />
+    <script is:inline>document.documentElement.classList.add('js')</script>
+  </Fragment>
+  <div class="sitio" style={estiloPagina} data-color-pagina={colorPagina}>
+    <a class="saltar" href="#contenido">Saltar al contenido</a>
+    <EnvasesSprite />
+    <Encabezado whatsapp={whatsapp} />
+    <main id="contenido" tabindex="-1">
+      <slot />
+    </main>
+    <Pie />
+    <WhatsAppFlotante contexto={whatsapp?.contexto} vars={whatsapp?.vars} />
+  </div>
+</Base>
+
+<style>
+  main:focus { outline: none; }
+</style>

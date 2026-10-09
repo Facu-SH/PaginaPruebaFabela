@@ -1,0 +1,71 @@
+---
+// Botón flotante de WhatsApp, solo en el celular y la tablet (< 1080 px).
+// Aparece cuando ningún botón principal de WhatsApp está a la vista (src/scripts/flotante.ts).
+// Sin JS es un link común, siempre visible. El punto muestra si estamos atendiendo.
+// Lo incluye el layout: cada página elige el mensaje con la prop `whatsapp` de Sitio.astro.
+import type { ContextoWhatsApp } from '../data';
+import { empresa } from '../data';
+import { waLink } from '../lib/whatsapp';
+
+interface Props {
+  contexto?: ContextoWhatsApp;
+  vars?: Record<string, string>;
+}
+const { contexto = 'general', vars } = Astro.props;
+---
+<a class="flotante" href={waLink(contexto, vars)} target="_blank" rel="noopener" data-flotante data-estado-punto data-wa={contexto}>
+  <span class="flotante__cuerpo dentado-lados">
+    <span class="flotante__punto" aria-hidden="true"></span>
+    Escribile a {empresa.whatsapp.atiende}<span class="visually-hidden"> por WhatsApp</span>
+  </span>
+</a>
+
+<script>
+  import '../scripts/flotante';
+</script>
+
+<style>
+  .flotante {
+    position: fixed;
+    right: 12px;
+    bottom: max(12px, env(safe-area-inset-bottom));
+    z-index: 40;
+    display: inline-flex;
+    color: var(--papel);
+    text-decoration: none;
+    filter: var(--contorno-papel);
+    transition: transform 0.2s ease, opacity 0.2s ease, visibility 0.2s;
+    --foco: var(--tinta);
+  }
+  :global(html.js) .flotante:not([data-visible='si']) {
+    transform: translateY(calc(100% + 24px));
+    opacity: 0;
+    visibility: hidden;
+  }
+  .flotante__cuerpo {
+    --diente: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+    min-height: 3.4rem;
+    padding: 0.75rem 1.4rem;
+    background: var(--tinta);
+    font-stretch: var(--ancho-boton);
+    font-weight: 800;
+    font-size: 1rem;
+  }
+  .flotante__punto {
+    width: 0.7em;
+    height: 0.7em;
+    border-radius: 50%;
+    border: 2px solid var(--papel);
+  }
+  .flotante[data-abierto='true'] .flotante__punto { background: var(--verde); border-color: var(--verde); }
+
+  @media (min-width: 1080px) {
+    .flotante { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .flotante { transition: none; }
+  }
+</style>

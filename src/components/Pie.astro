@@ -1,0 +1,144 @@
+---
+// Pie: el dorso del sobre. Marco de esquinas redondeadas y letra chica condensada, como el dorso
+// de los sobres que DPI ya imprime, con el teléfono grande. Nombre, dirección y teléfono (NAP)
+// salen tal cual de src/data/empresa.ts: tienen que ser idénticos en todo el sitio y en Google Maps.
+import { categorias, empresa, horario, publicos } from '../data';
+import { textoHorario } from '../lib/horario';
+import { secciones } from '../lib/navegacion';
+import { direccionLinea, enumerar, telefonoCorto } from '../lib/textos';
+import { url } from '../lib/url';
+import { mailtoLink, telLink, waLink } from '../lib/whatsapp';
+import TableroAtencion from './TableroAtencion.astro';
+import Wordmark from './Wordmark.astro';
+
+const anio = new Date().getFullYear();
+const atiende = empresa.whatsapp.atiende;
+---
+<footer class="pie">
+  <div class="contenedor">
+    <div class="pie__marco">
+      <div class="pie__cabeza">
+        <Wordmark class="pie__wordmark" />
+        <p class="pie__leyenda">
+          Distribuidora de alimentos envasados en porciones individuales, desde {empresa.desde}. Atención a {enumerar([...publicos])}.
+          {' '}{categorias.map((c) => c.nombre).join(' · ')}.
+        </p>
+      </div>
+
+      <div class="pie__contacto">
+        <p class="pie__tel"><a href={telLink()}>Tel.: {telefonoCorto()}</a></p>
+        <TableroAtencion variante="compacta" class="pie__estado" />
+        <p><a class="link-flecha" href={waLink('general')} target="_blank" rel="noopener">Escribile a {atiende} por WhatsApp</a></p>
+      </div>
+
+      <dl class="pie__datos">
+        <div>
+          <dt>Nombre</dt>
+          <dd>{empresa.nombreComercial} · {empresa.razonSocial}</dd>
+        </div>
+        <div>
+          <dt>Depósito</dt>
+          <dd>{direccionLinea()}</dd>
+        </div>
+        <div>
+          <dt>Teléfono</dt>
+          <dd><a href={telLink()}>{empresa.telefono}</a></dd>
+        </div>
+        <div>
+          <dt>Mail</dt>
+          <dd><a href={mailtoLink('general')}>{empresa.email}</a></dd>
+        </div>
+        <div>
+          <dt>Horario</dt>
+          <dd>{textoHorario()}</dd>
+        </div>
+        {horario.retiroEnDeposito && (
+          <div>
+            <dt>Retiro en depósito</dt>
+            <dd>En el mismo horario. Avisanos antes y lo dejamos preparado.</dd>
+          </div>
+        )}
+        <div>
+          <dt>En el rubro</dt>
+          <dd>
+            Desde {empresa.desde}
+            {empresa.clientesPublicables && <> · más de {empresa.clientesPublicables} clientes</>}
+          </dd>
+        </div>
+      </dl>
+
+      <nav class="pie__nav" aria-label="Páginas del sitio">
+        <ul role="list">
+          <li><a href={url('/')}>Inicio</a></li>
+          {secciones.map((s) => <li><a href={url(s.ruta)}>{s.texto}</a></li>)}
+        </ul>
+      </nav>
+    </div>
+    <p class="pie__legal">© {anio} {empresa.razonSocial}. Precios a pedido: la lista no se publica.</p>
+  </div>
+</footer>
+
+<style>
+  .pie { padding-block: var(--e-seccion) 7rem; }
+  .pie__marco {
+    display: grid;
+    gap: var(--e-6);
+    padding: clamp(1.25rem, 3.5vw, 3rem);
+    border: var(--trazo-grueso) solid var(--tinta);
+    border-radius: var(--r-dorso);
+  }
+  .pie__cabeza { display: grid; gap: var(--e-5); }
+  .pie__cabeza :global(.pie__wordmark) { width: min(100%, 20rem); }
+  .pie__leyenda {
+    font-stretch: 75%;
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1.35;
+    max-width: 44em;
+  }
+  .pie__contacto { display: grid; gap: var(--e-3); justify-items: start; }
+  .pie__tel {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 900;
+    font-size: clamp(2rem, 1rem + 4vw, 4.5rem);
+    line-height: 1;
+    letter-spacing: var(--tracking-display);
+  }
+  .pie__tel a { text-decoration: none; }
+  .pie__tel a:hover { text-decoration: underline; text-decoration-thickness: 4px; }
+  .pie__datos {
+    display: grid;
+    gap: var(--e-4) var(--e-6);
+    padding-top: var(--e-5);
+    border-top: var(--borde);
+  }
+  .pie__datos dt {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 700;
+    font-size: 0.6875rem;
+    letter-spacing: var(--tracking-rotulo);
+    text-transform: uppercase;
+  }
+  .pie__datos dd { font-weight: 500; }
+  .pie__datos a { text-decoration-thickness: 1px; overflow-wrap: anywhere; }
+  .pie__nav { padding-top: var(--e-4); border-top: var(--borde); }
+  .pie__nav ul { display: flex; flex-wrap: wrap; gap: 0 var(--e-5); padding: 0; list-style: none; }
+  .pie__nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    font-stretch: var(--ancho-boton);
+    font-weight: 700;
+  }
+  .pie__legal { margin-top: var(--e-4); font-size: var(--t-chico); }
+
+  @media (min-width: 720px) {
+    .pie__datos { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  @media (min-width: 1080px) {
+    .pie { padding-bottom: var(--e-8); }
+    .pie__cabeza { grid-template-columns: auto 1fr; align-items: end; gap: var(--e-7); }
+    .pie__contacto { grid-template-columns: auto auto 1fr; align-items: center; gap: var(--e-6); }
+    .pie__datos { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+</style>

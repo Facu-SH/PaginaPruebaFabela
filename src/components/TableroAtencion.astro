@@ -1,0 +1,265 @@
+---
+// Tablero de atención: la hora de Buenos Aires, si estamos atendiendo, la franja de 0 a 24 h
+// con la ventana de atención y la marca "ahora", la cuenta regresiva y quién contesta.
+// - destacado: una sola vez por página, como pieza propia.
+// - compacta: una línea (la usa el pie). Como mucho una vez más por página.
+// Sin JS muestra el horario (textoHorario). Con `fecha` se fuerza un momento (para /sistema/ y pruebas).
+// El script (src/scripts/atencion.ts) actualiza cada 20 s y al volver a la pestaña.
+import { horario } from '../data';
+import { horaCorta } from '../lib/horario';
+import { textosAtencion, textosSinHora, ventanaAtencion } from '../lib/atencion';
+import BotonWhatsApp from './BotonWhatsApp.astro';
+
+interface Props {
+  variante?: 'destacado' | 'compacta';
+  /** Fecha de prueba (Date o ISO). Sin fecha, el navegador usa la hora real. */
+  fecha?: Date | string;
+  /** Botón de WhatsApp dentro del tablero (destacado). */
+  boton?: boolean;
+  /** Prefijo de ids, si hay más de un tablero en la página (solo /sistema/). */
+  id?: string;
+  class?: string;
+}
+const { variante = 'destacado', fecha, boton = true, id = 'tablero', class: clase } = Astro.props;
+const fechaFija = fecha ? new Date(fecha) : undefined;
+const t = fechaFija ? textosAtencion(fechaFija) : textosSinHora();
+const estado = t.abierto === null ? undefined : String(t.abierto);
+const datos = { 'data-tablero': variante, ...(fechaFija ? { 'data-fecha': fechaFija.toISOString() } : {}), ...(estado ? { 'data-abierto': estado } : {}) };
+
+const { izq, ancho } = ventanaAtencion();
+const h = (hhmm: string) => Number(hhmm.split(':')[0]);
+const marcas = [0, h(horario.abre), 12, h(horario.cierra), 24].map((n) => ({
+  n,
+  pos: (n / 24) * 100,
+  clave: n === h(horario.abre) || n === h(horario.cierra),
+}));
+const rango = `${horaCorta(horario.abre)} a ${horaCorta(horario.cierra)} h`;
+---
+{variante === 'compacta' ? (
+  <p class:list={['compacta', clase]} {...datos}>
+    <span class="compacta__punto" aria-hidden="true"></span>
+    <span data-t-compacto>{t.compacto}</span>
+  </p>
+) : (
+  <section class:list={['tablero fondo-tinta', clase]} aria-labelledby={`${id}-titulo`} {...datos}>
+    <div class="contenedor tablero__grilla">
+      <h2 id={`${id}-titulo`} class="t-rotulo tablero__rotulo">Atención por WhatsApp · hora de Buenos Aires</h2>
+
+      <div class="tablero__reloj">
+        <p class="tablero__rotulo-hora" data-t-rotulo-hora>{t.rotuloHora}</p>
+        <p class="tablero__hora cifras" data-t-hora>{t.hora}</p>
+      </div>
+
+      <div class="tablero__estado">
+        <div aria-live="polite">
+          <p class="tablero__titulo">
+            <span class="tablero__punto" aria-hidden="true"></span>
+            <span data-t-titulo>{t.titulo}</span>
+          </p>
+          <p class="tablero__detalle" data-t-detalle>{t.detalle}</p>
+        </div>
+        <p class="tablero__cuenta cifras" data-t-cuenta hidden={!t.cuenta}>{t.cuenta}</p>
+      </div>
+
+      {boton && (
+        <div class="tablero__accion">
+          <BotonWhatsApp variante="principal" tono="papel">
+            <span data-t-boton>{t.boton}</span>
+          </BotonWhatsApp>
+        </div>
+      )}
+
+      <div class="franja" aria-hidden="true">
+        <div class="franja__regla">
+          <span class="franja__noche" style={`left:0;width:${izq}%`}></span>
+          <span class="franja__atencion" style={`left:${izq}%;width:${ancho}%`}>
+            <span><span class="franja__dias">lun a vie · </span>{rango}</span>
+          </span>
+          <span class="franja__noche" style={`left:${izq + ancho}%;right:0`}></span>
+          <span class="franja__ahora" data-t-ahora hidden={t.posicion === null} style={t.posicion !== null ? `left:${t.posicion}%` : undefined}>
+            <span>ahora</span>
+          </span>
+        </div>
+        <ol class="franja__horas">
+          {marcas.map((m) => <li class:list={{ 'es-clave': m.clave }} style={`left:${m.pos}%`}>{m.n}</li>)}
+        </ol>
+      </div>
+    </div>
+  </section>
+)}
+
+<script>
+  import '../scripts/atencion';
+</script>
+
+<style>
+  /* ---------- Compacta: una línea ---------- */
+  .compacta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    line-height: 1.3;
+  }
+  .compacta__punto, .tablero__punto {
+    flex: none;
+    width: 0.75em;
+    height: 0.75em;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+  }
+  [data-abierto='true'] .compacta__punto,
+  [data-abierto='true'] .tablero__punto {
+    background: var(--verde);
+    border-color: var(--verde);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--verde) 35%, transparent);
+  }
+
+  /* ---------- Destacado ---------- */
+  .tablero { padding-block: clamp(2.25rem, 1.5rem + 3vw, 4.5rem) clamp(2rem, 1.4rem + 2.6vw, 4rem); }
+  .tablero__grilla {
+    display: grid;
+    grid-template-areas: 'rotulo' 'reloj' 'estado' 'franja' 'accion';
+    gap: var(--e-5);
+  }
+  .tablero__rotulo { grid-area: rotulo; color: color-mix(in srgb, var(--papel) 82%, var(--tinta)); }
+  .tablero__reloj { grid-area: reloj; }
+  .tablero__rotulo-hora { font-weight: 600; font-size: 0.9375rem; }
+  .tablero__hora {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 900;
+    font-size: var(--t-gigante);
+    line-height: 0.86;
+    letter-spacing: -0.035em;
+    margin-top: var(--e-2);
+  }
+  .tablero__estado { grid-area: estado; display: grid; gap: var(--e-3); align-content: start; }
+  .tablero__titulo {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4em;
+    font-stretch: var(--ancho-expandida);
+    font-weight: 900;
+    font-size: clamp(1.625rem, 1.2rem + 1.7vw, 2.75rem);
+    line-height: 1;
+    letter-spacing: var(--tracking-display);
+    text-wrap: balance;
+  }
+  .tablero__punto { width: 0.5em; height: 0.5em; border-width: 3px; transform: translateY(-0.04em); }
+  .tablero__detalle { margin-top: var(--e-3); max-width: 30em; font-size: var(--t-texto); }
+  .tablero__cuenta {
+    font-stretch: var(--ancho-condensada);
+    font-weight: 800;
+    font-size: 1.1875rem;
+    letter-spacing: 0.01em;
+    color: var(--verde);
+  }
+  .tablero__cuenta[hidden] { display: none; }
+  .tablero__accion { grid-area: accion; }
+
+  /* Franja de 24 h: la noche rayada, la ventana de atención en verde DPI */
+  .franja { grid-area: franja; padding-top: 1.6rem; }
+  .franja__regla {
+    position: relative;
+    height: 2.75rem;
+    border: var(--trazo) solid var(--papel);
+    border-radius: var(--r-recto);
+  }
+  .franja__noche {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(-45deg, color-mix(in srgb, var(--papel) 22%, transparent) 0 2px, transparent 2px 7px);
+  }
+  .franja__atencion {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: var(--verde);
+    color: var(--tinta);
+    border-inline: var(--trazo) solid var(--papel);
+  }
+  .franja__atencion > span {
+    position: relative;
+    z-index: 1;
+    padding-inline: 0.35em;
+    background: var(--verde);
+    font-stretch: var(--ancho-expandida);
+    font-weight: 800;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .franja__dias { display: none; }
+  .franja__ahora {
+    position: absolute;
+    z-index: 2;
+    top: -0.85rem;
+    bottom: -0.45rem;
+    width: 4px;
+    margin-left: -2px;
+    background: var(--papel);
+    box-shadow: 0 0 0 1.5px var(--tinta);
+  }
+  .franja__ahora[hidden] { display: none; }
+  .franja__ahora span {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.1rem 0.4rem;
+    background: var(--papel);
+    color: var(--tinta);
+    font-stretch: var(--ancho-expandida);
+    font-weight: 800;
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .franja__horas { position: relative; height: 1.25rem; margin-top: 0.4rem; padding: 0; list-style: none; }
+  .franja__horas li {
+    position: absolute;
+    top: 0;
+    transform: translateX(-50%);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: color-mix(in srgb, var(--papel) 80%, var(--tinta));
+  }
+  .franja__horas li:first-child { transform: none; }
+  .franja__horas li:last-child { transform: translateX(-100%); }
+  .franja__horas li.es-clave { color: var(--papel); font-weight: 800; }
+
+  @media (min-width: 560px) {
+    .franja__dias { display: inline; }
+  }
+
+  @media (min-width: 900px) {
+    .tablero__grilla {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      grid-template-areas:
+        'rotulo rotulo'
+        'reloj estado'
+        'franja franja'
+        'accion accion';
+      column-gap: clamp(2rem, 4vw, 4rem);
+      align-items: end;
+    }
+  }
+  @media (min-width: 1180px) {
+    .tablero__grilla {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      grid-template-areas:
+        'rotulo rotulo rotulo'
+        'reloj estado accion'
+        'franja franja franja';
+    }
+    .tablero__accion { align-self: end; }
+  }
+</style>

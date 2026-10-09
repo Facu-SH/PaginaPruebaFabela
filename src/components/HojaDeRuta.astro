@@ -1,0 +1,149 @@
+---
+// Hoja de ruta: zonas × días hábiles, con la columna de hoy marcada (JS, hora de Buenos Aires;
+// o desde el servidor si se pasa `fecha`). El punto verde es "ese día llegamos".
+// Sin JS es una tabla común, completa. Va en /entregas/.
+import { empresa, entregas, horario } from '../data';
+import { ahoraEnBA, horaCorta, nombreDia } from '../lib/horario';
+import { enumerar } from '../lib/textos';
+
+interface Props {
+  /** Fecha de prueba (Date o ISO) para marcar la columna de hoy desde el servidor. */
+  fecha?: Date | string;
+  class?: string;
+}
+const { fecha, class: clase } = Astro.props;
+const hoy = fecha ? ahoraEnBA(new Date(fecha)).dia : undefined;
+const dias = horario.dias;
+const corto = (d: string) => nombreDia(d as never).slice(0, 3);
+const { calle, localidad } = empresa.direccion;
+const rangoHoras = `${horaCorta(horario.abre)} a ${horaCorta(horario.cierra)}`;
+const rangoDias = dias.length > 1 ? `de ${nombreDia(dias[0])} a ${nombreDia(dias[dias.length - 1])}` : enumerar(dias.map(nombreDia));
+---
+<div class:list={['hoja', clase]} data-hoja {...(fecha ? { 'data-fecha': new Date(fecha).toISOString() } : {})}>
+  <table>
+    <caption class="t-rotulo">Días de reparto por zona, {rangoDias}</caption>
+    <thead>
+      <tr>
+        <th scope="col" class="hoja__esquina">Zona</th>
+        {dias.map((d) => (
+          <th scope="col" data-dia={d} data-hoy={d === hoy ? '' : undefined}>
+            <abbr title={nombreDia(d)}>{corto(d)}</abbr>
+            <span class="hoja__hoy">hoy</span>
+          </th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {entregas.map((z) => (
+        <tr>
+          <th scope="row">
+            {z.zona}
+            {z.detalle && <span class="hoja__detalle">{z.detalle}</span>}
+          </th>
+          {z.dias === 'consultar' ? (
+            <td colspan={dias.length} class="hoja__coordinar">A coordinar por WhatsApp</td>
+          ) : (
+            dias.map((d) => {
+              const llega = z.dias === 'habiles' || (Array.isArray(z.dias) && z.dias.includes(d));
+              return (
+                <td data-dia={d} data-hoy={d === hoy ? '' : undefined}>
+                  {llega ? (
+                    <>
+                      <span class="hoja__punto" aria-hidden="true"></span>
+                      <span class="visually-hidden">reparto</span>
+                    </>
+                  ) : (
+                    <span class="visually-hidden">sin reparto</span>
+                  )}
+                </td>
+              );
+            })
+          )}
+        </tr>
+      ))}
+      {horario.retiroEnDeposito && (
+        <tr class="hoja__retiro">
+          <th scope="row">
+            Retiro en depósito
+            <span class="hoja__detalle">{calle}, {localidad}</span>
+          </th>
+          {dias.map((d) => (
+            <td data-dia={d} data-hoy={d === hoy ? '' : undefined}>
+              <span class="hoja__horario">{rangoHoras}<span class="visually-hidden"> h</span></span>
+            </td>
+          ))}
+        </tr>
+      )}
+    </tbody>
+  </table>
+</div>
+
+<script>
+  import '../scripts/hoja';
+</script>
+
+<style>
+  .hoja { width: 100%; }
+  table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    border: var(--borde);
+    background: var(--papel);
+  }
+  caption { text-align: left; padding-bottom: var(--e-3); }
+  th, td { border: 1px solid color-mix(in srgb, var(--tinta) 35%, transparent); padding: 0.5rem 0.35rem; }
+  thead th {
+    background: var(--tinta);
+    color: var(--papel);
+    border-color: var(--tinta);
+    font-stretch: var(--ancho-expandida);
+    font-weight: 800;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: center;
+    vertical-align: bottom;
+  }
+  thead abbr { text-decoration: none; }
+  .hoja__esquina { width: 38%; text-align: left; padding-left: 0.7rem; }
+  tbody th {
+    text-align: left;
+    padding: 0.7rem 0.5rem 0.7rem 0.7rem;
+    font-stretch: 80%;
+    font-weight: 800;
+    font-size: 1rem;
+    line-height: 1.15;
+  }
+  .hoja__detalle { display: block; font-weight: 500; font-size: 0.8125rem; color: var(--tinta-suave); }
+  tbody td { text-align: center; vertical-align: middle; height: 3.25rem; }
+  .hoja__punto {
+    display: inline-block;
+    width: 1.35rem;
+    height: 1.35rem;
+    border-radius: 50%;
+    background: var(--verde);
+    box-shadow: 0 0 0 2px var(--tinta);
+  }
+  .hoja__coordinar { font-weight: 600; font-size: 0.9375rem; text-align: left !important; padding-left: 0.7rem; }
+  .hoja__retiro th, .hoja__retiro td { border-top: var(--borde); }
+  .hoja__horario { font-stretch: var(--ancho-condensada); font-weight: 800; font-size: 0.875rem; line-height: 1.1; }
+
+  /* Hoy */
+  .hoja__hoy { display: none; }
+  th[data-hoy] { background: var(--verde); color: var(--tinta); box-shadow: inset 0 0 0 2px var(--tinta); }
+  th[data-hoy] .hoja__hoy {
+    display: block;
+    margin-top: 0.15rem;
+    font-size: 0.625rem;
+    letter-spacing: 0.1em;
+  }
+  td[data-hoy] { background: var(--papel-hondo); }
+
+  @media (min-width: 720px) {
+    .hoja__esquina { width: 32%; }
+    thead th { font-size: 0.8125rem; }
+    tbody th { font-size: 1.125rem; font-stretch: 100%; }
+    .hoja__horario { font-size: 1rem; }
+  }
+</style>

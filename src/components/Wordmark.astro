@@ -1,0 +1,40 @@
+---
+// Wordmark "DPI" (propuesta, ver docs/pendientes.md #21): punto sólido + DPI expandida negra
+// + barra + PRODUCTOS INDIVIDUALES, en contornos (no depende de la fuente).
+// El punto toma el color de la página (--color-pagina) salvo que se indique otro.
+import { empresa } from '../data';
+import { bajada, barra, caja, dpi, punto } from '../lib/wordmark';
+
+interface Props {
+  class?: string;
+  /** Color del punto (un color CSS o var(--token)). Por defecto, el color de la página. */
+  colorPunto?: string;
+  /** Color de las letras y la barra. */
+  colorTinta?: string;
+  /** false = sin "Productos Individuales" (para usos chicos). */
+  bajada?: boolean;
+  /** true si el logo es solo decorativo (por ejemplo, dentro de un link que ya tiene nombre). */
+  decorativo?: boolean;
+}
+const {
+  class: clase,
+  colorPunto = 'var(--color-pagina)',
+  colorTinta = 'var(--tinta)',
+  bajada: conBajada = true,
+  decorativo = false,
+} = Astro.props;
+const alto = conBajada ? caja.alto : 688 + barra.y + barra.alto;
+const nombre = `${empresa.nombreComercial} · ${empresa.razonSocial.replace(/ SRL$/, '')}`;
+---
+<svg
+  class:list={['wordmark', clase]}
+  viewBox={`${caja.x} ${caja.y} ${caja.ancho} ${alto}`}
+  style={`--wm-punto:${colorPunto};--wm-tinta:${colorTinta}`}
+  {...(decorativo ? { 'aria-hidden': 'true', focusable: 'false' } : { role: 'img', 'aria-label': nombre })}
+>
+  <rect x={barra.x} y={barra.y} width={barra.ancho} height={barra.alto} fill="var(--wm-tinta)" />
+  <circle cx={punto.cx} cy={punto.cy} r={punto.r} fill="var(--wm-punto)" />
+  <path d={dpi} fill="var(--wm-tinta)" />
+  {conBajada && <path d={bajada} fill="var(--wm-tinta)" />}
+</svg>
+

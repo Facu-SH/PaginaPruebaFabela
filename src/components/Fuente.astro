@@ -1,0 +1,11 @@
+---
+// Archivo (Omnibus-Type, OFL), autoalojada: SOLO el subset latin, variable en peso (100–900)
+// y ancho (62–125 %). Un único archivo para todo el sitio, precargado y con font-display: swap.
+// Se declara a mano (en lugar de importar el CSS de Fontsource) para que dist/ no copie los
+// subsets latin-ext y vietnamese. La usa el layout Sitio.astro.
+import archivo from '@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2?url';
+
+const css = `@font-face{font-family:'Archivo DPI';font-style:normal;font-display:swap;font-weight:100 900;font-stretch:62% 125%;src:url(${archivo}) format('woff2')}`;
+---
+<link rel="preload" href={archivo} as="font" type="font/woff2" crossorigin />
+<style is:inline set:html={css}></style>

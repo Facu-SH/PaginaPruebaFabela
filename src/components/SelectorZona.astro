@@ -1,0 +1,171 @@
+---
+// "¿Qué día llegamos a tu zona?": elegís la zona (radios nativos, se usan con el teclado) y ves
+// el día de reparto, el pedido mínimo, la fecha estimada del próximo reparto y un botón de
+// WhatsApp con la zona ya escrita (o el mensaje de "otras zonas").
+// Sin JS: se ven todas las fichas, sin selector ni fecha estimada.
+// El título de la sección lo pone la página; acá solo va el selector y las fichas.
+import { entregas } from '../data';
+import { fechaEstimada } from '../lib/calendario';
+import { diaDeReparto, mayuscula, zonaCorta } from '../lib/textos';
+import BotonWhatsApp from './BotonWhatsApp.astro';
+
+interface Props {
+  /** Fecha de prueba (Date o ISO) para la fecha estimada. Sin fecha, la calcula el navegador. */
+  fecha?: Date | string;
+  /** Prefijo de ids y nombre del grupo de radios (si hay más de un selector en la página). */
+  id?: string;
+  /** Nivel del título de cada ficha. */
+  nivel?: 3 | 4;
+  class?: string;
+}
+const { fecha, id = 'zona', nivel = 3, class: clase } = Astro.props;
+const fechaFija = fecha ? new Date(fecha) : undefined;
+const Titulo = `h${nivel}` as 'h3' | 'h4';
+
+const fichas = entregas.map((z) => {
+  const otra = z.dias === 'consultar';
+  return {
+    ...z,
+    dia: diaDeReparto(z),
+    estimada: fechaFija ? fechaEstimada(z, fechaFija) : null,
+    tieneFecha: !otra,
+    contexto: otra ? ('otraZona' as const) : ('zona' as const),
+    boton: otra ? 'Contanos dónde estás' : `Pedí para ${zonaCorta(z)} por WhatsApp`,
+  };
+});
+---
+<div class:list={['zonas', clase]} data-zonas {...(fechaFija ? { 'data-fecha': fechaFija.toISOString() } : {})}>
+  <fieldset class="zonas__selector solo-js">
+    <legend class="t-rotulo">Elegí tu zona</legend>
+    <div class="zonas__opciones">
+      {entregas.map((z, i) => (
+        <label class="zonas__opcion">
+          <input type="radio" name={id} value={z.id} checked={i === 0} />
+          <span>{z.zona}</span>
+        </label>
+      ))}
+    </div>
+  </fieldset>
+
+  <div class="zonas__fichas" aria-live="polite">
+    {fichas.map((z, i) => (
+      <article class="ficha fondo-tinta dentado-arriba-abajo" data-zona={z.id} data-elegida={i === 0 ? '' : undefined} aria-labelledby={`${id}-${z.id}`}>
+        <Titulo id={`${id}-${z.id}`} class="ficha__zona">
+          {z.zona}
+          {z.detalle && <span class="ficha__detalle">{z.detalle}</span>}
+        </Titulo>
+        <dl class="ficha__datos">
+          <div class="ficha__dato">
+            <dt>Día de reparto</dt>
+            <dd class="ficha__dia">{z.dia.grande}</dd>
+          </div>
+          {z.plazo && (
+            <div class="ficha__dato">
+              <dt>Cuándo llega</dt>
+              <dd>{mayuscula(z.plazo)}</dd>
+            </div>
+          )}
+          <div class="ficha__dato">
+            <dt>Pedido mínimo</dt>
+            <dd>{mayuscula(z.pedidoMinimo)}</dd>
+          </div>
+          {z.tieneFecha && (
+            <div class:list={['ficha__dato ficha__dato--fecha', { 'solo-js': !z.estimada }]} data-estimada hidden={!z.estimada}>
+              <dt data-estimada-rotulo>{z.estimada?.rotulo ?? 'Próximo reparto'}</dt>
+              <dd data-estimada-texto>{z.estimada?.texto}</dd>
+            </div>
+          )}
+        </dl>
+        <BotonWhatsApp contexto={z.contexto} vars={{ zona: z.zona }} tono="papel" class="ficha__boton">{z.boton}</BotonWhatsApp>
+      </article>
+    ))}
+  </div>
+</div>
+
+<script>
+  import '../scripts/zonas';
+</script>
+
+<style>
+  .zonas { display: grid; gap: var(--e-5); }
+
+  /* Selector */
+  .zonas__selector { border: 0; padding: 0; margin: 0; min-width: 0; }
+  .zonas__selector legend { margin-bottom: var(--e-3); }
+  .zonas__opciones { display: flex; flex-wrap: wrap; gap: var(--e-2); }
+  .zonas__opcion { position: relative; cursor: pointer; }
+  .zonas__opcion input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+  .zonas__opcion span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 3rem;
+    padding: 0.55rem 1.05rem;
+    border: var(--borde);
+    border-radius: var(--r-pastilla);
+    background: var(--papel);
+    font-stretch: var(--ancho-boton);
+    font-weight: 700;
+    font-size: 1rem;
+  }
+  .zonas__opcion:hover span { background: var(--blanco); }
+  .zonas__opcion input:checked + span { background: var(--tinta); color: var(--papel); }
+  .zonas__opcion input:focus-visible + span { outline: 3px solid var(--tinta); outline-offset: 3px; }
+
+  /* Fichas: sobres oscuros con las puntas crimpadas arriba y abajo */
+  .zonas__fichas { display: grid; gap: 14px; align-content: start; }
+  .ficha {
+    --diente: 16px;
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--e-4);
+    padding: calc(1.4rem + var(--diente) / 2) clamp(1.25rem, 3vw, 2.5rem);
+  }
+  :global(html.js) .ficha:not([data-elegida]) { display: none; }
+  .ficha__zona {
+    font-size: 1.375rem;
+    line-height: 1.1;
+  }
+  .ficha__detalle {
+    display: block;
+    margin-top: 0.2rem;
+    font-stretch: var(--ancho-normal);
+    font-weight: 500;
+    font-size: 0.9375rem;
+    letter-spacing: 0;
+    opacity: 0.85;
+  }
+  .ficha__datos { display: grid; gap: var(--e-3); width: 100%; }
+  .ficha__dato {
+    display: grid;
+    gap: 0.15rem;
+    padding-top: var(--e-3);
+    border-top: 1px solid color-mix(in srgb, var(--papel) 35%, transparent);
+  }
+  .ficha__dato[hidden] { display: none; }
+  .ficha__dato dt {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 700;
+    font-size: 0.6875rem;
+    letter-spacing: var(--tracking-rotulo);
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+  .ficha__dato dd { font-weight: 600; }
+  .ficha__dia {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 900 !important;
+    font-size: clamp(1.6rem, 1rem + 2vw, 2.4rem);
+    line-height: 0.98;
+    letter-spacing: var(--tracking-display);
+    color: var(--verde);
+  }
+  .ficha__dato--fecha dd { color: var(--verde); font-weight: 700; }
+  :global(html.js) .ficha .ficha__dia { font-size: clamp(2.1rem, 10cqi, 3.75rem); }
+  .ficha :global(.ficha__boton) { margin-top: var(--e-2); }
+
+  @media (min-width: 900px) {
+    :global(html:not(.js)) .zonas__fichas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+</style>

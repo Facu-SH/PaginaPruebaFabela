@@ -1,0 +1,76 @@
+---
+// Botón con forma de sobre: cuerpo sólido y puntas crimpadas a los costados.
+// Es la forma de las ACCIONES DE CONTACTO (WhatsApp, mail, teléfono). La navegación interna
+// va con .link-flecha (base.css), así nadie confunde "ir a otra página" con "abrir WhatsApp".
+// El foco se dibuja en el <a> (la máscara del cuerpo no lo recorta).
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends Omit<HTMLAttributes<'a'>, 'class'> {
+  href: string;
+  /** grande (portada), normal o chico (encabezado). */
+  tamano?: 'grande' | 'normal' | 'chico';
+  /** tinta sobre fondos claros; papel sobre tinta, frutilla o verde. */
+  tono?: 'tinta' | 'papel';
+  /** Abre en otra pestaña (WhatsApp). */
+  externo?: boolean;
+  /** Ocupa todo el ancho disponible. */
+  ancho?: boolean;
+  class?: string;
+}
+const { href, tamano = 'normal', tono = 'tinta', externo = false, ancho = false, class: clase, ...resto } = Astro.props;
+---
+<a
+  href={href}
+  class:list={['boton', `boton--${tamano}`, `boton--${tono}`, { 'boton--ancho': ancho }, clase]}
+  {...(externo ? { target: '_blank', rel: 'noopener' } : {})}
+  {...resto}
+>
+  <span class="boton__cuerpo dentado-lados">
+    <span class="boton__texto"><slot /></span>
+    <svg class="boton__flecha" viewBox="0 0 21 13" aria-hidden="true" focusable="false">
+      <path d="M0 6.5h18M13 1.5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2.4" />
+    </svg>
+  </span>
+</a>
+
+<style>
+  .boton {
+    --fondo: var(--tinta);
+    --texto: var(--papel);
+    display: inline-flex;
+    max-width: 100%;
+    color: var(--texto);
+    text-decoration: none;
+    border-radius: var(--r-recto);
+  }
+  .boton--papel { --fondo: var(--papel); --texto: var(--tinta); }
+  .boton--ancho { display: flex; }
+  .boton__cuerpo {
+    --diente: 10px;
+    display: inline-flex;
+    flex: 1;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.9em;
+    min-height: 3.5rem;
+    padding: 0.85rem 1.6rem;
+    background: var(--fondo);
+    font-stretch: var(--ancho-boton);
+    font-weight: 800;
+    font-size: 1.0625rem;
+    line-height: 1.15;
+    letter-spacing: -0.005em;
+    transition: transform var(--transicion);
+  }
+  .boton__texto { text-wrap: balance; }
+  .boton__flecha { flex: none; width: 1.15em; height: auto; transition: transform var(--transicion); }
+  .boton:hover .boton__cuerpo { transform: translateY(-2px); }
+  .boton:hover .boton__flecha { transform: translateX(3px); }
+
+  .boton--grande .boton__cuerpo { min-height: 4.25rem; padding: 1.05rem 1.9rem; font-size: 1.1875rem; }
+  .boton--chico .boton__cuerpo { --diente: 8px; min-height: 2.75rem; padding: 0.5rem 1.05rem; font-size: 0.9375rem; gap: 0.6em; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .boton:hover .boton__cuerpo, .boton:hover .boton__flecha { transform: none; }
+  }
+</style>

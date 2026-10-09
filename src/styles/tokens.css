@@ -1,0 +1,105 @@
+/* DPI · tokens del sistema de diseño ("Color de sobre").
+   Es la única fuente de los valores de diseño: los hex de acá los lee también
+   src/lib/paleta.ts (theme-color y la tabla de contrastes de /sistema/).
+   Reglas de uso: docs/diseno.md. */
+
+:root {
+  /* ---------- Color: neutros ---------- */
+  --tinta: #181613;        /* texto, trazos, bloques oscuros */
+  --tinta-suave: #4a453d;  /* texto secundario, solo sobre papel */
+  --papel: #fbfaf6;        /* fondo general: el blanco del sobre de azúcar */
+  --papel-hondo: #efebe1;  /* rellenos suaves: celdas, columna de hoy */
+  --blanco: #ffffff;       /* el papel de los envases */
+
+  /* ---------- Color: dueños de categoría (los únicos que pintan bloques) ---------- */
+  --mayonesa: #f4e13b;     /* aderezos */
+  --verde: #a9cc8f;        /* endulzantes y voz de DPI (el sobre propio) */
+  --frutilla: #c41f3a;     /* mermeladas: encima, siempre texto papel */
+  --manteca: #f5e5a6;      /* manteca y queso crema */
+  --galletita: #c98b4b;    /* galletitas y tostadas */
+
+  /* ---------- Color: solo dentro de las ilustraciones ---------- */
+  --env-ketchup: #d3271c;
+  --env-mostaza: #d99a1e;
+  --env-golf: #eb7a2a;
+  --env-durazno: #f2993e;
+  --env-ciruela: #4d2149;
+  --env-frutos-rojos: #7e1b33;
+  --env-aluminio: #e4e1d9;
+  --env-aluminio-dorso: #c9c5bb;
+  --env-cafe: #7a4a24;
+  --env-pan: #e3ad68;
+  --env-salchicha: #a8492b;
+
+  /* ---------- Color de la página ----------
+     Lo fija el layout (prop colorPagina): el punto del wordmark y los acentos de relleno.
+     Nunca se usa como color de texto (el amarillo no tiene contraste sobre papel). */
+  --color-pagina: var(--verde);
+  --texto-pagina: var(--tinta);
+
+  /* Foco visible: contorno + anillo. Los bloques oscuros los invierten (ver .fondo-tinta). */
+  --foco: var(--tinta);
+  --anillo: var(--papel);
+
+  /* ---------- Tipografía: Archivo (Omnibus-Type, Buenos Aires), una sola familia variable ---------- */
+  --fuente: 'Archivo DPI', 'Archivo', 'Arial Narrow', Arial, sans-serif;
+  --ancho-expandida: 125%;  /* titulares y rótulos: la letra del envase */
+  --ancho-boton: 112%;
+  --ancho-normal: 100%;     /* texto corrido */
+  --ancho-condensada: 68%;  /* letra chica: la del dorso del sobre */
+
+  /* Escala fluida (390 → 1440 px) */
+  --t-chico: 0.8125rem;                                   /* 13 px · letra chica, legales */
+  --t-rotulo: 0.75rem;                                    /* 12 px · versalitas expandidas */
+  --t-texto: clamp(1.0625rem, 1rem + 0.2vw, 1.1875rem);   /* 17 → 19 px */
+  --t-texto-grande: clamp(1.1875rem, 1.02rem + 0.65vw, 1.5rem);
+  --t-titulo-3: clamp(1.375rem, 1.15rem + 0.95vw, 2rem);
+  --t-titulo-2: clamp(2.25rem, 1.15rem + 4.4vw, 5.25rem);
+  --t-titulo-1: clamp(2.25rem, 0.95rem + 5.4vw, 5.75rem);
+  --t-gigante: clamp(4.25rem, 2rem + 11vw, 10.5rem);       /* la hora, un dato solo */
+
+  --interlineado-display: 0.94;
+  --interlineado-texto: 1.5;
+  --tracking-display: -0.02em;
+  --tracking-rotulo: 0.14em;
+
+  /* ---------- Espaciado (base 4 px) ---------- */
+  --e-1: 0.25rem;
+  --e-2: 0.5rem;
+  --e-3: 0.75rem;
+  --e-4: 1rem;
+  --e-5: 1.5rem;
+  --e-6: 2rem;
+  --e-7: 3rem;
+  --e-8: 4rem;
+  --e-9: 6rem;
+  --e-seccion: clamp(3rem, 1.8rem + 5vw, 6.5rem);   /* arriba y abajo de cada bloque */
+  --gutter: clamp(16px, 4.2vw, 64px);                /* margen lateral: 16 px en el celular */
+  --ancho-max: 1440px;
+  --ancho-lectura: 36em;
+
+  /* ---------- Radios ---------- */
+  --r-recto: 2px;      /* bloques y botones: casi recto, como un corte */
+  --r-envase: 14px;    /* compartimentos de la bandeja, potes */
+  --r-dorso: clamp(18px, 2.5vw, 32px); /* el marco impreso del dorso del sobre */
+  --r-pastilla: 999px; /* opciones de selector */
+
+  /* ---------- Bordes ---------- */
+  --trazo: 2px;        /* el trazo de tinta de los dibujos y las reglas */
+  --trazo-grueso: 3px; /* marcos */
+  --borde: var(--trazo) solid var(--tinta);
+
+  /* ---------- Sombras ----------
+     No hay sombras difusas: el relieve se hace con trazo de tinta.
+     La única "sombra" es el contorno de papel del botón flotante, para separarlo del contenido. */
+  --contorno-papel: drop-shadow(2px 0 0 var(--papel)) drop-shadow(-2px 0 0 var(--papel))
+    drop-shadow(0 2px 0 var(--papel)) drop-shadow(0 -2px 0 var(--papel));
+
+  /* ---------- Dentado (el crimpado del sobre) ----------
+     Alto de cada diente. Las utilidades .dentado-* de base.css lo leen;
+     cada elemento puede cambiarlo (--diente: 16px). */
+  --diente: 10px;
+
+  /* ---------- Movimiento ---------- */
+  --transicion: 0.15s ease;
+}

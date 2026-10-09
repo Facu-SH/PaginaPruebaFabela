@@ -1,0 +1,162 @@
+---
+// Encabezado: wordmark (el punto toma el color de la página), navegación y WhatsApp compacto.
+// En el celular el menú es un <details>: funciona sin JS. Un script mínimo lo cierra con Esc
+// o al tocar afuera. La página actual lleva aria-current.
+import type { ContextoWhatsApp } from '../data';
+import { empresa } from '../data';
+import { secciones } from '../lib/navegacion';
+import { url } from '../lib/url';
+import BotonWhatsApp from './BotonWhatsApp.astro';
+import Wordmark from './Wordmark.astro';
+
+interface Props {
+  whatsapp?: { contexto: ContextoWhatsApp; vars?: Record<string, string> };
+}
+const { whatsapp = { contexto: 'general' as ContextoWhatsApp } } = Astro.props;
+
+const actual = Astro.url.pathname;
+const items = secciones.map((s) => {
+  const href = url(s.ruta);
+  const estado = actual === href ? 'page' : actual.startsWith(href) ? 'true' : undefined;
+  return { ...s, href, estado };
+});
+---
+<header class="encabezado">
+  <div class="contenedor encabezado__fila">
+    <a href={url('/')} class="encabezado__marca" aria-label={`${empresa.nombreComercial} · ${empresa.razonSocial}: ir al inicio`}>
+      <Wordmark decorativo class="encabezado__wordmark" />
+    </a>
+
+    <nav class="encabezado__nav" aria-label="Principal">
+      <ul role="list">
+        {items.map((s) => <li><a href={s.href} aria-current={s.estado}>{s.texto}</a></li>)}
+      </ul>
+    </nav>
+
+    <div class="encabezado__acciones">
+      <BotonWhatsApp variante="compacto" contexto={whatsapp.contexto} vars={whatsapp.vars} />
+      <details class="menu" data-menu>
+        <summary class="menu__boton">
+          <span class="menu__abrir">Menú</span><span class="menu__cerrar">Cerrar</span>
+        </summary>
+        <nav class="menu__panel" aria-label="Principal">
+          <ul role="list">
+            {items.map((s) => <li><a href={s.href} aria-current={s.estado}>{s.texto}</a></li>)}
+          </ul>
+        </nav>
+      </details>
+    </div>
+  </div>
+</header>
+
+<script>
+  // Cierra el menú con Esc, al tocar afuera o al elegir un link.
+  const menu = document.querySelector<HTMLDetailsElement>('[data-menu]');
+  if (menu) {
+    const cerrar = () => (menu.open = false);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && menu.open) {
+        cerrar();
+        menu.querySelector('summary')?.focus();
+      }
+    });
+    document.addEventListener('click', (e) => {
+      if (menu.open && !menu.contains(e.target as Node)) cerrar();
+    });
+    menu.querySelectorAll('a').forEach((a) => a.addEventListener('click', cerrar));
+  }
+</script>
+
+<style>
+  .encabezado {
+    position: relative;
+    z-index: 30;
+    background: var(--papel);
+    border-bottom: var(--trazo) solid var(--tinta);
+  }
+  .encabezado__fila {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--e-4);
+    min-height: 4.5rem;
+    padding-block: var(--e-3);
+  }
+  .encabezado__marca { display: block; flex: none; border-radius: var(--r-recto); }
+  .encabezado__marca :global(.encabezado__wordmark) { width: 7.25rem; }
+  .encabezado__nav { display: none; }
+  .encabezado__acciones { display: flex; align-items: center; gap: var(--e-2); }
+
+  /* Menú del celular */
+  .menu__boton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 4.75rem;
+    min-height: 2.75rem;
+    padding: 0.4rem 0.8rem;
+    border: var(--trazo) solid var(--tinta);
+    border-radius: var(--r-recto);
+    font-stretch: var(--ancho-boton);
+    font-weight: 800;
+    font-size: 0.9375rem;
+    list-style: none;
+    cursor: pointer;
+    user-select: none;
+  }
+  .menu__boton::-webkit-details-marker { display: none; }
+  .menu__cerrar, .menu[open] .menu__abrir { display: none; }
+  .menu[open] .menu__cerrar { display: inline; }
+  .menu[open] .menu__boton { background: var(--tinta); color: var(--papel); }
+  .menu__panel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    padding: var(--e-2) var(--gutter) var(--e-5);
+    background: var(--papel);
+    border-bottom: var(--trazo) solid var(--tinta);
+  }
+  .menu__panel ul { padding: 0; list-style: none; }
+  .menu__panel li + li { border-top: 1px solid color-mix(in srgb, var(--tinta) 25%, transparent); }
+  .menu__panel a {
+    display: flex;
+    align-items: center;
+    min-height: 3.25rem;
+    font-stretch: var(--ancho-expandida);
+    font-weight: 900;
+    font-size: 1.375rem;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+  }
+  .menu__panel a[aria-current]::before {
+    content: '';
+    width: 0.55em;
+    height: 0.55em;
+    margin-right: 0.45em;
+    border-radius: 50%;
+    background: var(--color-pagina);
+    box-shadow: 0 0 0 2px var(--tinta);
+  }
+
+  @media (min-width: 1100px) {
+    .encabezado__fila { min-height: 5.75rem; gap: var(--e-6); }
+    .encabezado__marca :global(.encabezado__wordmark) { width: 9.5rem; }
+    .encabezado__nav { display: block; margin-right: auto; }
+    .encabezado__nav ul { display: flex; flex-wrap: wrap; gap: 0.25rem; padding: 0; list-style: none; }
+    .encabezado__nav a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 2.75rem;
+      padding: 0.3rem 0.65rem;
+      border-radius: var(--r-recto);
+      font-stretch: var(--ancho-boton);
+      font-weight: 700;
+      font-size: 0.9375rem;
+      text-decoration: none;
+    }
+    .encabezado__nav a:hover { text-decoration: underline; text-decoration-thickness: 2px; }
+    .encabezado__nav a[aria-current] { background: var(--color-pagina); color: var(--texto-pagina); box-shadow: inset 0 0 0 2px var(--tinta); }
+    .menu { display: none; }
+  }
+</style>

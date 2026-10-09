@@ -1,0 +1,49 @@
+---
+// Migas de pan visibles (páginas internas). "Inicio" se agrega solo; el último ítem es la página actual.
+//   <Migas items={[{ nombre: 'Productos', href: '/productos/' }, { nombre: 'Aderezos' }]} />
+// Los href van sin base: el componente los pasa por url(). En la fase 4 el JSON-LD BreadcrumbList
+// puede salir de los mismos items.
+import { url } from '../lib/url';
+
+interface Props {
+  items: { nombre: string; href?: string }[];
+  class?: string;
+}
+const { items, class: clase } = Astro.props;
+const todos = [{ nombre: 'Inicio', href: '/' }, ...items];
+---
+<nav class:list={['migas', clase]} aria-label="Estás en">
+  <ol role="list">
+    {todos.map((m, i) => (
+      <li>
+        {i < todos.length - 1 && m.href ? <a href={url(m.href)}>{m.nombre}</a> : <span aria-current="page">{m.nombre}</span>}
+      </li>
+    ))}
+  </ol>
+</nav>
+
+<style>
+  .migas ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 0;
+    list-style: none;
+    font-stretch: var(--ancho-expandida);
+    font-weight: 700;
+    font-size: var(--t-rotulo);
+    letter-spacing: var(--tracking-rotulo);
+    text-transform: uppercase;
+  }
+  .migas li { display: inline-flex; align-items: center; }
+  .migas li + li::before {
+    content: '';
+    width: 0.5em;
+    height: 0.5em;
+    margin-inline: 0.7em;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  .migas a { display: inline-flex; align-items: center; min-height: 2.75rem; text-decoration-thickness: 1px; }
+  .migas [aria-current] { display: inline-flex; align-items: center; min-height: 2.75rem; }
+</style>
