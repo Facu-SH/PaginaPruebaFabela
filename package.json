@@ -9,7 +9,10 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "capturas": "node scripts/capturas.mjs"
+    "capturas": "node scripts/capturas.mjs",
+    "og": "node scripts/og.mjs",
+    "qr": "node scripts/qr.mjs",
+    "revisar": "node scripts/revisar.mjs"
   },
   "engines": {
     "node": ">=22.12.0"
@@ -22,6 +25,8 @@
     "@astrojs/check": "^0.9.10",
     "@types/node": "^22.20.5",
     "playwright": "1.56.1",
+    "qrcode": "^1.5.4",
+    "sharp": "^0.35.5",
     "typescript": "^6.0.3"
   }
 }

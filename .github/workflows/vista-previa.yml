@@ -1,0 +1,68 @@
+# Vista previa del sitio en GitHub Pages: https://facu-sh.github.io/PaginaPruebaFabela/
+#
+# Compila el sitio en la subcarpeta /PaginaPruebaFabela/ y lo publica. Es solo para mirarlo y
+# mostrarlo: todas las páginas salen con "noindex" (VISTA_PREVIA=1) para no competir en Google con
+# el dominio real (dpi-arg.com.ar), que se publica aparte en Cloudflare Pages o Netlify.
+#
+# Para activarla, una sola vez: GitHub → Settings → Pages → Build and deployment → Source: "GitHub Actions".
+# Se corre sola con cada push a main, o a mano desde la pestaña Actions → "Vista previa" → Run workflow.
+
+name: Vista previa
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Una publicación a la vez; si llega otra, espera (no corta la que está en curso).
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  BASE_PATH: /PaginaPruebaFabela/
+  SITE_URL: https://facu-sh.github.io
+  VISTA_PREVIA: '1'
+
+jobs:
+  compilar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+
+      - name: Compilar
+        run: npm run build
+
+      - name: Revisar links y metadatos
+        run: npm run revisar
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+  publicar:
+    needs: compilar
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.publicacion.outputs.page_url }}
+    steps:
+      - id: publicacion
+        uses: actions/deploy-pages@v5
