@@ -48,7 +48,7 @@ Cada dato se cambia en **una sola línea** del archivo indicado.
 | 19 | **El sitio viejo (WordPress) está hackeado**: tiene inyectado un texto con un link a un casino sueco (`tackel.se`), que Google ve y que perjudica la reputación del dominio. Conviene limpiarlo o darlo de baja cuanto antes, sin esperar al sitio nuevo. | urgente |
 | 20 | Acceso al dominio `dpi-arg.com.ar` (quién lo administra, dónde están los DNS) para publicar el sitio nuevo en Cloudflare Pages o Netlify | a definir |
 | 21 | Logo: el sitio usa propuestas de renovación del wordmark "DPI" (misma estructura: esfera, DPI, línea, "Productos Individuales"). Hay que elegir una y, si se aprueba, actualizar también los sobres impresos | fase 1 |
-| 22 | Fotos reales de producto | más adelante (fase 4: guía de fotos y prompts) |
+| 22 | Fotos reales de producto (13 de producto y 5 de grupo). Mientras tanto se pueden generar con IA | guía: `docs/fotos/guia-fotos-reales.md` · prompts: `docs/fotos/prompts.md` |
 
 ## Decisiones de diseño para que el dueño vea
 
@@ -56,3 +56,12 @@ Cada dato se cambia en **una sola línea** del archivo indicado.
 |---|---|---|
 | 23 | Dirección visual elegida: **B · Color de sobre** con piezas de C (ver `docs/direcciones/resumen.md`). Las tres propuestas están en `docs/capturas/fase-1/` | elegida por el equipo, se puede revisar |
 | 24 | Wordmark: punto sólido de color (B) o esfera tramada (A). Las dos mantienen la estructura del logo actual | a elegir |
+
+## Para publicar (fase 4)
+
+| # | Tema | Estado |
+|---|---|---|
+| 25 | El número de WhatsApp de prueba (#1) ya figura también en los datos para Google y en `llms.txt`: cambiarlo antes de publicar (una línea, se actualiza en todos lados) | antes de publicar |
+| 26 | Elegir Cloudflare Pages o Netlify y conectar el dominio (pasos en `docs/como-actualizar.md`). Después, enviar `sitemap.xml` en Google Search Console | a definir |
+| 27 | Vista previa en GitHub Pages: activar en Settings → Pages → Source: "GitHub Actions" | una vez |
+| 28 | QR de la lista de precios impresa: sumar `docs/qr/lista-qr.svg` (o la tarjeta `lista-qr-imprimir.pdf`) a la próxima tirada y probarlo con varios celulares | cuando se reimprima la lista |

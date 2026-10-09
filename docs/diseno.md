@@ -87,7 +87,9 @@ Los hex viven **solo** en `src/styles/tokens.css`; `src/lib/paleta.ts` los lee d
 </Sitio>
 ```
 
-Props: `title` (completo, "Qué es · DPI"), `description`, `colorPagina` (`'dpi'` o slug de categoría), `noindex`, `imagenOG` y `imagenOGAlt` (fase 4: ruta del sitio, se resuelve contra `Astro.site`), `whatsapp` (mensaje del botón del encabezado y del flotante).
+Props: `title` (completo, "Qué es · DPI", hasta ~60 caracteres), `description` (120–160 caracteres; `descripcion()` de `src/lib/textos.ts` la acorta sola si un dato la alarga), `colorPagina` (`'dpi'` o slug de categoría), `noindex`, `imagenOG` y `imagenOGAlt` (opcionales: por defecto el layout usa la imagen de la página en `src/lib/paginas.ts`, `public/og/<slug>.png`), `whatsapp` (mensaje del botón del encabezado y del flotante).
+
+El layout también pone los datos estructurados de la empresa (JSON-LD, `src/lib/datos-estructurados.ts`); `Migas` agrega el `BreadcrumbList` con sus mismos ítems. Una página nueva que deba ir a buscadores se suma a `src/lib/paginas.ts` (sitemap, `llms.txt` e imagen para compartir).
 
 Clases globales útiles (`base.css`): `.contenedor`, `.t-display`, `.t-rotulo`, `.t-condensada`, `.t-grande`, `.t-lectura`, `.cifras`, `.link-flecha`, `.fondo-tinta`, `.fondo-frutilla` (invierten el foco), `.dentado-*`, `.filo`, `.solo-js` / `.sin-js`, `.visually-hidden`.
 
@@ -133,7 +135,11 @@ Las fotos (reales con celular y caja de luz, oficiales de proveedores o generada
 ## Cómo activar una foto
 
 1. Guardá la foto en `src/assets/productos/` con el **slug del producto** como nombre: `mayonesa.jpg`, `edulcorante.png`, `mermeladas.webp`, `vainillas.jpg`… Los slugs están en `src/data/productos.ts`.
-2. Recompilá (`npm run build`). `FotoOEnvase` la encuentra con `import.meta.glob`, genera AVIF y WebP en varios tamaños y la muestra en lugar del dibujo. No hay que tocar código.
+2. Recompilá (`npm run build`). `src/lib/fotos.ts` la encuentra con `import.meta.glob`; `FotoOEnvase` genera AVIF y WebP en varios tamaños y la muestra en lugar del dibujo. No hay que tocar código.
 3. Para reemplazarla, pisá el archivo. Si un producto necesita otro nombre de archivo, completá `foto` en `src/data/productos.ts` (por ejemplo `foto: 'mayonesa-natura.jpg'`).
+4. Los productos con sabores en potecito (mermeladas) se dibujan con un potecito por sabor; si tienen foto (`mermeladas.jpg`, los cuatro sabores juntos), la foto reemplaza a los cuatro dibujos en la tarjeta y en la cabecera.
+5. **Fotos de grupo por categoría** (`src/assets/categorias/<slug>.jpg`): las usa la imagen para compartir de esa categoría en lugar de los envases dibujados. Hay que correr `npm run og` después.
+
+Lista de tomas, prompts para generarlas con IA y guía para sacarlas con el celular: `docs/fotos/`.
 
 Sirven `.jpg`, `.jpeg`, `.png`, `.webp` y `.avif`. El texto alternativo sale solo ("Mayonesa Natura en porción individual").
