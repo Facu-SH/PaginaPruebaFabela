@@ -1,0 +1,27 @@
+---
+// Potecito visto desde arriba: tapa de aluminio con la esquina pelada (se ve el contenido)
+// y una faja impresa con el sabor. Sirve para mermeladas, manteca y queso crema.
+import { colorEnvase } from '../sistema';
+
+interface Props {
+  clave: string;
+  etiqueta: string;
+  class?: string;
+  style?: string;
+}
+const { clave, etiqueta, class: clase, style = '' } = Astro.props;
+const { c, t } = colorEnvase(clave);
+const texto = etiqueta.toUpperCase();
+const tam = Math.min(12.5, 80 / (texto.length * 0.74));
+---
+<svg class:list={['b-envase b-pote', clase]} viewBox="0 0 100 100" aria-hidden="true" focusable="false" style={`--c:${c};${style}`}>
+  <use href="#b-pote" />
+  <text
+    x="50"
+    y="66.5"
+    text-anchor="middle"
+    dominant-baseline="central"
+    font-size={tam.toFixed(1)}
+    style={`fill:${t};font-stretch:100%;font-weight:900;letter-spacing:.04em`}
+  >{texto}</text>
+</svg>

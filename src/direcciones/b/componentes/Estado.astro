@@ -1,0 +1,47 @@
+---
+// "Atendiendo ahora": sin JS muestra el horario; con JS, el estado en vivo (hora de Buenos Aires).
+// El script de la página (cliente.ts) completa todos los [data-b-estado].
+import { textoHorario } from '../../../lib/horario';
+
+interface Props {
+  /** 'largo': título + detalle. 'corto': solo el título (para el encabezado). */
+  modo?: 'largo' | 'corto';
+  class?: string;
+}
+const { modo = 'largo', class: clase } = Astro.props;
+---
+<p class:list={['b-estado', `b-estado--${modo}`, clase]} data-b-estado={modo}>
+  <span class="b-estado__punto" aria-hidden="true"></span>
+  <span data-b-estado-texto>{textoHorario()}</span>
+</p>
+
+<style>
+  .b-estado {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+    padding: 0.5em 0.85em 0.5em 0.7em;
+    background: var(--b-tinta);
+    color: var(--b-papel);
+    font-stretch: 100%;
+    font-weight: 600;
+    font-size: 0.875rem;
+    line-height: 1.2;
+    border-radius: 1.3em;
+    max-width: 100%;
+  }
+  .b-estado__punto {
+    flex: none;
+    width: 0.7em;
+    height: 0.7em;
+    border-radius: 50%;
+    border: 2px solid var(--b-papel);
+    background: transparent;
+  }
+  .b-estado[data-abierto='true'] .b-estado__punto {
+    border-color: var(--b-verde);
+    background: var(--b-verde);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--b-verde) 35%, transparent);
+  }
+  .b-estado--corto { font-size: 0.8125rem; padding: 0.45em 0.8em 0.45em 0.65em; }
+</style>
