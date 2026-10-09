@@ -1,0 +1,137 @@
+---
+// Un producto en su página de categoría: la TarjetaProducto (foto o envase, cenefa con marca,
+// sabores, nota y "Preguntá el precio") y, pegado abajo o al costado como el dorso del sobre,
+// para qué se usa y quién lo pide (textos.ts → usos).
+// - grande: el producto principal de la página, con su frase grande ("Del pancho a la bandeja…").
+// - vertical: tarjeta normal con el dorso abajo (de a dos, en pares de distinto ancho).
+// - horizontal: tarjeta normal y el dorso al costado (en el escritorio). `invertida` lo da vuelta.
+// El slot (opcional) va dentro del dorso, antes de los usos: una ilustración o un dato propio.
+import TarjetaProducto from '../TarjetaProducto.astro';
+import { usos } from './textos';
+
+interface Props {
+  producto: string;
+  disposicion?: 'grande' | 'vertical' | 'horizontal';
+  invertida?: boolean;
+  class?: string;
+}
+const { producto, disposicion = 'vertical', invertida = false, class: clase } = Astro.props;
+const u = usos[producto];
+const tieneSlot = Astro.slots.has('default');
+---
+<div class:list={['ficha', `ficha--${disposicion}`, { 'ficha--invertida': invertida }, clase]}>
+  <TarjetaProducto producto={producto} tamano={disposicion === 'grande' ? 'grande' : 'normal'} nivel={3} class="ficha__tarjeta" />
+  {(u || tieneSlot) && (
+    <div class="ficha__dorso">
+      {disposicion === 'grande' && u?.momento && <p class="ficha__momento">{u.momento}</p>}
+      {tieneSlot && <div class="ficha__extra"><slot /></div>}
+      {u && (
+        <div class="ficha__usos">
+          <p class="t-rotulo">Para qué se usa</p>
+          <dl class="usos">
+            {u.usos.map((x) => (
+              <div class="usos__fila">
+                <dt>{x.quien}</dt>
+                <dd>{x.para}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      )}
+    </div>
+  )}
+</div>
+
+<style>
+  .ficha { display: flex; flex-direction: column; min-width: 0; }
+  .ficha__dorso {
+    display: grid;
+    gap: var(--e-5);
+    align-content: start;
+    padding: var(--e-5);
+    border: var(--borde);
+    border-top: 0;
+    border-radius: 0 0 var(--r-envase) var(--r-envase);
+    background: var(--papel);
+  }
+  .ficha__momento {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 900;
+    font-size: clamp(1.625rem, 1.1rem + 2vw, 2.75rem);
+    line-height: 1;
+    letter-spacing: var(--tracking-display);
+    max-width: 14em;
+    text-wrap: balance;
+  }
+  .ficha__usos { display: grid; gap: var(--e-3); }
+  .usos { margin: 0; }
+  .usos__fila {
+    display: grid;
+    gap: 0.15rem;
+    padding-block: 0.65rem;
+    border-top: 1px solid color-mix(in srgb, var(--tinta) 30%, transparent);
+  }
+  .usos__fila:first-child { border-top: var(--trazo) solid var(--tinta); }
+  .usos dt {
+    font-stretch: var(--ancho-condensada);
+    font-weight: 800;
+    font-size: 0.9375rem;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+  }
+  .usos dd { margin: 0; font-size: 1.0625rem; line-height: 1.35; }
+  .usos dd::first-letter { text-transform: uppercase; }
+
+  /* Grande: la tarjeta más alta y el envase más grande, también en el celular.
+     (.ficha.ficha--grande: le gana a los estilos propios de TarjetaProducto) */
+  .ficha.ficha--grande :global(.producto__figura) { min-height: 18rem; }
+  .ficha.ficha--grande :global(.producto--sobre .producto__figura > .envase) { height: clamp(14rem, 26vw, 21rem); }
+  .ficha.ficha--grande :global(.producto--sobre-papel .producto__figura > .envase) { max-width: 23rem; }
+  .ficha.ficha--grande :global(.producto--pote .producto__figura > .envase) { max-width: 13rem; }
+  .ficha.ficha--grande :global(.producto--paquete .producto__figura > .envase) { max-width: 24rem; }
+  .ficha.ficha--grande :global(.producto__figura--sabores > .envase) { max-width: 9rem; }
+
+  /* Normales en el celular: más bajas, para que la grande se note y la lista no se estire */
+  @media (max-width: 719px) {
+    .ficha.ficha--vertical :global(.producto__figura),
+    .ficha.ficha--horizontal :global(.producto__figura) { min-height: 0; padding: var(--e-5) var(--e-4); }
+    .ficha.ficha--vertical :global(.producto--sobre .producto__figura > .envase),
+    .ficha.ficha--horizontal :global(.producto--sobre .producto__figura > .envase) { height: 8rem; }
+    .ficha.ficha--vertical :global(.producto--pote .producto__figura > .envase),
+    .ficha.ficha--horizontal :global(.producto--pote .producto__figura > .envase) { max-width: 7rem; }
+    .ficha.ficha--vertical :global(.producto--sobre-papel .producto__figura > .envase),
+    .ficha.ficha--horizontal :global(.producto--sobre-papel .producto__figura > .envase),
+    .ficha.ficha--vertical :global(.producto--paquete .producto__figura > .envase),
+    .ficha.ficha--horizontal :global(.producto--paquete .producto__figura > .envase) { max-width: 11rem; }
+    .ficha:not(.ficha--grande) .ficha__dorso { padding: var(--e-4) var(--e-5); gap: var(--e-3); }
+    .ficha:not(.ficha--grande) .usos__fila { padding-block: 0.5rem; }
+  }
+
+  @media (min-width: 720px) {
+    .ficha--grande .ficha__dorso {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      column-gap: clamp(2rem, 4vw, 4rem);
+      padding: var(--e-6);
+    }
+    .ficha--grande .ficha__extra, .ficha--grande .ficha__usos { grid-column: 2; }
+    .ficha--grande .ficha__momento { grid-row: 1 / span 2; }
+    .ficha--grande .usos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--e-5); }
+    .ficha--grande .usos__fila:nth-child(2) { border-top: var(--trazo) solid var(--tinta); }
+
+    .ficha--horizontal { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+    .ficha--horizontal .ficha__dorso {
+      border-top: var(--borde);
+      border-left: 0;
+      border-radius: 0 var(--r-envase) var(--r-envase) 0;
+      padding: var(--e-6);
+      align-content: center;
+    }
+    .ficha--horizontal.ficha--invertida { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+    .ficha--horizontal.ficha--invertida :global(.ficha__tarjeta) { order: 2; }
+    .ficha--horizontal.ficha--invertida .ficha__dorso {
+      border-left: var(--borde);
+      border-right: 0;
+      border-radius: var(--r-envase) 0 0 var(--r-envase);
+    }
+  }
+</style>

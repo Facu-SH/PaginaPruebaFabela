@@ -1,0 +1,52 @@
+---
+// La caja surtida de mermeladas, vista de arriba: la caja de cartón abierta y adentro los
+// potecitos de todos los sabores mezclados, fila por fila. Los sabores salen de src/data/.
+// Decorativa: el texto de al lado dice lo mismo.
+import { productos } from '../../data';
+import Envase from '../Envase.astro';
+
+interface Props {
+  /** Filas de potecitos (4 por fila). */
+  filas?: number;
+  class?: string;
+}
+const { filas = 3, class: clase } = Astro.props;
+const sabores = productos.find((p) => p.categoria === 'mermeladas' && p.variantes)?.variantes ?? [];
+const n = sabores.length || 1;
+// Cada fila corre un sabor: así no quedan dos iguales juntos.
+const potes = Array.from({ length: filas * n }, (_, i) => sabores[(i + Math.floor(i / n)) % n]);
+---
+<div class:list={['surtida', clase]} style={`--columnas:${n}`} aria-hidden="true">
+  <span class="surtida__solapa surtida__solapa--arriba"></span>
+  <div class="surtida__fondo">
+    {potes.map((s) => <Envase formato="pote" clave={s} etiqueta={s} trazo={1.5} />)}
+  </div>
+  <span class="surtida__solapa surtida__solapa--abajo"></span>
+</div>
+
+<style>
+  .surtida { position: relative; width: 100%; max-width: 30rem; padding-block: 1.6rem; }
+  .surtida__fondo {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(var(--columnas), minmax(0, 1fr));
+    gap: 6%;
+    gap: clamp(6px, 2vw, 12px);
+    padding: clamp(10px, 3vw, 18px);
+    background: var(--env-pan);
+    border: var(--trazo-grueso) solid var(--tinta);
+    border-radius: var(--r-recto);
+    box-shadow: inset 0 0 0 clamp(5px, 1.4vw, 8px) color-mix(in srgb, var(--env-cafe) 35%, var(--env-pan));
+  }
+  /* Las solapas abiertas, arriba y abajo */
+  .surtida__solapa {
+    position: absolute;
+    left: 6%;
+    right: 6%;
+    height: 1.8rem;
+    background: var(--env-pan);
+    border: var(--trazo) solid var(--tinta);
+  }
+  .surtida__solapa--arriba { top: 0; transform: perspective(200px) rotateX(-24deg); transform-origin: bottom; border-bottom: 0; }
+  .surtida__solapa--abajo { bottom: 0; transform: perspective(200px) rotateX(24deg); transform-origin: top; border-top: 0; }
+</style>

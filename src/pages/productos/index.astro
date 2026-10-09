@@ -1,0 +1,113 @@
+---
+// /productos/: todo lo que despacha DPI. La caja completa de categorías (cada compartimento lleva
+// a su página y el vacío dice "si no lo ves, preguntanos"), las marcas como texto, la línea propia
+// y el remito "Armá tu consulta", que arma el mensaje de WhatsApp con lo que marcaste.
+import Sitio from '../../layouts/Sitio.astro';
+import { categorias, empresa, productoPorSlug } from '../../data';
+import { enumerar, nombreProducto, resumenRepartos } from '../../lib/textos';
+import { url } from '../../lib/url';
+import ArmaTuConsulta from '../../components/ArmaTuConsulta.astro';
+import CajaCategorias from '../../components/CajaCategorias.astro';
+import Migas from '../../components/Migas.astro';
+import LineaPropia from '../../components/productos/LineaPropia.astro';
+import Marcas from '../../components/productos/Marcas.astro';
+import { marcaPropia, zonasTexto } from '../../components/productos/textos';
+
+const DPI = empresa.nombreComercial;
+const atiende = empresa.whatsapp.atiende;
+const nombreCat = (slug: string) => categorias.find((c) => c.slug === slug)?.nombre.toLowerCase() ?? slug;
+const zonas = zonasTexto();
+
+// "sobres de mayonesa, ketchup y mostaza, azúcar y edulcorante, mermeladas, manteca, queso crema, galletitas y tostadas"
+const que = [
+  `sobres de ${enumerar(['mayonesa', 'ketchup', 'mostaza'].map(nombreProducto))}`,
+  enumerar(['azucar', 'edulcorante'].map(nombreProducto)),
+  nombreCat('mermeladas'),
+  nombreProducto('manteca'),
+  nombreProducto('queso-crema'),
+  nombreProducto('galletitas'),
+  nombreProducto('tostadas'),
+];
+const oracion = `${DPI} distribuye ${enumerar(que)} en porción individual a clínicas, bares y kioscos de ${zonas}.`;
+
+const title = `Productos en porción individual: sobres, potecitos y paquetitos · ${DPI}`;
+const marcaAderezos = productoPorSlug('mayonesa')?.marca;
+const description = `Mayonesa, ketchup y mostaza${marcaAderezos ? ` ${marcaAderezos}` : ''}, azúcar, edulcorante ${marcaPropia}, mermeladas, manteca, queso crema, galletitas y tostadas en porción individual para clínicas, bares y kioscos de ${zonas}.`;
+---
+<Sitio title={title} description={description} colorPagina="dpi" whatsapp={{ contexto: 'lista' }}>
+  <section class="cabeza" aria-labelledby="cabeza-titulo">
+    <div class="contenedor cabeza__grilla">
+      <Migas items={[{ nombre: 'Productos' }]} class="cabeza__migas" />
+      <h1 id="cabeza-titulo" class="cabeza__titulo">Productos en porción individual</h1>
+      <div class="cabeza__texto">
+        <p class="cabeza__oracion">{oracion}</p>
+        <p class="cabeza__como">
+          No publicamos precios porque cambian seguido.
+          <span class="solo-js">Marcá lo que necesitás en el remito de abajo y se lo mandás a {atiende} por WhatsApp:</span>
+          <span class="sin-js">Pedíselos a {atiende} por WhatsApp:</span>
+          te contesta con la lista vigente.
+        </p>
+        <a class="link-flecha" href="#consulta">Armá tu consulta</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="caja-seccion" aria-label="Productos por familia">
+    <div class="contenedor">
+      <CajaCategorias variante="completa" nivel={2} />
+    </div>
+  </section>
+
+  <Marcas />
+  <LineaPropia />
+
+  <section class="consulta-seccion" aria-label="Armá tu consulta">
+    <div class="contenedor">
+      <div class="remito">
+        <ArmaTuConsulta titulo="Armá tu consulta" />
+      </div>
+      <div class="consulta-seccion__pie">
+        <p class="t-rotulo">Repartimos desde {empresa.direccion.localidad}</p>
+        <p class="t-lectura">{resumenRepartos()}</p>
+        <a class="link-flecha" href={url('/entregas/')}>Zonas, pedido mínimo y formas de pago</a>
+      </div>
+    </div>
+  </section>
+</Sitio>
+
+<style>
+  /* ---------- Cabeza ---------- */
+  .cabeza { padding-bottom: clamp(1.75rem, 4vw, 3.5rem); }
+  .cabeza__grilla { display: grid; gap: var(--e-4); padding-top: var(--e-2); }
+  .cabeza__titulo { max-width: 10em; }
+  .cabeza__texto { display: flex; flex-direction: column; align-items: flex-start; gap: var(--e-4); }
+  .cabeza__oracion { font-size: var(--t-texto-grande); line-height: 1.4; max-width: 34em; }
+  .cabeza__como { max-width: 34em; color: var(--tinta-suave); }
+
+  /* ---------- Caja ---------- */
+  .caja-seccion { padding-bottom: var(--e-seccion); }
+
+  /* ---------- Consulta: el remito sobre la mesa ---------- */
+  .consulta-seccion { padding-block: var(--e-seccion); background: var(--papel-hondo); border-top: var(--borde); }
+  .remito {
+    padding: clamp(1.25rem, 3vw, 3rem) clamp(1rem, 3vw, 3rem) clamp(1.5rem, 3vw, 3rem);
+    background: var(--papel);
+    border: var(--borde);
+    border-radius: var(--r-recto);
+  }
+  .consulta-seccion__pie { display: flex; flex-direction: column; align-items: flex-start; gap: var(--e-3); margin-top: var(--e-6); }
+
+  @media (min-width: 1080px) {
+    .cabeza__grilla {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      grid-template-areas: 'migas migas' 'titulo texto';
+      column-gap: clamp(2rem, 4vw, 4rem);
+      align-items: end;
+    }
+    .cabeza__grilla :global(.cabeza__migas) { grid-area: migas; }
+    .cabeza__titulo { grid-area: titulo; font-size: clamp(4rem, 1rem + 5vw, 6.5rem); }
+    .cabeza__texto { grid-area: texto; padding-bottom: 0.4rem; }
+    .cabeza__oracion { font-size: var(--t-texto); line-height: 1.5; }
+    .consulta-seccion__pie { flex-direction: row; flex-wrap: wrap; align-items: baseline; column-gap: var(--e-5); }
+  }
+</style>

@@ -1,0 +1,176 @@
+---
+// Cabecera de una página de categoría: el bloque pleno del color de la categoría (es su página),
+// con las migas, el h1, la primera oración, el botón principal de WhatsApp y los envases
+// dibujados en escala grande, apoyados en el borde de abajo como recién sacados de la caja.
+// Si hay foto de un producto (src/assets/productos/), FotoOEnvase la usa en lugar del dibujo.
+import { categorias, empresa, productosPorCategoria, type CategoriaSlug } from '../../data';
+import { colorCategoria } from '../../lib/color';
+import BotonWhatsApp from '../BotonWhatsApp.astro';
+import FotoOEnvase from '../FotoOEnvase.astro';
+import Migas from '../Migas.astro';
+import { consultaCategoria, esPropia, marcasDe } from './textos';
+
+interface Props {
+  categoria: CategoriaSlug;
+  h1: string;
+  h1Aclaracion?: string;
+  oracion: string;
+}
+const { categoria: slug, h1, h1Aclaracion, oracion } = Astro.props;
+const c = categorias.find((x) => x.slug === slug)!;
+const color = colorCategoria[slug];
+const oscuro = color.texto === 'papel';
+const prods = productosPorCategoria(slug);
+const atiende = empresa.whatsapp.atiende;
+
+// Qué se dibuja: los sabores si es una familia de potecitos con sabores (mermeladas);
+// si no, un envase por producto. Los surtidos no van: son mezcla de los otros.
+const conSabores = c.envase === 'pote' && prods.some((p) => p.variantes);
+const envases = conSabores
+  ? prods.flatMap((p) => (p.variantes ?? []).map((sabor) => ({ producto: p.slug, sabor, clave: `${p.slug}-${sabor}` })))
+  : prods.map((p) => ({ producto: p.slug, sabor: undefined, clave: p.slug }));
+// El de línea propia va último (adelante, en los sobres encimados) y con todos sus datos impresos.
+const propios = new Set(prods.filter(esPropia).map((p) => p.slug));
+const orden = [...envases.filter((e) => !propios.has(e.producto)), ...envases.filter((e) => propios.has(e.producto))];
+---
+<section
+  class:list={['cab', `cab--${c.envase}`, `cab--${slug}`, { 'fondo-frutilla': oscuro }]}
+  style={`--fondo:var(--${color.fondo});--texto:var(--${color.texto})`}
+  aria-labelledby="cab-titulo"
+>
+  <div class="contenedor cab__grilla">
+    <div class="cab__texto">
+      <Migas items={[{ nombre: 'Productos', href: '/productos/' }, { nombre: c.nombre }]} />
+      <p class="t-rotulo cab__rotulo">{marcasDe(slug)}{c.frio && ' · viajan en frío'}</p>
+      <h1 id="cab-titulo" class="cab__titulo">
+        {h1}{' '}
+        {h1Aclaracion && <span class="cab__aclaracion">{h1Aclaracion}</span>}
+      </h1>
+      <p class="cab__oracion">{oracion}</p>
+      <BotonWhatsApp variante="principal" contexto="producto" vars={{ producto: consultaCategoria(slug) }} tono={oscuro ? 'papel' : 'tinta'}>
+        Preguntale a {atiende} por {c.nombre.toLowerCase()}
+      </BotonWhatsApp>
+    </div>
+
+    <div class:list={['cab__envases', `cab__envases--n${orden.length}`]} aria-hidden="true">
+      {orden.map((e) => (
+        <div class:list={['cab__envase', `cab__envase--${e.producto}`]}>
+          <FotoOEnvase producto={e.producto} sabor={e.sabor} soloDibujo={!!e.sabor} detalle={propios.has(e.producto)} ancho={520} sizes="(min-width: 1080px) 420px, 60vw" />
+        </div>
+      ))}
+      {c.frio && <p class="cab__frio">Viaja en frío</p>}
+    </div>
+  </div>
+</section>
+
+<style>
+  .cab {
+    background: var(--fondo);
+    color: var(--texto);
+    overflow: clip;
+    border-bottom: var(--trazo) solid var(--tinta);
+  }
+  .cab__grilla {
+    display: grid;
+    gap: var(--e-6);
+    padding-top: var(--e-2);
+  }
+  .cab__texto { display: flex; flex-direction: column; align-items: flex-start; gap: var(--e-4); }
+  .cab__rotulo { margin-top: var(--e-1); }
+  .cab__titulo { max-width: 13em; text-wrap: balance; }
+  .cab__aclaracion {
+    display: block;
+    margin-top: 0.45em;
+    font-size: var(--t-texto-grande);
+    font-stretch: var(--ancho-boton);
+    font-weight: 800;
+    letter-spacing: 0;
+    line-height: 1.2;
+  }
+  .cab__oracion { max-width: 34em; font-size: 1rem; line-height: 1.5; margin-bottom: var(--e-2); }
+
+  /* ---------- Los envases, grandes y apoyados abajo ---------- */
+  .cab__envases {
+    --hueco: clamp(10px, 2.5vw, 22px);
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: var(--hueco);
+    margin-top: var(--e-2);
+  }
+  .cab__envase { flex: none; min-width: 0; }
+  .cab__envase > :global(*) { width: 100%; }
+
+  /* Almohadillas paradas (aderezos): una al lado de la otra, apenas desparejas */
+  .cab--sobre .cab__envases { margin-bottom: -1.25rem; }
+  .cab--sobre .cab__envase { width: min(21%, 9.5rem); }
+  .cab--sobre .cab__envase:nth-child(1) { transform: rotate(-4deg) translateY(4px); }
+  .cab--sobre .cab__envase:nth-child(2) { transform: rotate(2deg) translateY(-12px); }
+  .cab--sobre .cab__envase:nth-child(3) { transform: rotate(-1.5deg) translateY(-2px); }
+  .cab--sobre .cab__envase:nth-child(4) { transform: rotate(5deg) translateY(-16px); }
+
+  /* Sobres de papel (endulzantes): encimados, el propio adelante */
+  .cab--sobre-papel .cab__envases { min-height: 15rem; padding-bottom: var(--e-5); }
+  .cab--sobre-papel .cab__envase { width: min(68%, 26rem); }
+  .cab--sobre-papel .cab__envase:first-child { position: absolute; left: 0; top: 0; width: min(52%, 19rem); transform: rotate(-9deg); }
+  .cab--sobre-papel .cab__envase:last-child { margin-left: auto; transform: rotate(4deg); }
+
+  /* Potecitos: de a dos, vistos de arriba, como en la bandeja */
+  .cab--pote .cab__envases { flex-wrap: wrap; padding-bottom: var(--e-5); }
+  .cab--pote .cab__envase { width: calc(50% - var(--hueco)); max-width: 11rem; }
+  .cab--pote .cab__envase:nth-child(odd) { transform: rotate(-5deg); }
+  .cab--pote .cab__envase:nth-child(even) { transform: rotate(4deg) translateY(10px); }
+  .cab--pote .cab__envases--n2 .cab__envase { max-width: 13rem; }
+
+  /* Paquetitos: galletitas y tostadas arriba, la tira de vainillas abajo */
+  .cab--paquete .cab__envases { flex-wrap: wrap; padding-bottom: var(--e-5); }
+  .cab--paquete .cab__envase { width: calc(50% - var(--hueco)); max-width: 15rem; }
+  .cab--paquete .cab__envase--galletitas { transform: rotate(-4deg); }
+  .cab--paquete .cab__envase--tostadas { transform: rotate(3deg); }
+  .cab--paquete .cab__envase--vainillas { order: 2; width: 92%; max-width: 24rem; transform: rotate(-1.5deg); }
+
+  /* "Viaja en frío": el sello pegado sobre los potecitos */
+  .cab__frio {
+    position: absolute;
+    right: 0;
+    top: -0.5rem;
+    z-index: 2;
+    padding: 0.55rem 0.85rem;
+    background: var(--blanco);
+    border: var(--trazo-grueso) solid var(--tinta);
+    font-stretch: var(--ancho-expandida);
+    font-weight: 900;
+    font-size: 0.875rem;
+    letter-spacing: var(--tracking-rotulo);
+    text-transform: uppercase;
+    transform: rotate(-7deg);
+  }
+
+  @media (min-width: 720px) {
+    .cab__oracion { font-size: var(--t-texto-grande); line-height: 1.4; }
+  }
+
+  @media (min-width: 1080px) {
+    .cab__grilla {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      column-gap: clamp(2rem, 4vw, 4.5rem);
+      align-items: end;
+      padding-top: var(--e-3);
+    }
+    .cab__texto { gap: var(--e-5); padding-bottom: var(--e-8); }
+    .cab__titulo { font-size: clamp(3.5rem, 1rem + 4.2vw, 5.25rem); max-width: 13em; }
+    .cab__envases { margin-top: 0; align-self: stretch; align-items: flex-end; }
+    .cab--sobre .cab__envases { margin-bottom: -2.5rem; }
+    .cab--sobre .cab__envase { width: 23%; max-width: none; }
+    .cab--sobre-papel .cab__envases { align-self: end; min-height: 34rem; padding-bottom: var(--e-8); }
+    .cab--sobre-papel .cab__envase { width: 82%; max-width: none; }
+    .cab--sobre-papel .cab__envase:first-child { top: 0; width: 60%; }
+    .cab--pote .cab__envases, .cab--paquete .cab__envases { padding-bottom: var(--e-8); align-content: flex-end; }
+    .cab--pote .cab__envase { max-width: 13rem; }
+    .cab--pote .cab__envases--n2 .cab__envase { max-width: 15rem; }
+    .cab--paquete .cab__envase { max-width: 17rem; }
+    .cab--paquete .cab__envase--vainillas { max-width: 28rem; }
+    .cab__frio { font-size: 1rem; top: auto; bottom: calc(var(--e-8) + 15rem); }
+  }
+</style>

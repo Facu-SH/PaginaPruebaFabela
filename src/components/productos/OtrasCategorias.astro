@@ -1,0 +1,64 @@
+---
+// Final de una página de categoría: las otras familias en compartimentos compactos (cada uno
+// lleva a su página) y el compartimento vacío con "Si no lo ves, preguntanos", la única vez que
+// aparece en la página. Es la caja de la home sin la categoría que estás mirando.
+import { categorias, empresa, type CategoriaSlug } from '../../data';
+import BotonWhatsApp from '../BotonWhatsApp.astro';
+import TarjetaCategoria from '../TarjetaCategoria.astro';
+
+interface Props {
+  actual: CategoriaSlug;
+}
+const { actual } = Astro.props;
+const otras = categorias.filter((c) => c.slug !== actual);
+const atiende = empresa.whatsapp.atiende;
+---
+<section class="otras" aria-labelledby="otras-titulo">
+  <div class="contenedor">
+    <h2 id="otras-titulo" class="otras__titulo">Más porciones individuales</h2>
+    <div class="otras__caja">
+      {otras.map((c, i) => <TarjetaCategoria categoria={c.slug} variante="compacta" nivel={3} class={`otras__comp otras__comp--${i + 1}`} />)}
+      <aside class="otras__vacio" aria-label="Otros productos">
+        <p class="otras__vacio-titulo">Si no lo ves, preguntanos.</p>
+        <p>Trabajamos más productos en porción individual que los que entran en esta caja. {atiende} te dice si lo tenemos.</p>
+        <BotonWhatsApp contexto="general">Preguntale a {atiende}</BotonWhatsApp>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<style>
+  .otras { padding-block: var(--e-seccion); border-top: var(--borde); }
+  .otras__titulo { font-size: var(--t-titulo-3); line-height: 1.05; margin-bottom: var(--e-5); }
+  .otras__caja { display: grid; gap: 10px; }
+  .otras__vacio {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--e-4);
+    padding: clamp(1.25rem, 2.4vw, 2.25rem);
+    border: var(--trazo-grueso) solid var(--tinta);
+  }
+  .otras__vacio p:not(.otras__vacio-titulo) { max-width: 30em; }
+  .otras__vacio-titulo {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 900;
+    font-size: clamp(1.75rem, 1.1rem + 2.2vw, 3rem);
+    line-height: var(--interlineado-display);
+    letter-spacing: var(--tracking-display);
+    max-width: 9em;
+  }
+
+  @media (min-width: 720px) {
+    .otras__caja { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .otras__vacio { grid-column: 1 / -1; }
+  }
+  @media (min-width: 1080px) {
+    .otras__caja { grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 12px; }
+    .otras__caja :global(.otras__comp--1) { grid-column: 1 / span 5; }
+    .otras__caja :global(.otras__comp--2) { grid-column: 6 / span 4; }
+    .otras__caja :global(.otras__comp--3) { grid-column: 10 / span 3; }
+    .otras__caja :global(.otras__comp--4) { grid-column: 1 / span 7; }
+    .otras__vacio { grid-column: 8 / span 5; justify-content: space-between; }
+  }
+</style>

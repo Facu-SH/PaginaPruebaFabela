@@ -1,0 +1,201 @@
+---
+// /productos/<categoria>/: una página por familia. Cabecera en el color de la categoría con los
+// envases grandes; el producto principal en una tarjeta grande con su frase de uso y los demás en
+// tarjetas normales de distinto ancho, cada uno con para qué se usa y quién lo pide; un bloque propio
+// de la familia (el pancho, la línea propia, la caja surtida, el frío, la merienda de la clínica);
+// cuándo llega; y las otras familias.
+import type { GetStaticPaths } from 'astro';
+import Sitio from '../../layouts/Sitio.astro';
+import { categorias, empresa, productoPorSlug, productosPorCategoria, type Categoria } from '../../data';
+import { enumerar, mayuscula, nombreProducto, resumenRepartos, zonaCorta, zonasConReparto } from '../../lib/textos';
+import { url } from '../../lib/url';
+import EscenaUso from '../../components/EscenaUso.astro';
+import CabeceraCategoria from '../../components/productos/CabeceraCategoria.astro';
+import CajaSurtida from '../../components/productos/CajaSurtida.astro';
+import FichaProducto from '../../components/productos/FichaProducto.astro';
+import LineaPropia from '../../components/productos/LineaPropia.astro';
+import OtrasCategorias from '../../components/productos/OtrasCategorias.astro';
+import { consultaCategoria, enLetras, esPropia, listaConMarca, textosCategoria, zonaDiaria } from '../../components/productos/textos';
+
+export const getStaticPaths = (() => categorias.map((c) => ({ params: { categoria: c.slug }, props: { c } }))) satisfies GetStaticPaths;
+
+interface Props {
+  c: Categoria;
+}
+const { c } = Astro.props;
+const t = textosCategoria(c.slug);
+const prods = productosPorCategoria(c.slug);
+const atiende = empresa.whatsapp.atiende;
+const capital = zonaDiaria();
+
+// El principal: el más vendido (o el primero). Los demás, de a dos en pares de distinto ancho;
+// si queda uno suelto, va acostado (tarjeta y dorso al costado).
+const principal = prods.find((p) => p.masVendido) ?? prods[0];
+const resto = prods.filter((p) => p !== principal);
+const pares: (typeof resto)[] = [];
+for (let i = 0; i < resto.length; i += 2) pares.push(resto.slice(i, i + 2));
+
+const sabores = prods.find((p) => p.variantes && c.envase === 'pote')?.variantes ?? [];
+const surtida = c.slug === 'mermeladas' ? prods.find((p) => esPropia(p) && !p.variantes) : undefined;
+const tostadas = productoPorSlug('tostadas');
+// Zonas con días fijos de reparto (Morón, Zona Norte): comparten la regla del mínimo.
+const fijas = zonasConReparto().filter((z) => Array.isArray(z.dias));
+---
+<Sitio
+  title={t.title}
+  description={t.description}
+  colorPagina={c.slug}
+  whatsapp={{ contexto: 'producto', vars: { producto: consultaCategoria(c.slug) } }}
+>
+  <CabeceraCategoria categoria={c.slug} h1={t.h1} h1Aclaracion={t.h1Aclaracion} oracion={t.oracion} />
+
+  <section class="fichas" aria-labelledby="fichas-titulo">
+    <div class="contenedor">
+      <h2 id="fichas-titulo" class="fichas__titulo">{mayuscula(listaConMarca(prods, { propiaComoMarca: true }))}</h2>
+
+      <FichaProducto producto={principal.slug} disposicion="grande" />
+
+      {pares.map((par, i) =>
+        par.length === 2 ? (
+          <div class:list={['fichas__par', { 'fichas__par--invertido': i % 2 === 1 }]}>
+            {par.map((p) => <FichaProducto producto={p.slug} />)}
+          </div>
+        ) : (
+          <FichaProducto producto={par[0].slug} disposicion="horizontal" invertida={pares.length > 1} class="fichas__suelta">
+            {par[0] === surtida && (
+              <>
+                <CajaSurtida />
+                <p class="fichas__extra-texto">
+                  La armamos en {empresa.nombreComercial} con los {enLetras(sabores.length)} sabores mezclados, así cada bandeja lleva uno
+                  distinto.
+                </p>
+              </>
+            )}
+          </FichaProducto>
+        ),
+      )}
+    </div>
+  </section>
+
+  {/* Un bloque propio de cada familia */}
+  {c.slug === 'aderezos' && (
+    <section class="momento fondo-tinta" aria-labelledby="momento-titulo">
+      <div class="contenedor momento__grilla">
+        <EscenaUso tipo="pancho" class="momento__escena" />
+        <div class="momento__texto">
+          <p class="t-rotulo momento__rotulo">Kioscos, bares y puestos de comida</p>
+          <h2 id="momento-titulo" class="momento__titulo">El sobre que va con el pancho</h2>
+          <p class="t-lectura">
+            Si tenés un kiosco o un puesto, pedí lo que necesites, aunque sea poco. En {capital.zona}, {capital.pedidoMinimo}, y lo
+            tenés {capital.plazo}.
+          </p>
+          <a class="link-flecha" href={url('/comercios/')}>Para kioscos, bares y almacenes</a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  {c.slug === 'endulzantes' && <LineaPropia variante="endulzantes" />}
+
+  {c.frio && (
+    <section class="frio" aria-labelledby="frio-titulo">
+      <div class="contenedor">
+        <div class="frio__ficha fondo-tinta dentado-arriba-abajo">
+          <h2 id="frio-titulo" class="frio__titulo">Viajan en frío</h2>
+          <div class="frio__texto">
+            <p class="t-grande">
+              {mayuscula(enumerar(prods.map((p) => p.nombre.toLowerCase())))} viajan en frío desde nuestro depósito de
+              {' '}{empresa.direccion.localidad} hasta tu negocio.
+            </p>
+            <p>Apenas los recibís, guardalos en la heladera.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+
+  {c.slug === 'galletitas-y-tostadas' && tostadas && (
+    <section class="clinica" aria-labelledby="clinica-titulo">
+      <div class="contenedor">
+        <div class="clinica__marco">
+          <p class="t-rotulo">Clínicas, geriátricos e instituciones</p>
+          <h2 id="clinica-titulo" class="clinica__titulo">Para la bandeja del desayuno y la merienda</h2>
+          <p class="t-lectura">
+            {tostadas.nota ? `${tostadas.nota}: ` : ''}las {tostadas.nombre.toLowerCase()} van en el desayuno, con
+            {' '}{nombreProducto('manteca')} y {nombreProducto('mermeladas')}; las {nombreProducto('galletitas')} y las
+            {' '}{nombreProducto('vainillas')}, en la merienda con el té.
+            Si armás las bandejas de una institución, pedí un poco de cada familia en el mismo pedido.
+          </p>
+          <a class="link-flecha" href={url('/clinicas/')}>Una porción para cada comida: el mix para clínicas</a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <section class="llega" aria-labelledby="llega-titulo">
+    <div class="contenedor llega__grilla">
+      <h2 id="llega-titulo" class="llega__titulo">¿Cuándo llega?</h2>
+      <div class="llega__texto">
+        <p class="t-grande">{resumenRepartos()}</p>
+        <p>
+          En {capital.zona}, {capital.pedidoMinimo} y {capital.plazo}.
+          {fijas.length > 0 && ` ${enumerar(fijas.map(zonaCorta))}: ${fijas[0].pedidoMinimo}.`}
+          {' '}Le escribís a {atiende} y te dice qué día te llega.
+        </p>
+        <a class="link-flecha" href={url('/entregas/')}>Zonas, retiro en el depósito y formas de pago</a>
+      </div>
+    </div>
+  </section>
+
+  <OtrasCategorias actual={c.slug} />
+</Sitio>
+
+<style>
+  /* ---------- Fichas ---------- */
+  .fichas { padding-block: var(--e-seccion); }
+  .fichas > .contenedor { display: grid; gap: clamp(1.5rem, 3vw, 2.5rem); }
+  .fichas__titulo { font-size: clamp(1.75rem, 1.1rem + 2.6vw, 3.5rem); line-height: 1; max-width: 18em; text-wrap: balance; }
+  .fichas__par { display: grid; gap: clamp(1.5rem, 3vw, 2.5rem); }
+  .fichas__extra-texto { font-weight: 600; max-width: 26em; }
+
+  /* ---------- Aderezos: el pancho ---------- */
+  .momento { padding-block: var(--e-seccion); }
+  .momento__grilla { display: grid; gap: var(--e-6); }
+  .momento__texto { display: flex; flex-direction: column; align-items: flex-start; gap: var(--e-4); }
+  .momento__rotulo { color: var(--verde); }
+  .momento__titulo { max-width: 10em; }
+  .momento__grilla :global(.momento__escena) { width: min(100%, 26rem); }
+
+  /* ---------- Lácteos: el frío ---------- */
+  .frio { padding-bottom: var(--e-seccion); }
+  .frio__ficha { --diente: 16px; display: grid; gap: var(--e-4); padding: var(--e-7) var(--e-5); }
+  .frio__titulo { font-size: clamp(2.5rem, 1.2rem + 5vw, 5.5rem); }
+  .frio__texto { display: grid; gap: var(--e-3); max-width: 34em; }
+
+  /* ---------- Galletitas: la clínica ---------- */
+  .clinica { padding-bottom: var(--e-seccion); }
+  .clinica__marco {
+    display: grid;
+    gap: var(--e-4);
+    justify-items: start;
+    padding: clamp(1.5rem, 4vw, 3.5rem);
+    border: var(--trazo-grueso) solid var(--tinta);
+    border-radius: var(--r-dorso);
+  }
+  .clinica__titulo { font-size: var(--t-titulo-3); max-width: 20em; }
+
+  /* ---------- Cuándo llega ---------- */
+  .llega { padding-block: var(--e-seccion); border-top: var(--borde); }
+  .llega__grilla { display: grid; gap: var(--e-5); }
+  .llega__texto { display: flex; flex-direction: column; align-items: flex-start; gap: var(--e-4); max-width: 38em; }
+
+  @media (min-width: 720px) {
+    .fichas__par { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: start; }
+    .fichas__par--invertido { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+  }
+  @media (min-width: 900px) {
+    .momento__grilla { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: center; column-gap: var(--e-8); }
+    .frio__ficha { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: var(--e-7); align-items: center; padding: var(--e-8) var(--e-7); }
+    .llega__grilla { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: var(--e-7); align-items: start; }
+  }
+</style>
