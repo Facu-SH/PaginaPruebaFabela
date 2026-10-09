@@ -1,0 +1,147 @@
+---
+// Preguntas frecuentes: las de src/data/faq.ts, agrupadas por tema, numeradas como una planilla
+// y abiertas (el texto está en el HTML y coincide con el que va al JSON-LD FAQPage en la fase 4).
+// Pieza protagonista: la respuesta corta de cada pregunta, destacada en verde DPI.
+import Sitio from '../layouts/Sitio.astro';
+import { categorias, empresa, faq, type PreguntaFrecuente } from '../data';
+import { enumerar, zonasConReparto } from '../lib/textos';
+import BotonWhatsApp from '../components/BotonWhatsApp.astro';
+import Migas from '../components/Migas.astro';
+import Estante from '../components/info/Estante.astro';
+import GrupoPreguntas from '../components/info/GrupoPreguntas.astro';
+import Siguientes from '../components/info/Siguientes.astro';
+import { horarioEnFrase } from '../components/info/textos';
+
+const { localidad, partido } = empresa.direccion;
+const atiende = empresa.whatsapp.atiende;
+const donde = enumerar(zonasConReparto().map((z) => z.zona));
+
+type Grupo = NonNullable<PreguntaFrecuente['grupo']>;
+const temas: { id: Grupo; titulo: string; enlace: { href: string; texto: string } }[] = [
+  { id: 'pedidos', titulo: 'Pedidos y entregas', enlace: { href: '/entregas/', texto: 'Zonas, días de reparto y retiro en el depósito' } },
+  { id: 'pagos', titulo: 'Precios y pagos', enlace: { href: '/entregas/#pagos', texto: 'Formas de pago y facturación' } },
+  { id: 'productos', titulo: 'Productos', enlace: { href: '/productos/', texto: 'Todos los productos, con marcas y sabores' } },
+];
+// Las preguntas sin tema van al final, en un grupo "Otras" (por si se suma alguna sin `grupo`).
+let n = 1;
+const grupos = [
+  ...temas.map((t) => ({ ...t, preguntas: faq.filter((p) => p.grupo === t.id) })),
+  { id: 'otras', titulo: 'Otras preguntas', enlace: undefined, preguntas: faq.filter((p) => !p.grupo || !temas.some((t) => t.id === p.grupo)) },
+]
+  .filter((g) => g.preguntas.length > 0)
+  .map((g) => {
+    const inicio = n;
+    n += g.preguntas.length;
+    return { ...g, inicio };
+  });
+
+const title = `Preguntas frecuentes: pedido mínimo, entregas y Factura A · ${empresa.nombreComercial}`;
+const description = `Pedido mínimo, días de entrega en ${donde}, lista de precios, Factura A, retiro en ${localidad} y marcas: lo que más le preguntan a ${empresa.nombreComercial} clínicas, bares y kioscos.`;
+---
+<Sitio title={title} description={description} colorPagina="dpi" whatsapp={{ contexto: 'general' }}>
+  <header class="cabeza">
+    <div class="contenedor">
+      <Migas items={[{ nombre: 'Preguntas frecuentes' }]} />
+      <div class="cabeza__grilla">
+        <div class="cabeza__texto">
+          <p class="t-rotulo">{faq.length} preguntas, con respuesta corta</p>
+          <h1 class="cabeza__titulo">Preguntas frecuentes</h1>
+          <p class="cabeza__oracion">
+            {empresa.nombreComercial} es una distribuidora de {localidad}, {partido}, que desde {empresa.desde} vende porciones
+            individuales a clínicas, bares, kioscos y comercios de {donde}; acá respondemos lo que más nos preguntan antes del
+            primer pedido.
+          </p>
+        </div>
+        <nav class="indice" aria-labelledby="indice-titulo">
+          <h2 id="indice-titulo" class="t-rotulo">Temas</h2>
+          <ol role="list">
+            {grupos.map((g) => (
+              <li>
+                <a href={`#${g.id}`}>
+                  <span class="indice__nombre">{g.titulo}</span>
+                  <span class="indice__cuenta cifras">
+                    {String(g.inicio).padStart(2, '0')}–{String(g.inicio + g.preguntas.length - 1).padStart(2, '0')}
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <Estante />
+
+  {grupos.map((g) => <GrupoPreguntas id={g.id} titulo={g.titulo} preguntas={g.preguntas} inicio={g.inicio} enlace={g.enlace} />)}
+
+  <!-- Cierre: la pregunta que no está -->
+  <section class="contenedor cierre-seccion" aria-labelledby="cierre-titulo">
+    <div class="cierre fondo-tinta dentado-arriba-abajo">
+      <h2 id="cierre-titulo" class="cierre__titulo">¿No está tu pregunta?</h2>
+      <p class="cierre__texto">
+        Hacésela a {atiende} por WhatsApp: atiende {horarioEnFrase()} y contesta en minutos.
+      </p>
+      <BotonWhatsApp variante="principal" tono="papel">Preguntale a {atiende}</BotonWhatsApp>
+    </div>
+  </section>
+
+  <Siguientes
+    items={[
+      { href: '/entregas/', texto: 'Entregas', dato: zonasConReparto().map((z) => z.zona).join(' · ') },
+      { href: '/productos/', texto: 'Productos', dato: `${categorias.map((c) => c.nombre).join(' · ')}.` },
+      { href: '/contacto/', texto: 'Contacto', dato: `${empresa.direccion.calle}, ${localidad}.` },
+    ]}
+  />
+</Sitio>
+
+<style>
+  .cabeza { padding-bottom: clamp(1.5rem, 1rem + 2.5vw, 3.5rem); }
+  .cabeza__grilla { display: grid; gap: var(--e-6); padding-top: var(--e-3); }
+  .cabeza__texto { display: grid; gap: var(--e-4); }
+  .cabeza__titulo { max-width: 8em; }
+  .cabeza__oracion { font-size: var(--t-texto-grande); line-height: 1.4; max-width: 30em; }
+
+  /* Índice de temas: el rango de números de cada uno, como en una planilla */
+  .indice { display: grid; gap: var(--e-3); align-content: start; }
+  .indice ol { padding: 0; list-style: none; border-top: var(--trazo-grueso) solid var(--tinta); }
+  .indice li { border-bottom: var(--borde); }
+  .indice a {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--e-4);
+    min-height: 3.25rem;
+    padding-block: 0.7rem;
+    text-decoration: none;
+  }
+  .indice a:hover .indice__nombre { text-decoration: underline; text-decoration-thickness: 2px; }
+  .indice__nombre {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 900;
+    font-size: var(--t-titulo-3);
+    line-height: 1.05;
+    letter-spacing: var(--tracking-display);
+  }
+  .indice__cuenta { flex: none; font-stretch: var(--ancho-condensada); font-weight: 800; font-size: 1.1875rem; }
+
+  /* Cierre */
+  .cierre-seccion { padding-top: var(--e-6); }
+  .cierre {
+    --diente: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--e-5);
+    padding: calc(var(--e-6) + var(--diente) / 2) clamp(1.25rem, 4vw, 3.5rem);
+  }
+  .cierre__titulo { font-size: clamp(2rem, 1rem + 4vw, 4.5rem); max-width: 10em; }
+  .cierre__texto { max-width: 30em; font-size: var(--t-texto-grande); line-height: 1.4; }
+
+  @media (min-width: 900px) {
+    .cabeza__grilla { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: clamp(2rem, 5vw, 6rem); align-items: end; }
+    .cierre { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; column-gap: var(--e-7); }
+    .cierre__texto { grid-column: 1; }
+    .cierre :global(.boton) { grid-column: 2; grid-row: 1 / span 2; align-self: center; }
+  }
+</style>

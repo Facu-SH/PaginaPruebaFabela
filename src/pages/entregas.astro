@@ -1,0 +1,264 @@
+---
+// Entregas: zonas, días de reparto, pedido mínimo, retiro en depósito, frío y formas de pago.
+// Pieza protagonista: "¿Qué día llegamos a tu zona?" (SelectorZona) junto a la hoja de ruta
+// (HojaDeRuta), sobre el verde DPI del día de reparto. Todo sale de src/data/.
+import Sitio from '../layouts/Sitio.astro';
+import { categorias, empresa, entregas, productos } from '../data';
+import { textoHorario } from '../lib/horario';
+import { diaDeReparto, enumerar, mayuscula, nombreConMarca, telefonoCorto, zonaCorta } from '../lib/textos';
+import { url } from '../lib/url';
+import BotonWhatsApp from '../components/BotonWhatsApp.astro';
+import Envase from '../components/Envase.astro';
+import HojaDeRuta from '../components/HojaDeRuta.astro';
+import ListaPreciosCTA from '../components/ListaPreciosCTA.astro';
+import Migas from '../components/Migas.astro';
+import SelectorZona from '../components/SelectorZona.astro';
+import Comprobante from '../components/info/Comprobante.astro';
+import Deposito from '../components/info/Deposito.astro';
+import Siguientes from '../components/info/Siguientes.astro';
+
+const { localidad, partido } = empresa.direccion;
+const atiende = empresa.whatsapp.atiende;
+const capital = entregas.find((z) => z.dias === 'habiles') ?? entregas[0];
+const conDia = entregas.filter((z) => Array.isArray(z.dias));
+// "en general, al día siguiente" -> "en general al día siguiente" (dentro de una enumeración con comas)
+const plazo = (capital.plazo ?? '').replace(/^en general,\s*/, 'en general ');
+
+const primera = `${empresa.nombreComercial} reparte en ${capital.zona} ${diaDeReparto(capital).frase}${plazo ? `, ${plazo}` : ''} y ${capital.pedidoMinimo}; ${enumerar(
+  conDia.map((z, i) => `a ${zonaCorta(z)} ${i === 0 ? 'va ' : ''}${diaDeReparto(z).frase}`),
+)}.`;
+
+// "sin mínimo si pedís para el día de reparto" -> dato "Sin mínimo" + condición "si pedís para el día de reparto"
+const minimos = entregas.map((z) => {
+  const [dato, ...resto] = z.pedidoMinimo.split(/\s(?=si\s)/);
+  return { zona: z.zona, dia: diaDeReparto(z).grande, dato: mayuscula(dato), condicion: resto.join(' ') };
+});
+
+const lacteos = categorias.find((c) => c.frio);
+const frios = lacteos ? productos.filter((p) => p.categoria === lacteos.slug) : [];
+const nombresFrios = enumerar(frios.map((p, i) => (i === 0 ? nombreConMarca(p) : nombreConMarca(p).replace(/^./, (l) => l.toLowerCase()))));
+
+const title = `Entregas en Capital y GBA: días, zonas y pedido mínimo · ${empresa.nombreComercial}`;
+const description = `Días de reparto de ${empresa.nombreComercial}: ${capital.zona} ${diaDeReparto(capital).frase}, ${capital.pedidoMinimo}; ${conDia
+  .map((z) => `${zonaCorta(z)} ${diaDeReparto(z).frase}`)
+  .join('; ')}. Retiro en ${localidad}, Factura A, efectivo, transferencia o cheque.`;
+---
+<Sitio title={title} description={description} colorPagina="dpi" whatsapp={{ contexto: 'pedido' }}>
+  <!-- Cabecera -->
+  <header class="cabeza">
+    <div class="contenedor">
+      <Migas items={[{ nombre: 'Entregas' }]} />
+      <div class="cabeza__grilla">
+        <div class="cabeza__titulos">
+          <p class="t-rotulo">Repartimos desde {localidad}, {partido}</p>
+          <h1 class="cabeza__titulo">
+            Entregas en Capital y GBA: <span class="cabeza__bajada">días, zonas y pedido mínimo</span>
+          </h1>
+        </div>
+        <p class="cabeza__oracion">{primera}</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Protagonista: el selector y la hoja de ruta, sobre el verde del día de reparto -->
+  <div class="filo filo--arriba" aria-hidden="true" style="--filo: var(--verde)"></div>
+  <section class="ruta" id="zonas" aria-labelledby="ruta-titulo">
+    <div class="contenedor ruta__grilla">
+      <h2 id="ruta-titulo" class="ruta__titulo">¿Qué día llegamos a tu zona?</h2>
+      <div class="ruta__zona">
+        <SelectorZona />
+      </div>
+      <div class="ruta__hoja">
+        <HojaDeRuta />
+        <p class="ruta__nota">
+          <span aria-hidden="true">*</span> Los días y plazos son en general: dependen del producto y del stock. Cuando tomamos el pedido,
+          {atiende} te confirma qué día llega.
+        </p>
+      </div>
+    </div>
+  </section>
+  <div class="filo" aria-hidden="true" style="--filo: var(--verde)"></div>
+
+  <!-- Pedido mínimo -->
+  <section class="minimo" id="pedido-minimo" aria-labelledby="minimo-titulo">
+    <div class="contenedor minimo__grilla">
+      <div class="minimo__cabeza">
+        <h2 id="minimo-titulo">Pedido mínimo</h2>
+        <p class="t-grande">En {capital.zona} podés pedir aunque sea poco. En el resto, depende de cuándo pedís.</p>
+      </div>
+      <dl class="minimo__zonas">
+        {minimos.map((z) => (
+          <div class="minimo__zona">
+            <dt>
+              <span class="minimo__nombre">{z.zona}</span>
+              <span class="minimo__dia">{z.dia}</span>
+            </dt>
+            <dd>
+              <span class="minimo__dato">{z.dato}</span>
+              {z.condicion && <span class="minimo__condicion">{z.condicion}</span>}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+
+  <!-- Frío -->
+  {lacteos && frios.length > 0 && (
+    <section class="frio" aria-labelledby="frio-titulo">
+      <div class="contenedor frio__grilla">
+        <div class="frio__envases" aria-hidden="true">
+          {frios.map((p) => <Envase producto={p.slug} />)}
+        </div>
+        <div class="frio__texto">
+          <h2 id="frio-titulo" class="frio__titulo">Los lácteos viajan en frío</h2>
+          <p>{nombresFrios}: {lacteos.bajada.replace(/^./, (l) => l.toLowerCase())}</p>
+          <a class="link-flecha" href={url(`/productos/${lacteos.slug}/`)}>Ver {lacteos.nombre.toLowerCase()}</a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Retiro en depósito -->
+  <section class="retiro fondo-tinta" id="retiro" aria-labelledby="retiro-titulo">
+    <div class="contenedor retiro__grilla">
+      <div class="retiro__texto">
+        <p class="t-rotulo retiro__rotulo">{localidad} · {partido}</p>
+        <h2 id="retiro-titulo" class="retiro__titulo">Retiro en el depósito</h2>
+        <p class="t-grande">
+          ¿Te queda cerca {localidad}? Pasá a buscar el pedido por el depósito, en el mismo horario en que atiende {atiende}.
+        </p>
+        <BotonWhatsApp variante="principal" contexto="retiro" tono="papel">Avisale a {atiende} que pasás</BotonWhatsApp>
+      </div>
+      <Deposito rotulo="Depósito" class="retiro__caja" />
+    </div>
+  </section>
+
+  <!-- Facturación y formas de pago -->
+  <section class="pagos" id="pagos" aria-labelledby="pagos-titulo">
+    <div class="contenedor pagos__grilla">
+      <h2 id="pagos-titulo" class="pagos__titulo">Formas de pago y facturación</h2>
+      <Comprobante class="pagos__comprobante" />
+      <div class="pagos__lista">
+        <ListaPreciosCTA variante="en-linea" />
+      </div>
+    </div>
+  </section>
+
+  <Siguientes
+    items={[
+      { href: '/preguntas-frecuentes/', texto: 'Preguntas frecuentes', dato: 'Cómo hacer el pedido, qué marcas trabajamos y qué productos viajan en frío.' },
+      { href: '/contacto/', texto: 'Contacto', dato: `Tel. ${telefonoCorto()} · ${empresa.email} · ${textoHorario()}.` },
+      { href: '/productos/', texto: 'Productos', dato: `${categorias.map((c) => c.nombre).join(' · ')}.` },
+    ]}
+  />
+</Sitio>
+
+<style>
+  /* ---------- Cabecera ---------- */
+  .cabeza { padding-bottom: clamp(2rem, 1.2rem + 3vw, 4rem); }
+  .cabeza__grilla { display: grid; gap: var(--e-5); padding-top: var(--e-3); }
+  .cabeza__titulos { display: grid; gap: var(--e-4); }
+  .cabeza__titulo { max-width: 13em; text-wrap: balance; }
+  .cabeza__bajada {
+    display: block;
+    margin-top: 0.3em;
+    font-size: 0.5em;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+  }
+  .cabeza__oracion { font-size: var(--t-texto-grande); line-height: 1.4; max-width: 30em; }
+
+  /* ---------- Hoja de ruta (verde DPI: el día de reparto) ---------- */
+  .ruta { background: var(--verde); padding-block: var(--e-6) var(--e-seccion); }
+  .ruta__grilla { display: grid; gap: var(--e-7); }
+  .ruta__zona { display: grid; gap: var(--e-5); align-content: start; }
+  .ruta__titulo { max-width: 8em; }
+  .ruta__hoja { display: grid; gap: var(--e-4); align-content: start; }
+  .ruta__nota {
+    font-stretch: 85%;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    line-height: 1.4;
+    max-width: 38em;
+  }
+
+  /* ---------- Pedido mínimo: la condición de cada zona, en grande ---------- */
+  .minimo { padding-block: var(--e-seccion); }
+  .minimo__grilla { display: grid; gap: var(--e-6); }
+  .minimo__cabeza { display: grid; gap: var(--e-4); align-content: start; }
+  .minimo__cabeza p { max-width: 22em; }
+  .minimo__zonas { border-top: var(--trazo-grueso) solid var(--tinta); }
+  .minimo__zona {
+    display: grid;
+    gap: var(--e-2) var(--e-5);
+    padding-block: var(--e-4) var(--e-5);
+    border-bottom: var(--borde);
+  }
+  .minimo__zona dt { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.15rem 0.75rem; }
+  .minimo__nombre { font-weight: 800; font-size: var(--t-texto-grande); line-height: 1.2; }
+  .minimo__dia {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 700;
+    font-size: var(--t-rotulo);
+    letter-spacing: var(--tracking-rotulo);
+    text-transform: uppercase;
+  }
+  .minimo__zona dd { display: grid; gap: var(--e-1); }
+  .minimo__dato {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 900;
+    font-size: clamp(2.25rem, 1.3rem + 3.6vw, 4.25rem);
+    line-height: 0.95;
+    letter-spacing: var(--tracking-display);
+  }
+  .minimo__condicion { font-weight: 600; font-size: var(--t-texto-grande); line-height: 1.3; }
+
+  /* ---------- Frío (la categoría lácteos, en su color) ---------- */
+  .frio { background: var(--manteca); border-block: var(--borde); padding-block: var(--e-6); }
+  .frio__grilla { display: grid; gap: var(--e-5); align-items: center; }
+  .frio__envases { display: flex; gap: var(--e-3); }
+  .frio__envases :global(.envase) { width: clamp(84px, 22vw, 132px); }
+  .frio__texto { display: grid; gap: var(--e-3); justify-items: start; }
+  .frio__titulo { font-size: clamp(1.75rem, 1rem + 2.6vw, 3rem); }
+  .frio__texto p { max-width: 32em; }
+
+  /* ---------- Retiro ---------- */
+  .retiro { padding-block: var(--e-seccion); }
+  .retiro__grilla { display: grid; gap: var(--e-7); }
+  .retiro__texto { display: flex; flex-direction: column; align-items: flex-start; gap: var(--e-5); }
+  .retiro__rotulo { color: var(--verde); }
+  .retiro__titulo { max-width: 8em; }
+  .retiro__texto p.t-grande { max-width: 24em; }
+  .retiro :global(.retiro__caja) { border-color: var(--papel); }
+
+  /* ---------- Pagos ---------- */
+  .pagos { padding-top: var(--e-seccion); }
+  .pagos__grilla { display: grid; gap: var(--e-6); }
+  .pagos__titulo { max-width: 10em; }
+
+  @media (min-width: 900px) {
+    .cabeza__grilla { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: var(--e-7); }
+    .cabeza__titulos { grid-column: 1 / -1; }
+    .cabeza__titulo { max-width: 14em; }
+    .cabeza__oracion { grid-column: 2; }
+
+    .ruta__grilla { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: clamp(2rem, 4vw, 4.5rem); row-gap: var(--e-6); }
+    .ruta__titulo { grid-column: 1 / -1; max-width: 12em; }
+    .ruta__hoja { padding-top: 0.2rem; }
+    /* La hoja de ruta, más grande: es la pieza de la página */
+    .ruta__hoja :global(tbody td) { height: 4.5rem; }
+    .ruta__hoja :global(.hoja__punto) { width: 1.9rem; height: 1.9rem; }
+    .ruta__hoja :global(thead th) { padding-block: 0.8rem; font-size: 0.875rem; }
+
+    .minimo__grilla { grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); column-gap: clamp(2rem, 4vw, 4.5rem); }
+    .minimo__zona { grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); align-items: baseline; }
+
+    .frio__grilla { grid-template-columns: auto minmax(0, 1fr); column-gap: var(--e-7); }
+
+    .retiro__grilla { grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); align-items: center; column-gap: clamp(2rem, 4vw, 4.5rem); }
+
+    .pagos__grilla { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: clamp(2rem, 4vw, 4.5rem); align-items: start; }
+    .pagos__titulo { grid-column: 1 / -1; }
+  }
+</style>

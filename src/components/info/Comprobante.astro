@@ -1,0 +1,155 @@
+---
+// Facturación y formas de pago, dibujadas como el encabezado de un comprobante argentino:
+// el recuadro con la letra en el centro, la razón social a un lado y el tipo de factura al otro.
+// Debajo, los medios de pago en grande y el plazo de las instituciones. Todo sale de src/data/pagos.ts.
+import { empresa, pagos } from '../../data';
+import { mayuscula } from '../../lib/textos';
+
+interface Props {
+  class?: string;
+}
+const { class: clase } = Astro.props;
+const [principal, ...otras] = pagos.facturacion;
+const letra = principal?.match(/Factura\s+([A-Z])\b/)?.[1];
+---
+<div class:list={['comprobante', clase]}>
+  <div class="comprobante__cabeza">
+    <p class="comprobante__emisor">
+      <span class="comprobante__nombre">{empresa.nombreComercial}</span>
+      <span class="comprobante__razon">{empresa.razonSocial}</span>
+    </p>
+    {letra && (
+      <p class="comprobante__letra" aria-hidden="true">
+        <span>{letra}</span>
+      </p>
+    )}
+    <p class="comprobante__tipo">
+      <span class="comprobante__factura">{principal}</span>
+      {otras.length > 0 && <span class="comprobante__otras">y también a {otras.map((o) => o.toLowerCase()).join(' o ')}</span>}
+    </p>
+  </div>
+
+  <dl class="comprobante__cuerpo">
+    <div class="comprobante__fila">
+      <dt>Pagás con</dt>
+      <dd>
+        <ul class="comprobante__medios" role="list">
+          {pagos.medios.map((m) => <li>{mayuscula(m)}</li>)}
+        </ul>
+      </dd>
+    </div>
+    <div class="comprobante__fila comprobante__fila--plazo">
+      <dt>Clínicas e instituciones</dt>
+      <dd><span class="comprobante__plazo">{mayuscula(pagos.instituciones)}</span>, con {principal}.</dd>
+    </div>
+  </dl>
+</div>
+
+<style>
+  .comprobante {
+    border: var(--trazo-grueso) solid var(--tinta);
+    border-radius: var(--r-recto);
+    background: var(--blanco);
+  }
+
+  /* Encabezado: emisor | letra | tipo, con la línea vertical que baja desde el recuadro */
+  .comprobante__cabeza {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: start;
+    border-bottom: var(--trazo-grueso) solid var(--tinta);
+  }
+  .comprobante__cabeza::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: var(--trazo);
+    margin-left: -1px;
+    background: var(--tinta);
+  }
+  .comprobante__emisor, .comprobante__tipo {
+    display: grid;
+    gap: 0.2rem;
+    padding: clamp(0.9rem, 2.4vw, 1.5rem) clamp(0.8rem, 2.4vw, 1.75rem);
+    min-width: 0;
+  }
+  .comprobante__tipo { padding-left: clamp(0.7rem, 2vw, 1.4rem); }
+  .comprobante__emisor { padding-right: clamp(0.7rem, 2vw, 1.4rem); }
+  .comprobante__nombre {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 900;
+    font-size: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+    line-height: 0.95;
+    letter-spacing: var(--tracking-display);
+  }
+  .comprobante__razon, .comprobante__otras {
+    font-stretch: var(--ancho-condensada);
+    font-weight: 700;
+    font-size: 0.9375rem;
+    line-height: 1.2;
+  }
+  .comprobante__factura {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 900;
+    font-size: clamp(1.125rem, 0.9rem + 1vw, 1.6rem);
+    line-height: 1;
+    letter-spacing: var(--tracking-display);
+  }
+  .comprobante__letra {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: clamp(3.25rem, 2.4rem + 3vw, 5rem);
+    aspect-ratio: 1;
+    margin-top: -1px;
+    border: var(--trazo-grueso) solid var(--tinta);
+    border-top: 0;
+    background: var(--blanco);
+  }
+  .comprobante__letra span {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 900;
+    font-size: clamp(2.25rem, 1.6rem + 2.4vw, 3.75rem);
+    line-height: 1;
+  }
+
+  /* Cuerpo */
+  .comprobante__cuerpo { display: grid; }
+  .comprobante__fila {
+    display: grid;
+    gap: var(--e-2);
+    padding: var(--e-4) clamp(0.8rem, 2.4vw, 1.75rem);
+  }
+  .comprobante__fila + .comprobante__fila { border-top: var(--borde); }
+  .comprobante__fila dt {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 700;
+    font-size: var(--t-rotulo);
+    letter-spacing: var(--tracking-rotulo);
+    text-transform: uppercase;
+  }
+  .comprobante__medios { display: grid; padding: 0; list-style: none; }
+  .comprobante__medios li {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 900;
+    font-size: clamp(1.75rem, 1rem + 3vw, 3rem);
+    line-height: 1.02;
+    letter-spacing: var(--tracking-display);
+  }
+  .comprobante__fila--plazo dd { font-weight: 500; }
+  .comprobante__plazo {
+    font-weight: 800;
+    background: var(--verde);
+    padding-inline: 0.2em;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+
+  @media (min-width: 720px) {
+    .comprobante__fila { grid-template-columns: 11rem minmax(0, 1fr); align-items: baseline; gap: var(--e-5); }
+  }
+</style>

@@ -1,0 +1,72 @@
+---
+// 404: el estante de sobres con un lugar vacío y, abajo, el sobre con "404" impreso que se cayó. Una frase con humor sobrio,
+// los links para seguir y el botón de WhatsApp. noindex.
+import Sitio from '../layouts/Sitio.astro';
+import { categorias, empresa } from '../data';
+import { resumenRepartos, telefonoCorto } from '../lib/textos';
+import BotonWhatsApp from '../components/BotonWhatsApp.astro';
+import Envase from '../components/Envase.astro';
+import Estante from '../components/info/Estante.astro';
+import Migas from '../components/Migas.astro';
+import Siguientes from '../components/info/Siguientes.astro';
+import { horarioEnFrase } from '../components/info/textos';
+
+const atiende = empresa.whatsapp.atiende;
+const links = [
+  { href: '/productos/', texto: 'Productos', dato: `${categorias.map((c) => c.nombre).join(' · ')}.` },
+  { href: '/entregas/', texto: 'Entregas', dato: resumenRepartos() },
+  { href: '/contacto/', texto: 'Contacto', dato: `Tel. ${telefonoCorto()} · ${empresa.direccion.calle}, ${empresa.direccion.localidad}.` },
+  { href: '/', texto: 'Inicio', dato: `Porciones individuales para clínicas, bares y kioscos, desde ${empresa.desde}.` },
+];
+---
+<Sitio
+  title={`Página no encontrada · ${empresa.nombreComercial}`}
+  description={`La página que buscás no está. ${empresa.nombreComercial} distribuye porciones individuales desde ${empresa.direccion.localidad}: mirá los productos o escribile a ${atiende} por WhatsApp.`}
+  colorPagina="dpi"
+  noindex
+>
+  <section class="perdido" aria-labelledby="perdido-titulo">
+    <div class="contenedor">
+      <Migas items={[{ nombre: 'Página no encontrada' }]} />
+    </div>
+    <Estante cantidad={25} hueco={12} class="perdido__estante" />
+    <div class="contenedor">
+      <div class="perdido__grilla">
+        <div class="perdido__sobre">
+          <Envase formato="sobre-papel" clave="azucar" etiqueta="404" titulo="Un sobre con el número 404 impreso, solo, fuera de la caja" />
+        </div>
+        <div class="perdido__texto">
+          <p class="t-rotulo">Error 404 · página no encontrada</p>
+          <h1 id="perdido-titulo" class="perdido__titulo">Este sobre se perdió en el reparto.</h1>
+          <p class="perdido__bajada">
+            La página que buscás no está: puede que haya cambiado de dirección o que el link tenga un error. El resto del pedido llega
+            igual.
+          </p>
+          <BotonWhatsApp variante="principal">Preguntale a {atiende}</BotonWhatsApp>
+          <p class="perdido__horario">{atiende} atiende {horarioEnFrase()}.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <Siguientes items={links} style="--columnas: 4" />
+</Sitio>
+
+<style>
+  .perdido { overflow: clip; }
+  .perdido :global(.perdido__estante) { border-bottom: var(--trazo-grueso) solid var(--tinta); }
+  .perdido__grilla { display: grid; gap: var(--e-5); padding-bottom: var(--e-2); }
+  /* El sobre caído: debajo del hueco del estante, torcido */
+  .perdido__sobre { position: relative; width: min(50%, 15rem); margin: var(--e-5) auto 0; translate: 12% 0; }
+  .perdido__sobre :global(.envase) { width: 100%; transform: rotate(-14deg); }
+  .perdido__texto { display: flex; flex-direction: column; align-items: flex-start; gap: var(--e-4); }
+  .perdido__titulo { max-width: 9em; text-wrap: balance; }
+  .perdido__bajada { font-size: var(--t-texto-grande); line-height: 1.4; max-width: 28em; }
+  .perdido__horario { font-size: 0.9375rem; color: var(--tinta-suave); }
+
+  @media (min-width: 900px) {
+    .perdido__grilla { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: center; column-gap: var(--e-7); padding-top: var(--e-6); }
+    .perdido__sobre { grid-column: 2; grid-row: 1; width: min(100%, 20rem); margin: var(--e-6) auto 0; }
+    .perdido__texto { grid-column: 1; grid-row: 1; }
+  }
+</style>

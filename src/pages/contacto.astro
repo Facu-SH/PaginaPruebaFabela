@@ -1,0 +1,171 @@
+---
+// Contacto: WhatsApp (el tablero de atención destacado, con su botón principal), teléfono fijo,
+// mail, WhatsApp para pedidos y el depósito con el link a Google Maps (sin mapas embebidos:
+// sin cookies ni trackers). Instagram y la ficha de Google Maps aparecen solo si tienen valor.
+import Sitio from '../layouts/Sitio.astro';
+import { categorias, empresa, faq } from '../data';
+import { textoHorario } from '../lib/horario';
+import { resumenRepartos, telefonoCorto } from '../lib/textos';
+import { url } from '../lib/url';
+import { mailtoLink, telLink } from '../lib/whatsapp';
+import BotonWhatsApp from '../components/BotonWhatsApp.astro';
+import Envase from '../components/Envase.astro';
+import Migas from '../components/Migas.astro';
+import TableroAtencion from '../components/TableroAtencion.astro';
+import Deposito from '../components/info/Deposito.astro';
+import Siguientes from '../components/info/Siguientes.astro';
+import { horarioEnFrase } from '../components/info/textos';
+
+const { calle, localidad, partido } = empresa.direccion;
+const atiende = empresa.whatsapp.atiende;
+const horario = textoHorario(); // "Lunes a viernes, de 5 a 16 h"
+const horarioFrase = horarioEnFrase(); // "de lunes a viernes de 5 a 16 h"
+const tel = telefonoCorto();
+const instagram = empresa.instagram;
+const usuarioInstagram = instagram?.replace(/\/+$/, '').split('/').pop();
+
+const title = `Contacto: WhatsApp, teléfono y depósito en ${localidad} · ${empresa.nombreComercial}`;
+const description = `WhatsApp de ${empresa.nombreComercial} ${horarioFrase} (te contesta ${atiende}), teléfono ${tel}, mail ${empresa.email} y depósito en ${calle}, ${localidad}, ${partido}, con retiro en el mismo horario.`;
+---
+<Sitio title={title} description={description} colorPagina="dpi" whatsapp={{ contexto: 'general' }}>
+  <header class="cabeza">
+    <div class="contenedor">
+      <Migas items={[{ nombre: 'Contacto' }]} />
+      <div class="cabeza__grilla">
+        <div class="cabeza__titulos">
+          <p class="t-rotulo">{localidad} · {partido} · desde {empresa.desde}</p>
+          <h1 class="cabeza__titulo">Contacto</h1>
+        </div>
+        <p class="cabeza__oracion">
+          Escribile a {atiende} por WhatsApp {horarioFrase}, o llamá al <a href={telLink()}>{tel}</a>; el depósito está en {calle},
+          {' '}{localidad}.
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <TableroAtencion />
+
+  <div class="contenedor canales">
+    <!-- Teléfono, mail y WhatsApp para pedidos -->
+    <section class="canales__lista" aria-labelledby="canales-titulo">
+      <h2 id="canales-titulo" class="canales__titulo">Teléfono, mail y pedidos</h2>
+
+      <div class="canal canal--tel">
+        <h3 class="t-rotulo canal__rotulo">Teléfono fijo</h3>
+        <p class="canal__tel"><a href={telLink()} aria-label={`Llamar al ${empresa.telefono}`}>{tel}</a></p>
+        <div class="canal__detalle canal__detalle--sobre">
+          <p>
+            {empresa.telefono} · {horario}. Es el mismo número que está impreso en el sobre de edulcorante
+            {' '}{empresa.nombreComercial}.
+          </p>
+          <Envase producto="edulcorante" class="canal__sobre" />
+        </div>
+      </div>
+
+      <div class="canal">
+        <h3 class="t-rotulo canal__rotulo">Mail</h3>
+        <p class="canal__mail"><a href={mailtoLink('general')}>{empresa.email}</a></p>
+        <ul class="canal__mails" role="list">
+          <li><a href={mailtoLink('lista')}>Pedir la lista de precios por mail</a></li>
+          <li><a href={mailtoLink('pedido')}>Mandar un pedido por mail</a></li>
+        </ul>
+        <p class="canal__detalle">Mandalo a cualquier hora: te contestamos {horarioFrase}.</p>
+      </div>
+
+      <div class="canal">
+        <h3 class="t-rotulo canal__rotulo">Pedidos por WhatsApp</h3>
+        <p class="canal__detalle canal__detalle--grande">
+          Si ya sabés lo que querés, mandale a {atiende} el pedido y tu zona. Si ya sos cliente, con un “Hola, buen día” alcanza.
+        </p>
+        <BotonWhatsApp contexto="pedido">Mandale tu pedido a {atiende}</BotonWhatsApp>
+      </div>
+
+      {instagram && (
+        <div class="canal">
+          <h3 class="t-rotulo canal__rotulo">Instagram</h3>
+          <p class="canal__mail">
+            <a href={instagram} target="_blank" rel="noopener">@{usuarioInstagram}<span class="visually-hidden"> (se abre en otra pestaña)</span></a>
+          </p>
+        </div>
+      )}
+    </section>
+
+    <!-- Depósito -->
+    <section class="canales__deposito" aria-labelledby="deposito-titulo">
+      <h2 id="deposito-titulo" class="canales__titulo">Depósito y retiro</h2>
+      <Deposito rotulo="Depósito" />
+      <p class="canales__reparto">
+        ¿Preferís que te lo llevemos? {resumenRepartos()}
+        {' '}<a class="link-flecha" href={url('/entregas/')}>Días y zonas de reparto</a>
+      </p>
+    </section>
+  </div>
+
+  <Siguientes
+    items={[
+      { href: '/entregas/', texto: 'Entregas', dato: 'Zonas, días de reparto, pedido mínimo y formas de pago.' },
+      { href: '/preguntas-frecuentes/', texto: 'Preguntas frecuentes', dato: `${faq.length} respuestas cortas: pedido mínimo, Factura A, marcas y frío.` },
+      { href: '/productos/', texto: 'Productos', dato: `${categorias.map((c) => c.nombre).join(' · ')}.` },
+    ]}
+  />
+</Sitio>
+
+<style>
+  .cabeza { padding-bottom: clamp(2rem, 1.2rem + 3vw, 4rem); }
+  .cabeza__grilla { display: grid; gap: var(--e-5); padding-top: var(--e-3); }
+  .cabeza__titulos { display: grid; gap: var(--e-4); }
+  .cabeza__oracion { font-size: var(--t-texto-grande); line-height: 1.4; max-width: 30em; }
+  .cabeza__oracion a { font-weight: 700; white-space: nowrap; }
+
+  /* ---------- Canales ---------- */
+  .canales { display: grid; gap: var(--e-8); padding-top: var(--e-seccion); }
+  .canales__titulo { font-size: clamp(2rem, 1rem + 3.6vw, 4rem); max-width: 9em; margin-bottom: var(--e-5); }
+  .canal {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--e-3);
+    padding-block: var(--e-5);
+    border-top: var(--trazo-grueso) solid var(--tinta);
+  }
+  .canal__tel {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 900;
+    font-size: clamp(3rem, 1.4rem + 6.4vw, 5.75rem);
+    white-space: nowrap;
+    line-height: 0.9;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+  }
+  .canal__tel a, .canal__mail a { text-decoration: none; }
+  .canal__tel a:hover, .canal__mail a:hover { text-decoration: underline; text-decoration-thickness: 4px; }
+  .canal__mail {
+    font-stretch: var(--ancho-expandida);
+    font-weight: 900;
+    font-size: clamp(1.25rem, 0.8rem + 2.2vw, 2.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    overflow-wrap: anywhere;
+  }
+  .canal__mails { display: grid; padding: 0; list-style: none; }
+  .canal__mails a { display: inline-flex; align-items: center; min-height: 2.75rem; font-weight: 700; }
+  .canal__detalle { max-width: 32em; }
+  .canal__detalle--grande { font-size: var(--t-texto-grande); line-height: 1.4; }
+  .canal__detalle--sobre { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--e-4); align-items: center; }
+  .canal__detalle--sobre :global(.canal__sobre) { width: clamp(96px, 26vw, 150px); transform: rotate(4deg); }
+
+  /* ---------- Depósito ---------- */
+  .canales__deposito { display: grid; gap: var(--e-5); align-content: start; }
+  .canales__deposito .canales__titulo { margin-bottom: 0; }
+  .canales__reparto { max-width: 30em; }
+  .canales__reparto .link-flecha { white-space: normal; }
+
+  @media (min-width: 1000px) {
+    .cabeza__grilla { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: end; column-gap: var(--e-7); }
+    .cabeza__titulo { font-size: clamp(4.5rem, 1.5rem + 5vw, 6.5rem); }
+    .cabeza__oracion { padding-bottom: 0.5rem; }
+    .canales { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: clamp(2.5rem, 5vw, 6rem); }
+    .canales__deposito { position: sticky; top: var(--e-5); }
+  }
+</style>

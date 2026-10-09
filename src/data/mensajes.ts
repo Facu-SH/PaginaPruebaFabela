@@ -5,6 +5,7 @@ export const mensajesWhatsApp = {
   general: 'Hola, buen día. Les escribo desde la web.',
   lista: 'Hola, buen día. ¿Me pasan la lista de precios?',
   pedido: 'Hola, buen día. Quiero hacer un pedido:',
+  retiro: 'Hola, buen día. Quiero pasar a retirar un pedido por el depósito:',
   clinica: 'Hola, buen día. Escribo de una clínica / institución y quiero consultar por porciones individuales.',
   comercio: 'Hola, buen día. Tengo un comercio y quiero consultar por porciones individuales.',
   /** {producto} se reemplaza por el nombre del producto. */

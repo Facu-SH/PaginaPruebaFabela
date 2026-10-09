@@ -1,0 +1,46 @@
+---
+// "Seguí por acá": links internos al final de una página de información, cada uno con un dato
+// concreto debajo (no es un menú repetido: es a dónde ir con lo que te falta saber).
+// Navegación interna con .link-flecha (nunca abre WhatsApp).
+import { url } from '../../lib/url';
+
+interface Props {
+  titulo?: string;
+  items: { href: string; texto: string; dato: string }[];
+  id?: string;
+  class?: string;
+  /** Para pasar --columnas (por defecto 3 en escritorio). */
+  style?: string;
+}
+const { titulo = 'Seguí por acá', items, id = 'siguientes', class: clase, style } = Astro.props;
+---
+<nav class:list={['siguientes contenedor', clase]} aria-labelledby={`${id}-titulo`} style={style}>
+  <h2 id={`${id}-titulo`} class="t-rotulo">{titulo}</h2>
+  <ul role="list">
+    {items.map((i) => (
+      <li>
+        <a class="link-flecha siguientes__link" href={url(i.href)}>{i.texto}</a>
+        <p class="siguientes__dato">{i.dato}</p>
+      </li>
+    ))}
+  </ul>
+</nav>
+
+<style>
+  .siguientes { padding-block: var(--e-seccion) 0; }
+  .siguientes h2 { padding-bottom: var(--e-3); border-bottom: var(--borde); }
+  ul { display: grid; padding: 0; list-style: none; }
+  li {
+    display: grid;
+    gap: var(--e-1);
+    padding-block: var(--e-4);
+    border-bottom: 1px solid color-mix(in srgb, var(--tinta) 30%, transparent);
+  }
+  .siguientes__link { font-size: var(--t-texto-grande); justify-self: start; }
+  .siguientes__dato { font-size: 0.9375rem; color: var(--tinta-suave); max-width: 32em; }
+
+  @media (min-width: 900px) {
+    ul { grid-template-columns: repeat(var(--columnas, 3), minmax(0, 1fr)); column-gap: var(--e-6); }
+    li { border-bottom: 0; padding-bottom: 0; }
+  }
+</style>
